@@ -45,7 +45,8 @@ public:
   virtual void Accept(MultiUndoCommand* command) override;
 
 private slots:
-  void onSelectDialogRequest();
+  void onCommandSelectDialogRequest();
+  void onTempFolderDialogRequest();
 
 private:
   QRadioButton * use_internal_editor_;
@@ -61,6 +62,8 @@ private:
   QLineEdit * ext_command_;
   QPushButton * ext_select_button;
   QLineEdit * ext_params_;
+  QPushButton * temp_folder_button_;  // folder where temporary files are stored
+  QLineEdit * temp_folder_;
 };
 
 }

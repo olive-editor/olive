@@ -93,8 +93,8 @@ ShaderFilterNode::ShaderFilterNode():
   AddInput(kOutputMessages, NodeValue::kText, InputFlags(kInputFlagNotConnectable | kInputFlagNotKeyframable));
 
   // mark this text input as code, so it will be edited with code editor
-  SetInputProperty( kFragShaderCode, QStringLiteral("text_type"), QString("shader_code"));
-  SetInputProperty( kVertexShaderCode, QStringLiteral("text_type"), QString("shader_code"));
+  SetInputProperty( kFragShaderCode, QStringLiteral("text_type"), QString("shader_code_frag"));
+  SetInputProperty( kVertexShaderCode, QStringLiteral("text_type"), QString("shader_code_vert"));
   // mark this text input as output messages
   SetInputProperty( kOutputMessages, QStringLiteral("text_type"), QString("shader_issues"));
 

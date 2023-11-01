@@ -48,9 +48,10 @@ public:
 
   // let this instance perform as a code editor.
   // This input will be edited with a built-in or external code editor.
-  void setCodeEditorFlag(const Node *owner);
+  // 'is_vertex' is false for Fragment shader, true for vertex shader
+  void setShaderCodeEditorFlag(const Node *owner, bool is_vertex);
   // set flag to view text as code issues
-  void setCodeIssuesFlag();
+  void setShaderIssuesFlag();
 
   void SetEditInViewerOnlyMode(bool on);
 

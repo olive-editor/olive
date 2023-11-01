@@ -95,7 +95,7 @@ PreferencesEditTab::PreferencesEditTab()
   editor_cmd_layout->addWidget( ext_command_);
   editor_cmd_layout->addWidget( ext_select_button);
 
-  connect( ext_select_button, & QPushButton::clicked, this, & PreferencesEditTab::onSelectDialogRequest);
+  connect( ext_select_button, & QPushButton::clicked, this, & PreferencesEditTab::onCommandSelectDialogRequest);
 
   ext_params_ = new QLineEdit();
   external_editor_layout->addWidget(
@@ -103,6 +103,17 @@ PreferencesEditTab::PreferencesEditTab()
                       "Use %FILE and %LINE for file path and line number")) );
   external_editor_layout->addWidget( ext_params_);
   outer_layout->addWidget(external_editor_box);
+
+  external_editor_layout->addWidget(
+      new QLabel(tr("Folder where temporary shaders are stored")) );
+  QHBoxLayout * temp_folder_layout = new QHBoxLayout();
+  external_editor_layout->addLayout( temp_folder_layout);
+  temp_folder_ = new QLineEdit();
+  temp_folder_button_ = new QPushButton("...", this);
+  temp_folder_layout->addWidget( temp_folder_);
+  temp_folder_layout->addWidget( temp_folder_button_);
+
+  connect( temp_folder_button_, & QPushButton::clicked, this, & PreferencesEditTab::onTempFolderDialogRequest);
 
   outer_layout->addStretch();
 
@@ -115,6 +126,7 @@ PreferencesEditTab::PreferencesEditTab()
   indent_size_->setValue( Config::Current()["EditorInternalIndentSize"].toInt());
   ext_command_->setText( Config::Current()["EditorExternalCommand"].toString());
   ext_params_->setText( Config::Current()["EditorExternalParams"].toString());
+  temp_folder_->setText( Config::Current()["EditorExternalTempFolder"].toString());
   window_heigth_->setValue( Config::Current()["EditorInternalWindowHeight"].toInt());
   window_width_->setValue( Config::Current()["EditorInternalWindowWidth"].toInt());
 }
@@ -131,19 +143,30 @@ void PreferencesEditTab::Accept(MultiUndoCommand *command)
   Config::Current()["EditorUseInternal"] = QVariant::fromValue( use_internal_editor_->isChecked());
   Config::Current()["EditorExternalCommand"] = QVariant::fromValue(ext_command_->text());
   Config::Current()["EditorExternalParams"] = QVariant::fromValue(ext_params_->text());
+  Config::Current()["EditorExternalTempFolder"] = QVariant::fromValue(temp_folder_->text());
   Config::Current()["EditorInternalFontSize"] = QVariant::fromValue(font_size_->value());
   Config::Current()["EditorInternalIndentSize"] = QVariant::fromValue(indent_size_->value());
   Config::Current()["EditorInternalWindowHeight"] = QVariant::fromValue(window_heigth_->value());
   Config::Current()["EditorInternalWindowWidth"] = QVariant::fromValue(window_width_->value());
 }
 
-void PreferencesEditTab::onSelectDialogRequest()
+void PreferencesEditTab::onCommandSelectDialogRequest()
 {
   QString path = QFileDialog::getOpenFileName( this, tr("External editor"),
                                                QStandardPaths::displayName( QStandardPaths::ApplicationsLocation));
 
   if (path != QString()) {
     ext_command_->setText( path);
+  }
+}
+
+void PreferencesEditTab::onTempFolderDialogRequest()
+{
+  QString path = QFileDialog::getExistingDirectory( this, tr("Temporary shaders folder"),
+                                                    Config::Current()["EditorExternalTempFolder"].toString());
+
+  if (path != QString()) {
+    temp_folder_->setText( path);
   }
 }
 

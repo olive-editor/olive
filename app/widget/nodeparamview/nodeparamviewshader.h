@@ -47,8 +47,9 @@ public:
   }
 
   // bind this viewer to a Node that handles one GLSL script,
-  // so changes in the script will update this widget
-  void attachOwnerNode( const Node * owner);
+  // so changes in the script will update this widget.
+  // 'is_vertex' is false for Fragment shader, true for vertex shader
+  void attachOwnerNode(const Node * owner, bool is_vertex);
 
   // start editing shader in internal or external editor
   void launchCodeEditor(QString & text);
@@ -71,6 +72,8 @@ private:
   QString name_;
   QString description_;
   QString version_;
+
+  bool is_vertex_;
 };
 
 }

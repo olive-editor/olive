@@ -109,7 +109,7 @@ void NodeParamViewTextEdit::OnTextChangedExternally(const QString & content)
   emit textEdited( content);
 }
 
-void NodeParamViewTextEdit::setCodeEditorFlag( const Node * owner)
+void NodeParamViewTextEdit::setShaderCodeEditorFlag( const Node * owner, bool is_vertex)
 {
   code_editor_flag_ = true;
 
@@ -120,10 +120,10 @@ void NodeParamViewTextEdit::setCodeEditorFlag( const Node * owner)
   // separate dialog or external editor
   line_edit_->setReadOnly( true);
   line_edit_->setVisible(false);
-  shader_edit_->attachOwnerNode( owner);
+  shader_edit_->attachOwnerNode( owner, is_vertex);
 }
 
-void NodeParamViewTextEdit::setCodeIssuesFlag()
+void NodeParamViewTextEdit::setShaderIssuesFlag()
 {
   code_issues_flag_ = true;
   line_edit_->setReadOnly( true);

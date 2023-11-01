@@ -38,7 +38,8 @@ const QString DEFAULT_DESCRIPTION = QObject::tr("No description available");
 NodeParamViewShader::NodeParamViewShader(const QPlainTextEdit &content,
                                          QObject *parent) :
   QObject(parent),
-  full_shader_(content)
+  full_shader_(content),
+  is_vertex_(false)
 {
   summary_ = new QTextEdit();
   summary_->setReadOnly( true);
@@ -51,20 +52,21 @@ NodeParamViewShader::NodeParamViewShader(const QPlainTextEdit &content,
 }
 
 
-void NodeParamViewShader::attachOwnerNode(const Node *owner)
+void NodeParamViewShader::attachOwnerNode(const Node *owner, bool is_vertex)
 {
   summary_->setVisible( true);
+  is_vertex_ = is_vertex;
 
   // create a file whose name is unique for the node this instance belongs to.
-  // 'QStandardPaths::TempLocation' is guaranteed not to be empty
-  QString base_dir = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
-  if ( ! QDir(base_dir + QDir::separator() + "olive").exists()) {
-    QDir().mkdir(base_dir + QDir::separator() + "olive");
-  }
-  base_dir += QString(QDir::separator()) + "olive";
+  QString base_dir = Config::Current()["EditorExternalTempFolder"].toString();
 
-  QString file_path = QString("%1%2%3.glsl").arg(base_dir).
-                      arg(QString(QDir::separator())).arg((uint64_t)owner);
+  if (base_dir.isEmpty() || ( ! QDir(base_dir).exists())) {
+    // 'QStandardPaths::TempLocation' is guaranteed not to be empty
+    base_dir = QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0);
+  }
+
+  QString file_path = QString("%1%2%3.%4").arg(base_dir).
+                      arg(QString(QDir::separator())).arg((uint64_t)owner).arg(is_vertex ? "vert" : "frag");
 
   ext_editor_proxy_->SetFilePath(file_path);
 
@@ -91,7 +93,6 @@ void NodeParamViewShader::attachOwnerNode(const Node *owner)
     connect( owner_transition, & ShaderTransition::metadataChanged,
             this, & NodeParamViewShader::onMetadataChanged);
   }
-
 }
 
 void NodeParamViewShader::onMetadataChanged(const QString &name,
@@ -112,10 +113,18 @@ QString NodeParamViewShader::displayedText() const
   const QString & description = description_.isEmpty() ? DEFAULT_DESCRIPTION : description_;
 
   // We don't display the full shader, but only some metadata
-  return QString("<font color=\"#808020\" size=\"+1\">%1</font>"
-                 "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%2</span>"
-                 "<p><font color=\"#E0E0D0\">%3</font></p>").
-      arg( name_, version, description);
+  if (is_vertex_) {
+    return QString("<font color=\"#208080\" size=\"+1\">%1</font>  (vertex)"
+                   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%2</span>"
+                   "<p><font color=\"#E0E0D0\">%3</font></p>").
+        arg( name_, version, description);
+  } else {
+
+    return QString("<font color=\"#808020\" size=\"+1\">%1</font>"
+                   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%2</span>"
+                   "<p><font color=\"#E0E0D0\">%3</font></p>").
+        arg( name_, version, description);
+  }
 }
 
 void NodeParamViewShader::launchCodeEditor(QString & text)
