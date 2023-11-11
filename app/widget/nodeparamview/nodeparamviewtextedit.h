@@ -27,6 +27,7 @@
 #include <QWidget>
 
 #include "common/define.h"
+#include "dialog/text/text.h"
 
 
 namespace olive {
@@ -40,6 +41,7 @@ class NodeParamViewTextEdit : public QWidget
   Q_OBJECT
 public:
   NodeParamViewTextEdit(QWidget* parent = nullptr);
+  ~NodeParamViewTextEdit();
 
   QString text() const
   {
@@ -87,6 +89,8 @@ private:
   bool code_editor_flag_;
   bool code_issues_flag_;
   NodeParamViewShader * shader_edit_;
+
+  TextDialog * text_dlg_;
 
 private:
   QPushButton* edit_btn_;

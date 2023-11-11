@@ -22,8 +22,6 @@
 
 #include <QHBoxLayout>
 
-#include "dialog/text/text.h"
-
 #include "dialog/codeeditor/messagehighlighter.h"
 #include "ui/icons/icons.h"
 #include "nodeparamviewshader.h"
@@ -34,7 +32,8 @@ namespace olive {
 NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   QWidget(parent),
   code_editor_flag_(false),
-  code_issues_flag_(false)
+  code_issues_flag_(false),
+  text_dlg_(nullptr)
 {
   QHBoxLayout* layout = new QHBoxLayout(this);
   layout->setContentsMargins(0, 0, 0, 0);
@@ -63,6 +62,16 @@ NodeParamViewTextEdit::NodeParamViewTextEdit(QWidget *parent) :
   SetEditInViewerOnlyMode(false);
 }
 
+NodeParamViewTextEdit::~NodeParamViewTextEdit()
+{
+  // This prevents a crash if text changes externally while
+  // the dialog is open. For example this happens when code issues dialog
+  // is open and shader code changes externally.
+  if (text_dlg_ != nullptr) {
+    text_dlg_->reject();
+  }
+}
+
 
 void NodeParamViewTextEdit::SetEditInViewerOnlyMode(bool on)
 {
@@ -80,15 +89,18 @@ void NodeParamViewTextEdit::ShowTextDialog()
 
     shader_edit_->launchCodeEditor(text);
   } else {
-    TextDialog d(this->text(), this);
+    text_dlg_ = new TextDialog(this->text(), nullptr);
 
     if (code_issues_flag_) {
-      d.setSyntaxHighlight( new MessageSyntaxHighlighter());
+      text_dlg_->setSyntaxHighlight( new MessageSyntaxHighlighter());
     }
 
-    if (d.exec() == QDialog::Accepted) {
-      text= d.text();
+    if (text_dlg_->exec() == QDialog::Accepted) {
+      text= text_dlg_->text();
     }
+
+    delete text_dlg_;
+    text_dlg_ = nullptr;
   }
 
   if (text != QString()) {
