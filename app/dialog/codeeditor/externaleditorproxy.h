@@ -24,6 +24,7 @@
 
 #include <QProcess>
 #include <QFileSystemWatcher>
+#include <QTimer>
 
 
 namespace olive {
@@ -56,6 +57,10 @@ public:
   // Used when user switches from external to internal editor
   void Detach();
 
+  // to be called when application quits in order to remove
+  // temporary files.
+  static void CleanGeneratedFiles();
+
 signals:
   // emnitted when temporary file is saved
   void textChanged( const QString & new_text);
@@ -63,12 +68,17 @@ signals:
 private:
   void onFileChanged(const QString& path);
   void onProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
+  void triggerSynchFromFile();
+
+private slots:
+  void synchFromFile();
 
 private:
   // QFileSystemWatcher watcher_;
   QString file_path_;
   QProcess *process_;
   QFileSystemWatcher watcher_;
+  QTimer synch_timer_;
 };
 
 }  // namespace olive

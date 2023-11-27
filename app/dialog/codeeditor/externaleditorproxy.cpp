@@ -27,7 +27,13 @@
 #include <QDir>
 #include <QThread>
 #include <QMessageBox>
+#include <QSet>
 
+namespace {
+// files created in this session.
+// They can be deleted when application quits.
+QSet<QString> CreatedFiles;
+}
 
 namespace olive {
 
@@ -41,9 +47,11 @@ ExternalEditorProxy::ExternalEditorProxy(QObject *parent) :
 
 ExternalEditorProxy::~ExternalEditorProxy()
 {
-  // Do not delete "file_path_" bacause it might be read from
-  // another instance of this class. However this leaves a  lot
-  // of files in temporary folder
+  // Do not delete "file_path_" now, bacause it might be read from
+  // another instance of this class. This happens when the clip associated with
+  // this instance loses focus: when it gets focus back, the file file name is used.
+  //
+  // All files will be deleted when application quits.
 }
 
 void ExternalEditorProxy::Launch(const QString &start_text)
@@ -56,6 +64,8 @@ void ExternalEditorProxy::Launch(const QString &start_text)
   if (out.isOpen()) {
     out.write( start_text.toLatin1());
     out.close();
+
+    CreatedFiles.insert( file_path_);
 
     // now the file exists. We can watch for changes
     watcher_.addPath( file_path_);
@@ -84,6 +94,14 @@ void ExternalEditorProxy::SetFilePath(const QString & path)
   file_path_ = path;
 
   // at this point, "file_path_" may or may not exist.
+
+  // If it exists, align the shader to the content of the file
+  // as it is possible that user modified the file while the clip was
+  // not selected and so the shader did not update with file.
+  if (QFileInfo(file_path_).exists()) {
+    triggerSynchFromFile();
+  }
+
   // The following instruction is effective when the file exists.
   watcher_.addPath( file_path_);
 }
@@ -91,6 +109,13 @@ void ExternalEditorProxy::SetFilePath(const QString & path)
 void ExternalEditorProxy::Detach()
 {
   watcher_.removePath( file_path_);
+}
+
+void ExternalEditorProxy::CleanGeneratedFiles()
+{
+  foreach (const QString & file, CreatedFiles) {
+    QFile::remove( file);
+  }
 }
 
 void ExternalEditorProxy::onFileChanged(const QString &path)
@@ -128,6 +153,18 @@ void ExternalEditorProxy::onProcessFinished(int /*exitCode*/, QProcess::ExitStat
 
   process_->deleteLater();
   process_ = nullptr;
+}
+
+void ExternalEditorProxy::triggerSynchFromFile()
+{
+  // run a 0 ms timer so that "synch" operation can be done
+  // immediately but after setting up param-view panel
+  synch_timer_.singleShot(0, this, & ExternalEditorProxy::synchFromFile);
+}
+
+void ExternalEditorProxy::synchFromFile()
+{
+  onFileChanged( file_path_);
 }
 
 
