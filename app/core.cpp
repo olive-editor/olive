@@ -684,7 +684,6 @@ bool Core::StartHeadlessExport()
   */
 
 
-
   return false;
 }
 
