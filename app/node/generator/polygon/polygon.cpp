@@ -175,6 +175,7 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
 
   Imath::V2d half_res(res.x()/2, res.y()/2);
 
+
   auto points = row[kPointsInput].toArray();
 
   int current_pos_sz = gizmo_position_handles_.size();

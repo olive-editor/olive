@@ -94,7 +94,7 @@ void MatrixGenerator::Value(const NodeValueRow &value, const NodeGlobals &global
   table->Push(NodeValue::kMatrix, mat, this);
 }
 
-QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const
+QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat, bool is_gizmo) const
 {
   QVector2D anchor;
   QVector2D position;
@@ -110,6 +110,8 @@ QMatrix4x4 MatrixGenerator::GenerateMatrix(const NodeValueRow &value, bool ignor
 
   if (!ignore_position) {
     position = value[kPositionInput].toVec2();
+    if (is_gizmo)
+      position /= 2;
   }
 
   return GenerateMatrix(position,
