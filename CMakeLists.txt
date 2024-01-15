@@ -263,3 +263,9 @@ if (BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
+
+file(GLOB_RECURSE ALL_SOURCE_FILES *.cpp *.h)
+add_custom_target(
+  format
+  COMMAND clang-format -i ${ALL_SOURCE_FILES}
+)
