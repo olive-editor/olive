@@ -39,7 +39,8 @@ private slots:
   /**
    * @brief Override of accept to save preferences to Config.
    */
-  virtual void accept() override;
+  virtual void apply();
+    
 
 protected:
   void AddTab(ConfigDialogBaseTab* tab, const QString& title);
