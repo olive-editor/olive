@@ -160,6 +160,14 @@ jobs:
           submodules: true
           show-progress: false
 
+      # HACK: Override CMake version to avoid an FFmpeg discovery problem
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.27.x'
+      - name: CMake version
+        run: cmake --version
+
       - name: Automatically Generate Package Name
         shell: bash
         env:
