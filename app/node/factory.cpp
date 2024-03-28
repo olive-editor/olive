@@ -53,6 +53,7 @@
 #include "generator/text/textv1.h"
 #include "generator/text/textv2.h"
 #include "generator/text/textv3.h"
+#include "generator/animation/textanimationnode.h"
 #include "input/multicam/multicamnode.h"
 #include "input/time/timeinput.h"
 #include "input/value/valuenode.h"
@@ -249,6 +250,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new TextGeneratorV2();
   case kTextGeneratorV3:
     return new TextGeneratorV3();
+  case kTextAnimation:
+    return new TextAnimationNode();
   case kCrossDissolveTransition:
     return new CrossDissolveTransition();
   case kDipToColorTransition:

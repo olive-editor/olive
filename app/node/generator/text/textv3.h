@@ -24,6 +24,9 @@
 #include "node/generator/shape/shapenodebase.h"
 #include "node/gizmo/text.h"
 
+
+class QTextCursor;
+
 namespace olive {
 
 class TextGeneratorV3 : public ShapeNodeBase
@@ -66,6 +69,7 @@ public:
   static const QString kVerticalAlignmentInput;
   static const QString kUseArgsInput;
   static const QString kArgsInput;
+  static const QString kAnimatorsInput;
 
   static QString FormatString(const QString &input, const QStringList &args);
 
@@ -76,6 +80,9 @@ private:
   TextGizmo *text_gizmo_;
 
   bool dont_emit_valign_;
+
+  // True when any instance of a text node is being edited
+  static bool editing_;
 
 private slots:
   void GizmoActivated();
