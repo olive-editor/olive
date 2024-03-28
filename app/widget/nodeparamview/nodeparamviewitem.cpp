@@ -61,6 +61,11 @@ NodeParamViewItem::NodeParamViewItem(Node *node, NodeParamViewCheckBoxBehavior c
   connect(node_, &Node::LabelChanged, this, &NodeParamViewItem::Retranslate);
   connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewItem::InputArraySizeChanged);
 
+  // for dynamically changed inputs
+  connect(node_, &Node::InputListChanged, this, &NodeParamViewItem::OnInputListChanged);
+  connect(node_, &Node::InputAdded, this, &NodeParamViewItem::OnInputAdded);
+  connect(node_, &Node::InputRemoved, this, &NodeParamViewItem::OnInputRemoved);
+
   // FIXME: Implemented to pick up when an input is set to hidden or not - DEFINITELY not a fast
   //        way of doing this, but "fine" for now.
   connect(node_, &Node::InputFlagsChanged, this, &NodeParamViewItem::RecreateBody);
@@ -100,6 +105,61 @@ void NodeParamViewItem::RecreateBody()
   body_->SetTimebase(timebase_);
   body_->SetTimeTarget(time_target_);
   SetBody(body_);
+}
+
+
+void NodeParamViewItem::OnInputFlagsChanged(const QString &input, const InputFlags &flags)
+{
+  if (flags & kInputFlagNotKeyframable) {
+
+    // Delete all keyframes
+    MultiUndoCommand* command = new MultiUndoCommand();
+    NodeInput node_input = NodeInput( node_,input);
+
+    foreach (const NodeKeyframeTrack& track, node_->GetKeyframeTracks(node_input)) {
+      for (int i=track.size()-1;i>=0;i--) {
+        command->add_child(new NodeParamRemoveKeyframeCommand(track.at(i)));
+      }
+    }
+
+    Core::instance()->undo_stack()->push(command,
+                                         QString("Remove keyframes for input %1").arg(input));
+  }
+}
+
+void NodeParamViewItem::OnInputListChanged()
+{
+  RecreateBody();
+
+  // allow to add keyframes immediately, without changing context
+  body_->SetTimeTarget(time_target_);
+
+  emit InputsChanged();
+}
+
+void NodeParamViewItem::OnInputAdded(const QString &id)
+{
+  KeyframeView::InputConnections input_conn = keyframe_view_->AddKeyframesOfInput( node_, id);
+  keyframe_connections_.insert( id, input_conn);
+}
+
+void NodeParamViewItem::OnInputRemoved( const QString & id)
+{
+  // remove keyframes of the input, if any.
+  // It is required to find all keyframe view input connections of the input.
+  KeyframeView::InputConnections con = keyframe_connections_.value( id);
+
+  QVectorIterator<KeyframeView::ElementConnections> elem_it( con);
+
+  while (elem_it.hasNext()) {
+    KeyframeView::ElementConnections elem_con = elem_it.next();
+
+    QVectorIterator<KeyframeViewInputConnection *> keyframe_it(elem_con);
+
+    while (keyframe_it.hasNext()) {
+      keyframe_view_->RemoveKeyframesOfTrack( keyframe_it.next());
+    }
+  }
 }
 
 int NodeParamViewItem::GetElementY(const NodeInput &c) const
@@ -382,6 +442,12 @@ void NodeParamViewItemBody::PlaceWidgetsFromBridge(QGridLayout* layout, NodePara
       colspan = kMaxWidgetColumn - col;
     } else {
       colspan = 1;
+    }
+
+    // some non-keyframeable widgets can use all space to the right
+    if (w->property("is_exapandable").toBool())
+    {
+      colspan = -1;
     }
 
     layout->addWidget(w, row, col, 1, colspan);

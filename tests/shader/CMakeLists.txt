@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(crossdissolve)
-add_subdirectory(diptocolor)
-add_subdirectory(shader)
-
-set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/block/transition/transition.h
-  node/block/transition/transition.cpp
-  PARENT_SCOPE
-)
+olive_add_test(Filter shader-tests shader-tests.cpp)

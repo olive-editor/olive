@@ -44,10 +44,15 @@ PointGizmo::PointGizmo(QObject *parent) :
 void PointGizmo::Draw(QPainter *p) const
 {
   QRectF rect = GetDrawingRect(p->transform(), GetStandardRadius());
+  QVariant color = this->property("color");
 
   if (shape_ != kAnchorPoint) {
     p->setPen(QPen(Qt::black, 0));
     p->setBrush(Qt::white);
+  }
+
+  if (color.isValid()) {
+    p->setBrush(color.value<QColor>());
   }
 
   switch (shape_) {

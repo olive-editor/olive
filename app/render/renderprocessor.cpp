@@ -448,7 +448,11 @@ void RenderProcessor::ProcessShader(TexturePtr destination, const Node *node, co
 
   QMutexLocker locker(shader_cache_->mutex());
 
-  QVariant shader = shader_cache_->value(full_shader_id);
+  QVariant shader = QVariant();
+
+  if (node->ShaderCodeInvalidateFlag() == false) {
+    shader = shader_cache_->value(full_shader_id);
+  }
 
   if (shader.isNull()) {
     // Since we have shader code, compile it now
