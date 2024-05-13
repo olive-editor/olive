@@ -26,6 +26,11 @@
 
 #include "common/html.h"
 #include "core.h"
+
+#include "node/project/project.h"
+#include "widget/nodeparamview/nodeparamviewundo.h"
+#include "node/generator/animation/textanimationrender.h"
+
 #include "node/project.h"
 #include "node/nodeundo.h"
 
@@ -43,6 +48,13 @@ const QString TextGeneratorV3::kTextInput = QStringLiteral("text_in");
 const QString TextGeneratorV3::kVerticalAlignmentInput = QStringLiteral("valign_in");
 const QString TextGeneratorV3::kUseArgsInput = QStringLiteral("use_args_in");
 const QString TextGeneratorV3::kArgsInput = QStringLiteral("args_in");
+const QString TextGeneratorV3::kAnimatorsInput = QStringLiteral("animators_in");
+
+// We need to make this variable static because it is set in 'GizmoActivated' and used in 'GenerateFrame'.
+// These methods are not called from the same instance, but we assume that there is only one text that
+// is currently edited.
+bool TextGeneratorV3::editing_;
+
 
 TextGeneratorV3::TextGeneratorV3() :
   ShapeNodeBase(false),
@@ -60,10 +72,16 @@ TextGeneratorV3::TextGeneratorV3() :
   AddInput(kArgsInput, NodeValue::kText, InputFlags(kInputFlagArray));
   SetInputProperty(kArgsInput, QStringLiteral("arraystart"), 1);
 
+  AddInput( kAnimatorsInput, NodeValue::kText,
+            QStringLiteral("<!-- Don't write here. Attach a TextAnimation node -->"),
+            InputFlags(kInputFlagNotKeyframable));
+
   text_gizmo_ = new TextGizmo(this);
   text_gizmo_->SetInput(NodeInput(this, kTextInput));
   connect(text_gizmo_, &TextGizmo::Activated, this, &TextGeneratorV3::GizmoActivated);
   connect(text_gizmo_, &TextGizmo::Deactivated, this, &TextGeneratorV3::GizmoDeactivated);
+
+  editing_ = false;
 }
 
 QString TextGeneratorV3::Name() const
@@ -94,6 +112,7 @@ void TextGeneratorV3::Retranslate()
   SetInputName(kVerticalAlignmentInput, tr("Vertical Alignment"));
   SetComboBoxStrings(kVerticalAlignmentInput, {tr("Top"), tr("Middle"), tr("Bottom")});
   SetInputName(kArgsInput, tr("Arguments"));
+  SetInputName(kAnimatorsInput, tr("Animators"));
 }
 
 void TextGeneratorV3::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
@@ -155,7 +174,11 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QVector2D pos = job.Get(kPositionInput).toVec2();
   p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
   p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
-  p.setClipRect(0, 0, size.x(), size.y());
+
+  // when text is animated, it may go outside the clip rect
+  if (editing_ || (IsInputConnected(kAnimatorsInput) == false)) {
+    p.setClipRect(0, 0, size.x(), size.y());
+  }
 
   switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
   case kVAlignTop:
@@ -173,7 +196,17 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
   QAbstractTextDocumentLayout::PaintContext ctx;
   ctx.palette.setColor(QPalette::Text, Qt::white);
 
-  text_doc.documentLayout()->draw(&p, ctx);
+  // When animators are not used, we use the default drawing method because
+  // the drawing method for animators makes some assumptions and may not work well
+  // for all languages (expecially right-to-left ones) and formatting options.
+  if (editing_ || (IsInputConnected(kAnimatorsInput) == false)) {
+    text_doc.documentLayout()->draw(&p, ctx);
+  }
+  else {
+    TextAnimationRender animated_text_render;
+    animated_text_render.render( job.Get(kAnimatorsInput).toString(),
+                                  text_doc, p);
+  }
 }
 
 void TextGeneratorV3::UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals)
@@ -264,6 +297,8 @@ void TextGeneratorV3::GizmoActivated()
   SetStandardValue(kUseArgsInput, false);
   connect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
   dont_emit_valign_ = true;
+
+  editing_ = true;
 }
 
 void TextGeneratorV3::GizmoDeactivated()
@@ -271,11 +306,15 @@ void TextGeneratorV3::GizmoDeactivated()
   SetStandardValue(kUseArgsInput, true);
   disconnect(text_gizmo_, &TextGizmo::VerticalAlignmentChanged, this, &TextGeneratorV3::SetVerticalAlignmentUndoable);
   dont_emit_valign_ = true;
+
+  editing_ = false;
 }
 
 void TextGeneratorV3::SetVerticalAlignmentUndoable(Qt::Alignment a)
 {
   Core::instance()->undo_stack()->push(new NodeParamSetStandardValueCommand(NodeInput(this, kVerticalAlignmentInput), GetOurAlignmentFromQts(a)), tr("Set Text Vertical Alignment"));
 }
+
+
 
 }
