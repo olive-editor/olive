@@ -3,16 +3,20 @@ Language:        Cpp
 # BasedOnStyle:  Google
 AccessModifierOffset: -1
 AlignAfterOpenBracket: Align
+AlignConsecutiveMacros: false
 AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Left
 AlignOperands:   true
 AlignTrailingComments: true
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: true
+AllowShortLambdasOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
@@ -20,7 +24,8 @@ AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: true
 BinPackParameters: true
-BraceWrapping:   
+BraceWrapping:
+  AfterCaseLabel:  false
   AfterClass:      false
   AfterControlStatement: false
   AfterEnum:       false
@@ -45,33 +50,40 @@ BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
-ColumnLimit:     120
+ColumnLimit:     100 # Olive 100, Google 80
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
+DeriveLineEnding: true
 DerivePointerAlignment: true
 DisableFormat:   false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
-ForEachMacros:   
+ForEachMacros:
   - foreach
   - Q_FOREACH
   - BOOST_FOREACH
-IncludeBlocks:   Preserve
-IncludeCategories: 
+IncludeBlocks:   Regroup
+IncludeCategories:
   - Regex:           '^<ext/.*\.h>'
     Priority:        2
+    SortPriority:    0
   - Regex:           '^<.*\.h>'
     Priority:        1
+    SortPriority:    0
   - Regex:           '^<.*'
     Priority:        2
+    SortPriority:    0
   - Regex:           '.*'
     Priority:        3
+    SortPriority:    0
 IncludeIsMainRegex: '([-_](test|unittest))?$'
+IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true
+IndentGotoLabels: true
 IndentPPDirectives: None
 IndentWidth:     2
 IndentWrappedFunctionNames: false
@@ -95,9 +107,9 @@ PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
-RawStringFormats: 
+RawStringFormats:
   - Language:        Cpp
-    Delimiters:      
+    Delimiters:
       - cc
       - CC
       - cpp
@@ -108,12 +120,12 @@ RawStringFormats:
     CanonicalDelimiter: ''
     BasedOnStyle:    google
   - Language:        TextProto
-    Delimiters:      
+    Delimiters:
       - pb
       - PB
       - proto
       - PROTO
-    EnclosingFunctions: 
+    EnclosingFunctions:
       - EqualsProto
       - EquivToProto
       - PARSE_PARTIAL_TEXT_PROTO
@@ -127,6 +139,7 @@ ReflowComments:  true
 SortIncludes:    true
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCpp11BracedList: false
@@ -134,15 +147,22 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
 SpacesInAngles:  false
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
+SpaceBeforeSquareBrackets: false
 Standard:        Auto
+StatementMacros:
+  - Q_UNUSED
+  - QT_REQUIRE_VERSION
 TabWidth:        8
+UseCRLF:         false
 UseTab:          Never
 ...
 
