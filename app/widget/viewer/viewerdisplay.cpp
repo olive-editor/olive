@@ -449,7 +449,6 @@ void ViewerDisplayWidget::OnPaint()
     QPainter p(paint_device());
 
     GenerateGizmoTransforms();
-
     p.setWorldTransform(gizmo_last_draw_transform_);
 
     gizmos_->UpdateGizmoPositions(gizmo_db_, NodeGlobals(gizmo_params_, gizmo_audio_params_, gizmo_draw_time_, LoopMode::kLoopModeOff));

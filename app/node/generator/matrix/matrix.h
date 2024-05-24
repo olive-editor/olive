@@ -53,7 +53,7 @@ public:
   static const QString kAnchorInput;
 
 protected:
-  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const;
+  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat, bool is_gizmo = false) const;
   static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
                                    const float &rot,
                                    const QVector2D &scale,

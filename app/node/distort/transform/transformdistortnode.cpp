@@ -406,7 +406,7 @@ QTransform TransformDistortNode::GizmoTransformation(const NodeValueRow &row, co
 {
   if (TexturePtr texture = row[kTextureInput].toTexture()) {
     //auto m = GenerateMatrix(row, false, false, false, row[kParentInput].toMatrix());
-    auto m = GenerateMatrix(row, false, false, false, QMatrix4x4());
+    auto m = GenerateMatrix(row, false, false, false, QMatrix4x4(), true);
     return GenerateAutoScaledMatrix(m, row, globals, texture->params()).toTransform();
   }
   return super::GizmoTransformation(row, globals);
