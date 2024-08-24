@@ -47,13 +47,13 @@ jobs:
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-20.04
     container:
       image: olivevideoeditor/ci-olive:2022.3
 
     steps:
       - name: Checkout Source Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -296,14 +296,14 @@ jobs:
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-11.0
+            os: macos-12
             cmake-gen: Ninja
             min-deploy: 10.13
           - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: arm64
-            os: macos-11.0
+            os: macos-12
             cmake-gen: Ninja
             min-deploy: 11.0
     env:
