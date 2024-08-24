@@ -47,7 +47,7 @@ jobs:
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: olivevideoeditor/ci-olive:2022.3
 
