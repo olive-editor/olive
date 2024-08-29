@@ -388,6 +388,10 @@ void TimelineRippleDeleteGapsAtRegionsCommand::prepare()
   // Convert regions to gaps
   for (const QPair<Track*, TimeRange> &region : qAsConst(regions_)) {
     Track *track = region.first;
+    if(!track) {
+      qWarning() << "Region track is null!";
+      continue;
+    }
     const TimeRange &range = region.second;
 
     GapBlock *gap = dynamic_cast<GapBlock*>(track->NearestBlockBeforeOrAt(range.in()));
