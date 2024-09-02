@@ -14,15 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(matrix)
-add_subdirectory(noise)
-add_subdirectory(polygon)
-add_subdirectory(shape)
-add_subdirectory(solid)
-add_subdirectory(text)
-add_subdirectory(animation)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/generator/animation/textanimation.h
+  node/generator/animation/textanimationengine.cpp
+  node/generator/animation/textanimationengine.h
+  node/generator/animation/textanimationxmlformatter.cpp
+  node/generator/animation/textanimationxmlformatter.h
+  node/generator/animation/textanimationxmlparser.cpp
+  node/generator/animation/textanimationxmlparser.h
+  node/generator/animation/textanimationnode.cpp
+  node/generator/animation/textanimationnode.h
+  node/generator/animation/textanimationrender.cpp
+  node/generator/animation/textanimationrender.h
   PARENT_SCOPE
 )
