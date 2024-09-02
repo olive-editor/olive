@@ -56,7 +56,7 @@ PolygonGenerator::PolygonGenerator()
   SetSplitStandardValueOnTrack(kPointsInput, 1, -kMiddleY, 4);
 
   // Initiate gizmos
-  poly_gizmo_ = new PathGizmo(this);
+  poly_gizmo_ = AddDraggableGizmo<PathGizmo>();
 }
 
 QString PolygonGenerator::Name() const
@@ -186,6 +186,10 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
   for (int i=current_pos_sz; i<gizmo_position_handles_.size(); i++) {
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
     gizmo_position_handles_.at(i)->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
+    gizmo_position_handles_.at(i)->SetCanBeDraggedInGroup( true);
+
+    poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 0));
+    poly_gizmo_->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 1));
 
     PointGizmo *bez_gizmo1 = gizmo_bezier_handles_.at(i*2+0);
     bez_gizmo1->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 2));
@@ -193,11 +197,17 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
     bez_gizmo1->SetShape(PointGizmo::kCircle);
     bez_gizmo1->SetSmaller(true);
 
+
     PointGizmo *bez_gizmo2 = gizmo_bezier_handles_.at(i*2+1);
     bez_gizmo2->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 4));
     bez_gizmo2->AddInput(NodeKeyframeTrackReference(NodeInput(this, kPointsInput, i), 5));
     bez_gizmo2->SetShape(PointGizmo::kCircle);
     bez_gizmo2->SetSmaller(true);
+
+    // Set control point as children of the position point, so that selecting the position point
+    // also selects the control points
+    gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo1);
+    gizmo_position_handles_.at(i)->AddChildPoint( bez_gizmo2);
   }
 
   int pts_sz = InputArraySize(kPointsInput);
@@ -210,6 +220,28 @@ void PolygonGenerator::UpdateGizmoPositions(const NodeValueRow &row, const NodeG
       Imath::V2d cp2 = main + pt.control_point_2_to_vec();
 
       gizmo_position_handles_[i]->SetPoint(QPointF(main.x, main.y));
+
+
+      // control points (and relative segment) are visible in any of the following:
+      // - the main point is selected or hovered
+      // - the control point itself is selected
+      // - the sibling control point is selected
+      gizmo_bezier_handles_[i*2]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                              gizmo_position_handles_.at(i)->IsHovered() ||
+                                              gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                              gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_handles_[i*2+1]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                                gizmo_position_handles_.at(i)->IsHovered() ||
+                                                gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                                gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_lines_[i*2]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                            gizmo_position_handles_.at(i)->IsHovered() ||
+                                            gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                            gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
+      gizmo_bezier_lines_[i*2+1]->SetVisible( gizmo_position_handles_.at(i)->IsSelected() ||
+                                              gizmo_position_handles_.at(i)->IsHovered() ||
+                                              gizmo_bezier_handles_[i*2]->IsSelected() ||
+                                              gizmo_bezier_handles_[i*2 + 1]->IsSelected() );
 
       gizmo_bezier_handles_[i*2]->SetPoint(QPointF(cp1.x, cp1.y));
       gizmo_bezier_lines_[i*2]->SetLine(QLineF(QPointF(main.x, main.y), QPointF(cp1.x, cp1.y)));
@@ -235,7 +267,17 @@ void PolygonGenerator::GizmoDragMove(double x, double y, const Qt::KeyboardModif
   DraggableGizmo *gizmo = static_cast<DraggableGizmo*>(sender());
 
   if (gizmo == poly_gizmo_) {
-    // FIXME: Drag all points
+    // When the body of the polygon is clicked, a drag operation for each main point is started.
+    // Control point will follow automatically.
+    // The number of draggers should be twice the number of control points.
+    int numOfDraggers = gizmo->GetDraggers().size();
+
+    for (int i=0; i < (numOfDraggers/2); i++) {
+      NodeInputDragger &x_drag = gizmo->GetDraggers()[2*i];
+      NodeInputDragger &y_drag = gizmo->GetDraggers()[2*i + 1];
+      x_drag.Drag(x_drag.GetStartValue().toDouble() + x);
+      y_drag.Drag(y_drag.GetStartValue().toDouble() + y);
+    }
   } else {
     NodeInputDragger &x_drag = gizmo->GetDraggers()[0];
     NodeInputDragger &y_drag = gizmo->GetDraggers()[1];

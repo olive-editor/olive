@@ -68,7 +68,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   push_mode_(kPushNull),
   add_band_(false),
   queue_starved_(false),
-  text_edit_(nullptr)
+  text_edit_(nullptr),
+  gizmo_selection_(inner_widget(),
+                   gizmo_last_draw_transform_)
 {
   connect(Core::instance(), &Core::ToolChanged, this, &ViewerDisplayWidget::ToolChanged);
 
@@ -79,6 +81,9 @@ ViewerDisplayWidget::ViewerDisplayWidget(QWidget *parent) :
   frame_rate_averages_.resize(kFrameRateAverageCount);
 
   inner_widget()->setAcceptDrops(true);
+  // needed for hovering feature
+  inner_widget()->setMouseTracking( true);
+  inner_widget()->installEventFilter( & gizmo_selection_);
 }
 
 ViewerDisplayWidget::~ViewerDisplayWidget()
@@ -184,9 +189,12 @@ void ViewerDisplayWidget::SetGizmos(Node *node)
 {
   if (gizmos_ != node) {
     gizmos_ = node;
+    gizmo_selection_.SetGizmos( node);
 
     update();
   }
+
+  inner_widget()->setMouseTracking( gizmos_ != nullptr);
 }
 
 void ViewerDisplayWidget::SetVideoParams(const VideoParams &params)
@@ -468,6 +476,8 @@ void ViewerDisplayWidget::OnPaint()
 
       p.drawPixmap(text_edit_pos_, pm);
     }
+
+    gizmo_selection_.DrawSelection( p);
   }
 
   // Draw action/title safe areas
@@ -821,6 +831,8 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
 
   } else if (event->button() == Qt::LeftButton) {
 
+    gizmo_selection_.OnMouseLeftPress( event);
+
     if (Core::instance()->tool() == Tool::kAdd
         && (Core::instance()->GetSelectedAddableObject() == Tool::kAddableShape || Core::instance()->GetSelectedAddableObject() == Tool::kAddableTitle)) {
 
@@ -841,6 +853,9 @@ bool ViewerDisplayWidget::OnMousePress(QMouseEvent *event)
       emit DragStarted(event->pos());
 
     }
+
+    // immediate visual feedback on selection
+    update();
 
     return true;
 
@@ -872,38 +887,54 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
     update();
     return true;
 
-  } else if (current_gizmo_) {
+  } else {
 
-    // Signal movement
-    if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
+    gizmo_selection_.OnMouseMove( event);
+
+    if (current_gizmo_) {
+      // Signal movement
       if (!gizmo_drag_started_) {
-        QPointF start = ScreenToScenePoint(gizmo_start_drag_);
+        // start a drag operation on all selected gizmos
+        for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
+          DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
 
-        rational gizmo_time = GetGizmoTime();
-        NodeTraverser t;
-        t.SetCacheVideoParams(gizmo_params_);
-        t.SetCacheAudioParams(gizmo_audio_params_);
-        NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+          if (draggable &&
+              ((a_gizmo == gizmo_selection_.PressedGizmo()) || (a_gizmo->CanBeDraggedInGroup()))) {
+            QPointF start = ScreenToScenePoint(gizmo_start_drag_);
 
-        draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+            rational gizmo_time = GetGizmoTime();
+            NodeTraverser t;
+            t.SetCacheVideoParams(gizmo_params_);
+            t.SetCacheAudioParams(gizmo_audio_params_);
+            NodeValueRow row = t.GenerateRow(gizmos_, TimeRange(gizmo_time, gizmo_time + gizmo_params_.frame_rate_as_time_base()));
+
+            draggable->DragStart(row, start.x(), start.y(), gizmo_time);
+          }
+        }
+
         gizmo_drag_started_ = true;
       }
 
-      QPointF v = ScreenToScenePoint(event->pos());
-      switch (draggable->GetDragValueBehavior()) {
-      case DraggableGizmo::kAbsolute:
-        // Above value is correct
-        break;
-      case DraggableGizmo::kDeltaFromPrevious:
-        v -= ScreenToScenePoint(gizmo_last_drag_);
-        gizmo_last_drag_ = event->pos();
-        break;
-      case DraggableGizmo::kDeltaFromStart:
-        v -= ScreenToScenePoint(gizmo_start_drag_);
-        break;
-      }
+      for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
+        DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo);
+        QPointF v = ScreenToScenePoint(event->pos());
+        switch (draggable->GetDragValueBehavior()) {
+        case DraggableGizmo::kAbsolute:
+          // Above value is correct
+          break;
+        case DraggableGizmo::kDeltaFromPrevious:
+          v -= ScreenToScenePoint(gizmo_last_drag_);
+          gizmo_last_drag_ = event->pos();
+          break;
+        case DraggableGizmo::kDeltaFromStart:
+          v -= ScreenToScenePoint(gizmo_start_drag_);
+          break;
+        }
 
-      draggable->DragMove(v.x(), v.y(), event->modifiers());
+        if (gizmo_selection_.CanMoveGizmo( a_gizmo)) {
+          draggable->DragMove(v.x(), v.y(), event->modifiers());
+        }
+      }
 
       return true;
     }
@@ -915,6 +946,8 @@ bool ViewerDisplayWidget::OnMouseMove(QMouseEvent *event)
 
 bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
 {
+  gizmo_selection_.OnMouseRelease( e);
+
   if (hand_dragging_) {
 
     // Handle hand drag
@@ -944,8 +977,14 @@ bool ViewerDisplayWidget::OnMouseRelease(QMouseEvent *e)
     // Handle gizmo
     if (gizmo_drag_started_) {
       MultiUndoCommand *command = new MultiUndoCommand();
-      if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(current_gizmo_)) {
-        draggable->DragEnd(command);
+
+      // End drag operation for all selected gizmos
+      for( NodeGizmo * a_gizmo: gizmo_selection_.SelectedGizmos()) {
+        if (DraggableGizmo *draggable = dynamic_cast<DraggableGizmo*>(a_gizmo)) {
+          if (a_gizmo->CanBeDraggedInGroup() || (a_gizmo == gizmo_selection_.PressedGizmo())) {
+            draggable->DragEnd(command);
+          }
+        }
       }
       Core::instance()->undo_stack()->push(command, tr("Dragged Gizmo"));
       gizmo_drag_started_ = false;
