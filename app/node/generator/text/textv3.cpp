@@ -150,11 +150,12 @@ void TextGeneratorV3::GenerateFrame(FramePtr frame, const GenerateJob& job) cons
 
   // Draw rich text onto image
   QPainter p(&img);
-  p.scale(1.0 / frame->video_params().divider(), 1.0 / frame->video_params().divider());
+  const double pixel_aspect_ratio = frame->video_params().pixel_aspect_ratio().toDouble();
+  p.scale(1.0 / frame->video_params().divider() / pixel_aspect_ratio, 1.0 / frame->video_params().divider());
 
   QVector2D pos = job.Get(kPositionInput).toVec2();
   p.translate(pos.x() - size.x()/2, pos.y() - size.y()/2);
-  p.translate(frame->video_params().width()/2, frame->video_params().height()/2);
+  p.translate(frame->video_params().width()/2 * pixel_aspect_ratio, frame->video_params().height()/2);
   p.setClipRect(0, 0, size.x(), size.y());
 
   switch (static_cast<VerticalAlignment>(job.Get(kVerticalAlignmentInput).toInt())) {
