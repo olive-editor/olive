@@ -81,6 +81,7 @@ public:
     kTileDistort,
     kSwirlDistort,
     kMulticamNode,
+    kDilateErodeFilter,
 
     // Count value
     kInternalNodeCount
