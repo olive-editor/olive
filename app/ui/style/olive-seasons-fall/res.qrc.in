@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/style/olive-seasons-fall">
+    @QRC_BODY@
+  </qresource>
+</RCC>

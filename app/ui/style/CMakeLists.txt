@@ -15,7 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(olive-dark)
+add_subdirectory(olive-dark2)
+add_subdirectory(olive-darker)
 add_subdirectory(olive-light)
+add_subdirectory(olive-light2)
+add_subdirectory(olive-grey)
+add_subdirectory(olive-olive)
+add_subdirectory(olive-resolve)
+add_subdirectory(olive-seasons-fall)
+add_subdirectory(olive-seasons-spring)
+add_subdirectory(olive-seasons-summer)
+add_subdirectory(olive-seasons-winter)
 
 set(OLIVE_RESOURCES
   ${OLIVE_RESOURCES}
