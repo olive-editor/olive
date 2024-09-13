@@ -211,6 +211,10 @@ public:
     keyframe_connections_ = c;
   }
 
+  void SetKeyframeView( KeyframeView * kfv) {
+    keyframe_view_ = kfv;
+  }
+
 signals:
   void RequestSelectNode(Node *node);
 
@@ -218,12 +222,22 @@ signals:
 
   void InputCheckedChanged(const NodeInput &input, bool e);
 
+  void InputsChanged( void);
+
   void RequestEditTextInViewer();
 
   void InputArraySizeChanged(const QString &input, int old_size, int new_size);
 
+public slots:
+  void OnInputFlagsChanged(const QString &input, const InputFlags &flags);
+
 protected slots:
   virtual void Retranslate() override;
+
+private slots:
+  void OnInputListChanged();
+  void OnInputAdded(const QString &id);
+  void OnInputRemoved(const QString &id);
 
 private:
   NodeParamViewItemBody* body_;
@@ -239,6 +253,7 @@ private:
   rational timebase_;
 
   KeyframeView::NodeConnections keyframe_connections_;
+  KeyframeView * keyframe_view_;
 
 private slots:
   void RecreateBody();
