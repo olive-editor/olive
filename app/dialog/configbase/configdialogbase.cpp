@@ -23,6 +23,7 @@
 #include <QDialogButtonBox>
 #include <QSplitter>
 #include <QVBoxLayout>
+#include <QAbstractButton>
 
 #include "core.h"
 
@@ -46,12 +47,13 @@ ConfigDialogBase::ConfigDialogBase(QWidget* parent) :
 
   QDialogButtonBox* button_box = new QDialogButtonBox(this);
   button_box->setOrientation(Qt::Horizontal);
-  button_box->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+  button_box->setStandardButtons(QDialogButtonBox::Apply | QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
   layout->addWidget(button_box);
 
-  connect(button_box, &QDialogButtonBox::accepted, this, &ConfigDialogBase::accept);
+  connect(button_box, &QDialogButtonBox::accepted, this, [this]() {apply(); QDialog::accept();});;
   connect(button_box, &QDialogButtonBox::rejected, this, &ConfigDialogBase::reject);
+  connect(button_box, &QDialogButtonBox::clicked, this, [this, button_box](QAbstractButton* btn) {if (button_box->buttonRole(btn) == QDialogButtonBox::ApplyRole) apply();});
 
   connect(list_widget_,
           &QListWidget::currentRowChanged,
@@ -59,7 +61,7 @@ ConfigDialogBase::ConfigDialogBase(QWidget* parent) :
           &QStackedWidget::setCurrentIndex);
 }
 
-void ConfigDialogBase::accept()
+void ConfigDialogBase::apply()
 {
   foreach (ConfigDialogBaseTab* tab, tabs_) {
     if (!tab->Validate()) {
@@ -77,7 +79,6 @@ void ConfigDialogBase::accept()
 
   AcceptEvent();
 
-  QDialog::accept();
 }
 
 void ConfigDialogBase::AddTab(ConfigDialogBaseTab *tab, const QString &title)
