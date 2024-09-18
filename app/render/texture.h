@@ -123,11 +123,6 @@ public:
     return params_.effective_height();
   }
 
-  void set_wrap_mode(Texture::WrapMode wrapMode) const
-  {
-    wrapMode = wrapMode;
-  }
-
   QVector2D virtual_resolution() const
   {
     return QVector2D(params_.square_pixel_width(), params_.height());
