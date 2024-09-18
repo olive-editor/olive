@@ -396,6 +396,7 @@ Color OpenGLRenderer::GetPixelFromTexture(Texture *texture, const QPointF &pt)
 struct TextureToBind {
   TexturePtr texture;
   Texture::Interpolation interpolation;
+  Texture::WrapMode wrap;
 };
 
 void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, VideoParams destination_params, bool clear_destination)
@@ -478,7 +479,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
 
       texture_index_map.insert(it.key(), textures_to_bind.size());
 
-      textures_to_bind.append({texture, job.GetInterpolation(it.key())});
+      textures_to_bind.append({texture, job.GetInterpolation(it.key()), job.GetWrapMode(it.key())});
 
       // Set enable flag if shader wants it
       GLuint tex_id = texture ? texture->id().value<GLuint>() : 0;
@@ -517,7 +518,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
     functions_->glBindTexture(target, tex_id);
 
     if (tex_id) {
-      PrepareInputTexture(target, t.interpolation);
+      PrepareInputTexture(target, t.interpolation, t.wrap);
 
       if (texture->channel_count() == 1 && destination_params.channel_count() != 1) {
         // Interpret this texture as a grayscale texture
@@ -638,7 +639,7 @@ void OpenGLRenderer::Blit(QVariant s, ShaderJob job, Texture *destination, Video
       functions_->glBindTexture(GL_TEXTURE_2D, input_tex->id().value<GLuint>());
 
       // At this time, we only support iterating 2D textures
-      PrepareInputTexture(GL_TEXTURE_2D, job.GetInterpolation(iterative_input));
+      PrepareInputTexture(GL_TEXTURE_2D, job.GetInterpolation(iterative_input), job.GetWrapMode(iterative_input));
     }
 
     // Swap so that the next iteration, the texture we draw now will be the input texture next
@@ -767,7 +768,7 @@ GLenum OpenGLRenderer::GetPixelFormat(int channel_count)
   }
 }
 
-void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation interp)
+void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation interp, Texture::WrapMode wrap)
 {
   switch (interp) {
   case Texture::kNearest:
@@ -785,11 +786,31 @@ void OpenGLRenderer::PrepareInputTexture(GLenum target, Texture::Interpolation i
     break;
   }
 
-  functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  switch (wrap) {
+    case Texture::kClamp:
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  if (target == GL_TEXTURE_3D) {
-    functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+      if (target == GL_TEXTURE_3D) {
+        functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+      }    
+    break;
+    case Texture::kRepeat:
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+      if (target == GL_TEXTURE_3D) {
+        functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_REPEAT);
+      }
+    break;
+    case Texture::kMirroredRepeat:
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+      functions_->glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    
+      if (target == GL_TEXTURE_3D) {
+        functions_->glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_MIRRORED_REPEAT);
+      }
+    break;
   }
 }
 

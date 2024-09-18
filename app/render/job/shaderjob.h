@@ -80,6 +80,11 @@ public:
     return interpolation_.value(id, Texture::kDefaultInterpolation);
   }
 
+  Texture::WrapMode GetWrapMode(const QString& id) const
+  {
+    return wrap_.value(id, Texture::kDefaultWrapMode);
+  }
+
   const QHash<QString, Texture::Interpolation> &GetInterpolationMap() const
   {
     return interpolation_;
@@ -93,6 +98,16 @@ public:
   void SetInterpolation(const QString& id, Texture::Interpolation interp)
   {
     interpolation_.insert(id, interp);
+  }
+
+  void SetWrapMode(const NodeInput& input, Texture::WrapMode wrap)
+  {
+    wrap_.insert(input.input(), wrap);
+  }
+
+  void SetWrapMode(const QString& id, Texture::WrapMode wrap)
+  {
+    wrap_.insert(id, wrap);
   }
 
   void SetVertexCoordinates(const QVector<float> &vertex_coords)
@@ -113,6 +128,7 @@ private:
   QString iterative_input_;
 
   QHash<QString, Texture::Interpolation> interpolation_;
+  QHash<QString, Texture::WrapMode> wrap_;
 
   QVector<float> vertex_overrides_;
 

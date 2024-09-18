@@ -43,7 +43,14 @@ public:
     kMipmappedLinear
   };
 
+  enum WrapMode {
+    kClamp,
+    kRepeat,
+    kMirroredRepeat
+  };
+
   static const Interpolation kDefaultInterpolation;
+  static const WrapMode kDefaultWrapMode;
 
   /**
    * @brief Construct a dummy texture with no renderer backend
@@ -114,6 +121,11 @@ public:
   int height() const
   {
     return params_.effective_height();
+  }
+
+  void set_wrap_mode(Texture::WrapMode wrapMode) const
+  {
+    wrapMode = wrapMode;
   }
 
   QVector2D virtual_resolution() const
