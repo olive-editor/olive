@@ -25,6 +25,7 @@
 namespace olive {
 
 const Texture::Interpolation Texture::kDefaultInterpolation = Texture::kMipmappedLinear;
+const Texture::WrapMode Texture::kDefaultWrapMode = Texture::kClamp;
 
 Texture::~Texture()
 {

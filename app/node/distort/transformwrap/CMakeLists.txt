@@ -14,18 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-add_subdirectory(cornerpin)
-add_subdirectory(crop)
-add_subdirectory(flip)
-add_subdirectory(mask)
-add_subdirectory(ripple)
-add_subdirectory(swirl)
-add_subdirectory(tile)
-add_subdirectory(transform)
-add_subdirectory(transformwrap)
-add_subdirectory(wave)
-
 set(OLIVE_SOURCES
   ${OLIVE_SOURCES}
+  node/distort/transformwrap/transformwrap.h
+  node/distort/transformwrap/transformwrap.cpp
   PARENT_SCOPE
 )

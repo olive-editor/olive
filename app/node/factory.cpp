@@ -39,6 +39,7 @@
 #include "distort/swirl/swirldistortnode.h"
 #include "distort/tile/tiledistortnode.h"
 #include "distort/transform/transformdistortnode.h"
+#include "distort/transformwrap/transformwrap.h"
 #include "distort/wave/wavedistortnode.h"
 #include "effect/opacity/opacityeffect.h"
 #include "filter/blur/blur.h"
@@ -70,6 +71,7 @@
 #include "time/timeformat/timeformat.h"
 #include "time/timeoffset/timeoffsetnode.h"
 #include "time/timeremap/timeremap.h"
+
 
 namespace olive {
 
@@ -221,6 +223,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new MatrixGenerator();
   case kTransformDistort:
     return new TransformDistortNode();
+  case kTransformWrap:
+    return new TransformWrap();
   case kTrackOutput:
     return new Track();
   case kViewerOutput:
