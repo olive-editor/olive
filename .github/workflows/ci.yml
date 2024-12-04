@@ -57,17 +57,27 @@ jobs:
 
     steps:
       - name: Install Node.js 16
+        id: node16
         run: |
           $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
-          cp -af ./node-v16.20.2-linux-x64/bin/node /__e/node20/bin/node
+          node16="$(pwd)/node-v16.20.2-linux-x64/bin/node"
+          $node16 --version
+          echo "executable=${node16}" >> $GITHUB_OUTPUT
 
       - name: Checkout Source Code
         env:
-          PATH: ${{ steps.node16.outputs.path }}
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+          INPUT_SUBMODULES: 'true'
+        run: |
+          mkdir checkout-v3
+          cd checkout-v3
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/index.js
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/problem-matcher.json
+          cd ..
+          ${{ steps.node16.outputs.executable }} ./checkout-v3/index.js
+        #uses: actions/checkout@v3
+        #with:
+        #  submodules: true
 
       - name: Generate Patreon List
         env:
@@ -142,11 +152,20 @@ jobs:
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact to GitHub
-        uses: actions/upload-artifact@v3
+        env:
+          INPUT_NAME: '${{ steps.package.outputs.artifact }}'
+          INPUT_PATH: 'build/Olive*.AppImage'
+        run: |
+          mkdir upload-artifacts-v3
+          cd upload-artifacts-v3
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
+          cd ..
+          ${{ steps.node16.outputs.executable }} ./upload-artifacts-v3/index.js
         continue-on-error: true
-        with:
-          name: ${{ steps.package.outputs.artifact }}
-          path: build/Olive*.AppImage
+        #uses: actions/upload-artifact@v3
+        #with:
+        #  name: ${{ steps.package.outputs.artifact }}
+        #  path: build/Olive*.AppImage
 
   windows:
     strategy:
