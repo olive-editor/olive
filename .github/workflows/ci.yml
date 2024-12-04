@@ -49,9 +49,6 @@ jobs:
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
     runs-on: ubuntu-20.04
-    env:
-      ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
     container:
       image: olivevideoeditor/ci-olive:2022.3
 
@@ -68,6 +65,7 @@ jobs:
       - name: Checkout Source Code
         env:
           INPUT_SUBMODULES: 'true'
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir checkout-v3
           cd checkout-v3
@@ -155,6 +153,7 @@ jobs:
         env:
           INPUT_NAME: '${{ steps.package.outputs.artifact }}'
           INPUT_PATH: 'build/Olive*.AppImage'
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir upload-artifacts-v3
           cd upload-artifacts-v3
