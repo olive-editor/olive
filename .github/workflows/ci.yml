@@ -30,6 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Clang should catch any issues that GCC would also report
           #- build-type: RelWithDebInfo
           #  cc-compiler: gcc
           #  cxx-compiler: g++
