@@ -148,6 +148,9 @@ jobs:
           echo "pkgname=${pkgname}" >> $GITHUB_OUTPUT
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
+      - uses: peaceiris/actions-export-envs@v1.1.0
+        id: envs
+
       - name: Upload Artifact to GitHub
         env:
           INPUT_NAME: '${{ steps.package.outputs.artifact }}'
@@ -155,6 +158,7 @@ jobs:
           INPUT_INCLUDE-HIDDEN-FILES: 'true'
           INPUT_IF-NO-FILES-FOUND: error
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_RUNTIME_TOKEN: ${{ steps.envs.outputs.ACTIONS_RUNTIME_TOKEN }}
         run: |
           mkdir upload-artifact-v3
           cd upload-artifact-v3
