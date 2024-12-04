@@ -59,7 +59,6 @@ jobs:
           tar -xf node-v16.20.2-linux-x64.tar.xz
           mkdir -p ${{ github.workspace }}
           cp -a ./node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
-          ls ${{ github.workspace }}
           ${{ github.workspace }}/node16 --version
 
       - name: Checkout Source Code
@@ -153,13 +152,14 @@ jobs:
         env:
           INPUT_NAME: '${{ steps.package.outputs.artifact }}'
           INPUT_PATH: 'build/Olive*.AppImage'
+          INPUT_INCLUDE-HIDDEN-FILES: 'true'
+          INPUT_IF-NO-FILES-FOUND: error
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir upload-artifact-v3
           cd upload-artifact-v3
           $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
           cd ..
-          ls ${{ github.workspace }}
           ${{ github.workspace }}/node16 ./upload-artifact-v3/index.js
         continue-on-error: true
         #uses: actions/upload-artifact@v3
@@ -494,8 +494,8 @@ jobs:
         run: |
           ln -s /Applications Applications
           cd ..
-          hdiutil --hdiutil-verbose create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy
-          hdiutil --hdiutil-verbose convert img-${{ matrix.os-arch }}.dmg -format UDZO -o $PKGNAME.dmg
+          hdiutil create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy
+          hdiutil convert img-${{ matrix.os-arch }}.dmg -format UDZO -o $PKGNAME.dmg
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v3
