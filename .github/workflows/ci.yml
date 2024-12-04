@@ -59,7 +59,7 @@ jobs:
       - name: Install Node.js 16
         id: node16
         run: |
-          DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
+          $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
           PATH="$(pwd)/node-v16.20.2-linux-x64/bin:$PATH"
           node --version
