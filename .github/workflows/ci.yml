@@ -148,7 +148,7 @@ jobs:
           echo "pkgname=${pkgname}" >> $GITHUB_OUTPUT
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
-      - uses: peaceiris/actions-export-envs@v1.1.0
+      - uses: Simran-B/actions-export-envs@v1.2.0
         id: envs
 
       - name: Upload Artifact to GitHub
@@ -159,6 +159,7 @@ jobs:
           INPUT_IF-NO-FILES-FOUND: error
           INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ACTIONS_RUNTIME_TOKEN: ${{ steps.envs.outputs.ACTIONS_RUNTIME_TOKEN }}
+          ACTIONS_RUNTIME_URL: ${{ steps.envs.outputs.ACTIONS_RUNTIME_URL }}
         run: |
           mkdir upload-artifact-v3
           cd upload-artifact-v3
@@ -431,8 +432,8 @@ jobs:
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          mkdir deploy
-          cd deploy
+          mkdir deploy-${{ matrix.os-arch }}
+          cd deploy-${{ matrix.os-arch }}
 
           mv ../app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
@@ -456,7 +457,7 @@ jobs:
           mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build/deploy
+        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
         shell: bash
         if: github.event_name == 'push'
         env:
@@ -494,11 +495,11 @@ jobs:
 
       - name: Deploy
         shell: bash
-        working-directory: ${{ runner.workspace }}/build/deploy
+        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
         run: |
           ln -s /Applications Applications
           cd ..
-          hdiutil create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy
+          hdiutil create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy-${{ matrix.os-arch }}
           hdiutil convert img-${{ matrix.os-arch }}.dmg -format UDZO -o $PKGNAME.dmg
 
       - name: Upload Artifact to GitHub
