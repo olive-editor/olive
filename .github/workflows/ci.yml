@@ -56,6 +56,14 @@ jobs:
       image: olivevideoeditor/ci-olive:2022.3
 
     steps:
+      - name: Install Node.js 16
+        run: |
+          DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
+          tar -xf node-v16.20.2-linux-x64.tar.xz
+          PATH="$(pwd)/node-v16.20.2-linux-x64/bin:$PATH"
+          node --version
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
+
       - name: Checkout Source Code
         uses: actions/checkout@v3
         with:
