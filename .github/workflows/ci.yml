@@ -57,14 +57,17 @@ jobs:
 
     steps:
       - name: Install Node.js 16
+        id: node16
         run: |
-          $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
+          DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
           PATH="$(pwd)/node-v16.20.2-linux-x64/bin:$PATH"
           node --version
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
+          echo "path=${PATH}" >> $GITHUB_OUTPUT
 
       - name: Checkout Source Code
+        env:
+          PATH: ${{ steps.node16.outputs.path }}
         uses: actions/checkout@v3
         with:
           submodules: true
@@ -142,6 +145,8 @@ jobs:
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact to GitHub
+        env:
+          PATH: ${{ steps.node16.outputs.path }}
         uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
@@ -447,7 +452,7 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode > $CERTIFICATE_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
