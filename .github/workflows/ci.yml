@@ -57,7 +57,8 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
-          cp -a node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
+          mkdir -p ${{ github.workspace }}
+          cp -a ./node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
           ls ${{ github.workspace }}
           ${{ github.workspace }}/node16 --version
 
