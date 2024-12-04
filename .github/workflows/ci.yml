@@ -57,8 +57,8 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
-          cp -a ./node-v16.20.2-linux-x64/bin/node '${{ runner.workspace }}/node16'
-          '${{ runner.workspace }}/node16' --version
+          cp -a ./node-v16.20.2-linux-x64/bin/node /opt/olive/node16
+          /opt/olive/node16 --version
 
       - name: Checkout Source Code
         env:
@@ -157,7 +157,7 @@ jobs:
           cd upload-artifact-v3
           $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
           cd ..
-          '${{ runner.workspace }}/node16' ./upload-artifact-v3/index.js
+          /opt/olive/node16 ./upload-artifact-v3/index.js
         continue-on-error: true
         #uses: actions/upload-artifact@v3
         #with:
