@@ -57,9 +57,9 @@ jobs:
         run: |
           $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
-          cp -a node-v16.20.2-linux-x64/bin/node node16
-          pwd
-          ./node16 --version
+          cp -a node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
+          ls ${{ github.workspace }}
+          ${{ github.workspace }}/node16 --version
 
       - name: Checkout Source Code
         env:
@@ -71,8 +71,7 @@ jobs:
           $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/index.js
           $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/problem-matcher.json
           cd ..
-          pwd
-          '${{ runner.workspace }}/node16' ./checkout-v3/index.js
+          ${{ github.workspace }}/node16 ./checkout-v3/index.js
         #uses: actions/checkout@v3
         #with:
         #  submodules: true
@@ -159,8 +158,8 @@ jobs:
           cd upload-artifact-v3
           $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
           cd ..
-          pwd
-          ./node16 ./upload-artifact-v3/index.js
+          ls ${{ github.workspace }}
+          ${{ github.workspace }}/node16 ./upload-artifact-v3/index.js
         continue-on-error: true
         #uses: actions/upload-artifact@v3
         #with:
