@@ -300,14 +300,14 @@ jobs:
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-12
+            os: macos-13
             cmake-gen: Ninja
             min-deploy: 10.13
           - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: arm64
-            os: macos-12
+            os: macos-13
             cmake-gen: Ninja
             min-deploy: 11.0
     env:
