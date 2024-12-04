@@ -268,12 +268,10 @@ void NodeViewItem::SetExpanded(bool e, bool hide_titlebar)
 
     if (IsOutputItem()) {
       // Create items for each input of the node
-      int i = 1;
       foreach (const QString &input, node_->inputs()) {
         if (IsInputValid(input)) {
           NodeViewItem *item = new NodeViewItem(node_, input, -1, context_, this);
           children_.append(item);
-          i++;
         }
       }
 
