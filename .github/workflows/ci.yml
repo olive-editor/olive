@@ -57,13 +57,10 @@ jobs:
 
     steps:
       - name: Install Node.js 16
-        id: node16
         run: |
           $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
           tar -xf node-v16.20.2-linux-x64.tar.xz
-          PATH="$(pwd)/node-v16.20.2-linux-x64/bin:$PATH"
-          node --version
-          echo "path=${PATH}" >> $GITHUB_OUTPUT
+          cp -af ./node-v16.20.2-linux-x64/bin/node /__e/node20/bin/node
 
       - name: Checkout Source Code
         env:
@@ -145,8 +142,6 @@ jobs:
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
       - name: Upload Artifact to GitHub
-        env:
-          PATH: ${{ steps.node16.outputs.path }}
         uses: actions/upload-artifact@v3
         continue-on-error: true
         with:
