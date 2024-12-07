@@ -87,7 +87,7 @@ private:
 
   void DetachTextureAsDestination();
 
-  void PrepareInputTexture(GLenum target, Texture::Interpolation interp);
+  void PrepareInputTexture(GLenum target, Texture::Interpolation interp, Texture::WrapMode wrap);
 
   void ClearDestinationInternal(double r = 0.0, double g = 0.0, double b = 0.0, double a = 0.0);
 

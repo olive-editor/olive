@@ -38,6 +38,7 @@ public:
     kPolygonGenerator,
     kMatrixGenerator,
     kTransformDistort,
+    kTransformWrap,
     kTrackOutput,
     kAudioVolume,
     kAudioPanning,

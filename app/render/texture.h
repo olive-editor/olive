@@ -43,7 +43,14 @@ public:
     kMipmappedLinear
   };
 
+  enum WrapMode {
+    kClamp,
+    kRepeat,
+    kMirroredRepeat
+  };
+
   static const Interpolation kDefaultInterpolation;
+  static const WrapMode kDefaultWrapMode;
 
   /**
    * @brief Construct a dummy texture with no renderer backend
