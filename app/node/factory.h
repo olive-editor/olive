@@ -81,6 +81,7 @@ public:
     kTileDistort,
     kSwirlDistort,
     kMulticamNode,
+    kRGBToBW,
 
     // Count value
     kInternalNodeCount

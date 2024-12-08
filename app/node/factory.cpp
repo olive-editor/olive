@@ -31,6 +31,7 @@
 #include "block/transition/diptocolor/diptocolortransition.h"
 #include "color/displaytransform/displaytransform.h"
 #include "color/ociogradingtransformlinear/ociogradingtransformlinear.h"
+#include "color/rgbtobw/rgbtobw.h"
 #include "distort/cornerpin/cornerpindistortnode.h"
 #include "distort/crop/cropdistortnode.h"
 #include "distort/flip/flipdistortnode.h"
@@ -309,6 +310,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new RippleDistortNode();
   case kMulticamNode:
     return new MultiCamNode();
+  case kRGBToBW:
+    return new RGBToBWNode();
 
   case kInternalNodeCount:
     break;
