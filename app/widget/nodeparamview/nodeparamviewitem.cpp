@@ -201,6 +201,10 @@ void NodeParamViewItemBody::CreateWidgets(QGridLayout* layout, Node *node, const
   // Add descriptor label
   ui_objects.main_label = new QLabel(this);
 
+  if (node->HasInputProperty( input, "tooltip")) {
+    ui_objects.main_label->setToolTip( node->GetInputProperty( input, "tooltip").toString());
+  }
+
   // Create input label
   layout->addWidget(ui_objects.main_label, row, kLabelColumn);
 
