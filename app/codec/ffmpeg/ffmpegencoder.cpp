@@ -769,6 +769,7 @@ bool FFmpegEncoder::SetupCodecContext(AVStream* stream, AVCodecContext* codec_ct
 
   if (codec->type == AVMEDIA_TYPE_VIDEO) {
     stream->avg_frame_rate = codec_ctx->framerate;
+    stream->time_base = av_add_q(codec_ctx->time_base, {0, 1});
   }
 
   return true;
