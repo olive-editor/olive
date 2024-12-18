@@ -43,6 +43,7 @@
 #include "effect/opacity/opacityeffect.h"
 #include "filter/blur/blur.h"
 #include "filter/dropshadow/dropshadowfilter.h"
+#include "filter/dilateerode/dilateerode.h"
 #include "filter/mosaic/mosaicfilternode.h"
 #include "filter/stroke/stroke.h"
 #include "generator/matrix/matrix.h"
@@ -309,6 +310,8 @@ Node *NodeFactory::CreateFromFactoryIndex(const NodeFactory::InternalID &id)
     return new RippleDistortNode();
   case kMulticamNode:
     return new MultiCamNode();
+  case kDilateErodeFilter:
+    return new DilateErodeFilterNode();
 
   case kInternalNodeCount:
     break;
