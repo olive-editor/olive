@@ -22,23 +22,38 @@
 #define NODEPARAMVIEWTEXTEDIT_H
 
 #include <QPlainTextEdit>
+#include <QTextEdit>
 #include <QPushButton>
 #include <QWidget>
 
 #include "common/define.h"
+#include "dialog/text/text.h"
+
 
 namespace olive {
+
+class Node;
+class NodeParamViewShader;
+
 
 class NodeParamViewTextEdit : public QWidget
 {
   Q_OBJECT
 public:
   NodeParamViewTextEdit(QWidget* parent = nullptr);
+  ~NodeParamViewTextEdit();
 
   QString text() const
   {
     return line_edit_->toPlainText();
   }
+
+  // let this instance perform as a code editor.
+  // This input will be edited with a built-in or external code editor.
+  // 'is_vertex' is false for Fragment shader, true for vertex shader
+  void setShaderCodeEditorFlag(const Node *owner, bool is_vertex);
+  // set flag to view text as code issues
+  void setShaderIssuesFlag();
 
   void SetEditInViewerOnlyMode(bool on);
 
@@ -71,7 +86,13 @@ signals:
 
 private:
   QPlainTextEdit* line_edit_;
+  bool code_editor_flag_;
+  bool code_issues_flag_;
+  NodeParamViewShader * shader_edit_;
 
+  TextDialog * text_dlg_;
+
+private:
   QPushButton* edit_btn_;
 
   QPushButton *edit_in_viewer_btn_;
@@ -81,8 +102,11 @@ private slots:
 
   void InnerWidgetTextChanged();
 
+  void OnTextChangedExternally(const QString & content);
+
 };
 
 }
+
 
 #endif // NODEPARAMVIEWTEXTEDIT_H
