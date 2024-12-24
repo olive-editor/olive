@@ -138,6 +138,21 @@ void NodeParamViewWidgetBridge::CreateWidgets()
     {
       NodeParamViewTextEdit* line_edit = new NodeParamViewTextEdit(parent);
       widgets_.append(line_edit);
+
+      // check for special type of text
+      QString text_type = GetInnerInput().GetProperty(QStringLiteral("text_type")).toString();
+      if (text_type == "shader_code_frag") {
+        const Node * owner = GetInnerInput().node();
+        line_edit->setShaderCodeEditorFlag( owner, false);
+      }
+      if (text_type == "shader_code_vert") {
+        const Node * owner = GetInnerInput().node();
+        line_edit->setShaderCodeEditorFlag( owner, true);
+      }
+      else if (text_type == "shader_issues") {
+        line_edit->setShaderIssuesFlag();
+      }
+
       connect(line_edit, &NodeParamViewTextEdit::textEdited, this, &NodeParamViewWidgetBridge::WidgetCallback);
       connect(line_edit, &NodeParamViewTextEdit::RequestEditInViewer, this, &NodeParamViewWidgetBridge::RequestEditTextInViewer);
       break;

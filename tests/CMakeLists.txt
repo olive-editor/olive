@@ -1,5 +1,5 @@
 # Olive - Non-Linear Video Editor
-# Copyright (C) 2022 Olive Team
+# Copyright (C) 2023 Olive Team
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -72,3 +72,4 @@ endfunction()
 add_subdirectory(compositing)
 add_subdirectory(general)
 add_subdirectory(timeline)
+add_subdirectory(shader)

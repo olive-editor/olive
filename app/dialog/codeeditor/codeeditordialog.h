@@ -1,7 +1,7 @@
 /***
 
   Olive - Non-Linear Video Editor
-  Copyright (C) 2022 Olive Team
+  Copyright (C) 2021 Olive Team
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -17,41 +17,44 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***/
-
-#ifndef RICHTEXTDIALOG_H
-#define RICHTEXTDIALOG_H
+#ifndef CODEEDITORDIALOG_H
+#define CODEEDITORDIALOG_H
 
 #include <QDialog>
-#include <QFontComboBox>
-#include <QPlainTextEdit>
-#include <QSyntaxHighlighter>
-
-#include "common/define.h"
-#include "widget/slider/floatslider.h"
+#include "dialog/codeeditor/editor.h"
 
 namespace olive {
 
-class TextDialog : public QDialog
+class SearchTextBar;
+
+
+/// @brief Wrapper QDialog window for the code editor
+class CodeEditorDialog : public QDialog
 {
   Q_OBJECT
 public:
-  TextDialog(const QString &start, QWidget* parent = nullptr);
+  CodeEditorDialog(const QString &start, QWidget* parent = nullptr);
 
   QString text() const
   {
     return text_edit_->toPlainText();
   }
 
-  void setSyntaxHighlight( QSyntaxHighlighter * highlighter) const
-  {
-    highlighter->setDocument(text_edit_->document());
-  }
-
 private:
-  QPlainTextEdit* text_edit_;
+  CodeEditor* text_edit_;
+  SearchTextBar * search_bar_;
 
+private slots:
+  void OnActionAddInputTexture();
+  void OnActionAddInputColor();
+  void OnActionAddInputFloat();
+  void OnActionAddInputInt();
+  void OnActionAddInputBoolean();
+  void OnActionAddInputSelection();
+  void OnActionAddInputPoint();
+  void OnFindRequest();
 };
 
-}
+}  // namespace olive
 
-#endif // RICHTEXTDIALOG_H
+#endif // CODEEDITORDIALOG_H

@@ -164,6 +164,18 @@ void Config::SetDefaults()
   SetEntryInternal(QStringLiteral("OfflinePixelFormat"), NodeValue::kInt, PixelFormat::F16);
 
   SetEntryInternal(QStringLiteral("MarkerColor"), NodeValue::kInt, ColorCoding::kLime);
+
+  // Code editor
+  SetEntryInternal(QStringLiteral("EditorUseInternal"), NodeValue::kBoolean, true);
+
+  SetEntryInternal(QStringLiteral("EditorExternalCommand"), NodeValue::kText, QString());
+  SetEntryInternal(QStringLiteral("EditorExternalParams"), NodeValue::kText, QString());
+  SetEntryInternal(QStringLiteral("EditorExternalTempFolder"), NodeValue::kText,
+                   QStandardPaths::standardLocations( QStandardPaths::TempLocation).at(0));
+  SetEntryInternal(QStringLiteral("EditorInternalFontSize"), NodeValue::kInt, 14);
+  SetEntryInternal(QStringLiteral("EditorInternalIndentSize"), NodeValue::kInt, 3);
+  SetEntryInternal(QStringLiteral("EditorInternalWindowWidth"), NodeValue::kInt, 800);
+  SetEntryInternal(QStringLiteral("EditorInternalWindowHeight"), NodeValue::kInt, 600);
 }
 
 void Config::Load()

@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 add_subdirectory(blur)
+add_subdirectory(shader)
 add_subdirectory(dropshadow)
 add_subdirectory(mosaic)
 add_subdirectory(stroke)

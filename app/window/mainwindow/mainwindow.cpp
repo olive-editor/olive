@@ -33,6 +33,7 @@
 #include "mainmenu.h"
 #include "mainstatusbar.h"
 #include "timeline/timelineundoworkarea.h"
+#include "dialog/codeeditor/externaleditorproxy.h"
 
 namespace olive {
 
@@ -449,6 +450,8 @@ void MainWindow::closeEvent(QCloseEvent *e)
     e->ignore();
     return;
   }
+
+  ExternalEditorProxy::CleanGeneratedFiles();
 
   scope_panel_->SetViewerPanel(nullptr);
 

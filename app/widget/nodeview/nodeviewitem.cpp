@@ -66,6 +66,8 @@ NodeViewItem::NodeViewItem(Node *node, const QString &input, int element, Node *
 
   connect(node_, &Node::LabelChanged, this, &NodeViewItem::NodeAppearanceChanged);
   connect(node_, &Node::ColorChanged, this, &NodeViewItem::NodeAppearanceChanged);
+  // a change in input flags (NOT_CONNECTABLE, HIDDEN) may require to show or hide an input of this node
+  connect(node_, &Node::InputListChanged, this, &NodeViewItem::RepopulateInputs);
 
   if (IsOutputItem()) {
     connect(node_, &Node::InputAdded, this, &NodeViewItem::RepopulateInputs);
