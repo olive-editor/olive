@@ -30,6 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Clang should catch any issues that GCC would also report
           #- build-type: RelWithDebInfo
           #  cc-compiler: gcc
           #  cxx-compiler: g++
@@ -47,15 +48,33 @@ jobs:
       <${{ matrix.compiler-name }},
        ${{ matrix.build-type }},
        ${{ matrix.cmake-gen }}>
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: olivevideoeditor/ci-olive:2022.3
 
     steps:
+      - name: Install Node.js 16
+        run: |
+          $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
+          tar -xf node-v16.20.2-linux-x64.tar.xz
+          mkdir -p ${{ github.workspace }}
+          cp -a ./node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
+          ${{ github.workspace }}/node16 --version
+
       - name: Checkout Source Code
-        uses: actions/checkout@v3
-        with:
-          submodules: true
+        env:
+          INPUT_SUBMODULES: 'true'
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir checkout-v3
+          cd checkout-v3
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/index.js
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/problem-matcher.json
+          cd ..
+          ${{ github.workspace }}/node16 ./checkout-v3/index.js
+        #uses: actions/checkout@v3
+        #with:
+        #  submodules: true
 
       - name: Generate Patreon List
         env:
@@ -129,12 +148,29 @@ jobs:
           echo "pkgname=${pkgname}" >> $GITHUB_OUTPUT
           echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
 
+      - uses: Simran-B/actions-export-envs@v1.2.0
+        id: envs
+
       - name: Upload Artifact to GitHub
-        uses: actions/upload-artifact@v3
+        env:
+          INPUT_NAME: '${{ steps.package.outputs.artifact }}'
+          INPUT_PATH: 'build/Olive*.AppImage'
+          INPUT_INCLUDE-HIDDEN-FILES: 'true'
+          INPUT_IF-NO-FILES-FOUND: error
+          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTIONS_RUNTIME_TOKEN: ${{ steps.envs.outputs.ACTIONS_RUNTIME_TOKEN }}
+          ACTIONS_RUNTIME_URL: ${{ steps.envs.outputs.ACTIONS_RUNTIME_URL }}
+        run: |
+          mkdir upload-artifact-v3
+          cd upload-artifact-v3
+          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
+          cd ..
+          ${{ github.workspace }}/node16 ./upload-artifact-v3/index.js
         continue-on-error: true
-        with:
-          name: ${{ steps.package.outputs.artifact }}
-          path: build/Olive*.AppImage
+        #uses: actions/upload-artifact@v3
+        #with:
+        #  name: ${{ steps.package.outputs.artifact }}
+        #  path: build/Olive*.AppImage
 
   windows:
     strategy:
@@ -159,6 +195,14 @@ jobs:
         with:
           submodules: true
           show-progress: false
+
+      # HACK: Override CMake version to avoid an FFmpeg discovery problem
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: '3.27.x'
+      - name: CMake version
+        run: cmake --version
 
       - name: Automatically Generate Package Name
         shell: bash
@@ -282,20 +326,21 @@ jobs:
 
   macos:
     strategy:
+      fail-fast: false
       matrix:
         include:
           - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: x86_64
-            os: macos-11.0
+            os: macos-13
             cmake-gen: Ninja
             min-deploy: 10.13
           - build-type: RelWithDebInfo
             compiler-name: Clang LLVM
             os-name: macOS
             os-arch: arm64
-            os: macos-11.0
+            os: macos-13
             cmake-gen: Ninja
             min-deploy: 11.0
     env:
@@ -387,8 +432,8 @@ jobs:
           BUNDLE_NAME="Olive.app"
           brew install dylibbundler
 
-          mkdir deploy
-          cd deploy
+          mkdir deploy-${{ matrix.os-arch }}
+          cd deploy-${{ matrix.os-arch }}
 
           mv ../app/$BUNDLE_NAME .
           mkdir $BUNDLE_NAME/Contents/Frameworks
@@ -412,7 +457,7 @@ jobs:
           mv Olive.sym "$SYM_DIR"
 
       - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build/deploy
+        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
         shell: bash
         if: github.event_name == 'push'
         env:
@@ -427,7 +472,7 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode > $CERTIFICATE_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -450,12 +495,12 @@ jobs:
 
       - name: Deploy
         shell: bash
-        working-directory: ${{ runner.workspace }}/build/deploy
+        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
         run: |
           ln -s /Applications Applications
           cd ..
-          hdiutil create img.dmg -volname Olive -fs HFS+ -srcfolder deploy
-          hdiutil convert img.dmg -format UDZO -o $PKGNAME.dmg
+          hdiutil create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy-${{ matrix.os-arch }}
+          hdiutil convert img-${{ matrix.os-arch }}.dmg -format UDZO -o $PKGNAME.dmg
 
       - name: Upload Artifact to GitHub
         uses: actions/upload-artifact@v3
