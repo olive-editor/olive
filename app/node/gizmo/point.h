@@ -50,6 +50,24 @@ public:
   bool GetSmaller() const { return smaller_; }
   void SetSmaller(bool e) { smaller_ = e; }
 
+  bool CanBeDraggedInGroup() const override {
+    return can_drag_in_group_;
+  }
+
+  void SetCanBeDraggedInGroup( bool can_drag) {
+    can_drag_in_group_ = can_drag;
+  }
+
+  // A child point is a point that is selected automatically
+  // when the parent is selected
+  void AddChildPoint(PointGizmo * child) {
+    child_points_ << child;
+  }
+
+  const QList<PointGizmo *> ChildPoints() const {
+    return child_points_;
+  }
+
   virtual void Draw(QPainter *p) const override;
 
   QRectF GetClickingRect(const QTransform &t) const;
@@ -64,6 +82,9 @@ private:
   QPointF point_;
 
   bool smaller_;
+
+  bool can_drag_in_group_;
+  QList<PointGizmo *> child_points_;
 
 };
 

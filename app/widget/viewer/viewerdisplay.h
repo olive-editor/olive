@@ -36,6 +36,7 @@
 #include "viewertexteditor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 #include "widget/timetarget/timetarget.h"
+#include "gizmoselection.h"
 
 namespace olive {
 
@@ -427,6 +428,8 @@ private:
   ViewerTextEditorToolBar *text_toolbar_;
   QTransform text_transform_;
   QTransform text_transform_inverted_;
+
+  GizmoSelection gizmo_selection_;
 
 private slots:
   void UpdateFromQueue();
