@@ -91,7 +91,7 @@ AboutDialog::AboutDialog(bool welcome_dialog, QWidget *parent) :
 
   QLabel* support_lbl = new QLabel(tr("<html>%1 "
                                         "If you like this project, please consider making a "
-                                        "<a href='https://olivevideoeditor.org/donate.php'>one-time donation</a> or "
+                                        "<a href='https://olivevideoeditor.org/donate'>one-time donation</a> or "
                                         "<a href='https://www.patreon.com/olivevideoeditor'>pledging monthly</a> to "
                                         "support its development.</html>").arg(opening_statement));
   support_lbl->setWordWrap(true);
