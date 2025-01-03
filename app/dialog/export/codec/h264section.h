@@ -50,6 +50,13 @@ private:
 
 };
 
+class H264LosslessSection : public QWidget
+{
+  Q_OBJECT
+public:
+  H264LosslessSection(QWidget* parent = nullptr);
+};
+
 class H264BitRateSection : public QWidget
 {
   Q_OBJECT
@@ -98,6 +105,7 @@ class H264Section : public CodecSection
 public:
   enum CompressionMethod {
     kConstantRateFactor,
+    kLossless,
     kTargetBitRate,
     kTargetFileSize
   };
@@ -113,6 +121,8 @@ private:
   QStackedWidget* compression_method_stack_;
 
   H264CRFSection* crf_section_;
+
+  H264LosslessSection* lossless_section_;
 
   H264BitRateSection* bitrate_section_;
 
