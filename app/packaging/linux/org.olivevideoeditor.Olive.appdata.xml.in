@@ -15,24 +15,27 @@
   <summary xml:lang="uk_UA">Нелінійний відеоредактор</summary>
   <summary xml:lang="id">Aplikasi edit video non-linier</summary>
   <summary xml:lang="fr">Éditeur vidéo non-linéaire</summary>
-  <description><p>Olive is a free non-linear video editor aiming to provide a fully-featured alternative to high-end professional video editing software.</p></description>
-  <description xml:lang="de_DE">Olive ist ein freies nicht-lineares Videoschnittprogramm, welches eine vollwertige Alternative zu High-End Videoschnittprogrammen darstellen soll.</description>
-  <description xml:lang="pt_BR"><p>Olive é um editor de vídeo não-linear com o objetivo de fornecer uma alternativa completa para softwares profissionais de edição de vídeo.</p></description>
-  <description xml:lang="es"><p>Olive es un editor de video no lineal libre que apunta a brindar una alternativa completa al software de edición de video profesional.</p></description>
-  <description xml:lang="it"><p>Olive è un programma di montaggio video che mira a fornire una alternativa di alta qualità ai software professionali</p></description>
-  <description xml:lang="ru"><p>Olive — свободный нелинейный видеоредактор, задуманный как полноценная замена закрытым коммерческим продуктам.</p></description>
-  <description xml:lang="uk"><p>Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p></description>
-  <description xml:lang="uk_UA"><p>Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p></description>
-  <description xml:lang="id"><p>Olive adalah aplikasi edit video bersifat non-linier yang bebas dan gratis, bertujuan untuk memberikan alternatif yang lengkap untuk aplikasi edit video profesional.</p></description>
-  <description xml:lang="fr"><p>Olive est un éditeur vidéo non linéaire libre visant à fournir une alternative complète aux logiciels de montage vidéo professionnels haut de gamme.</p></description>
+  <description>
+    <p>Olive is a free non-linear video editor aiming to provide a fully-featured alternative to high-end professional video editing software.</p>
+    <p xml:lang="de_DE">Olive ist ein freies nicht-lineares Videoschnittprogramm, welches eine vollwertige Alternative zu High-End Videoschnittprogrammen darstellen soll.</p>
+    <p xml:lang="pt_BR">Olive é um editor de vídeo não-linear com o objetivo de fornecer uma alternativa completa para softwares profissionais de edição de vídeo.</p>
+    <p xml:lang="es">Olive es un editor de video no lineal libre que apunta a brindar una alternativa completa al software de edición de video profesional.</p>
+    <p xml:lang="it">Olive è un programma di montaggio video che mira a fornire una alternativa di alta qualità ai software professionali</p>
+    <p xml:lang="ru">Olive — свободный нелинейный видеоредактор, задуманный как полноценная замена закрытым коммерческим продуктам.</p>
+    <p xml:lang="uk">Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p>
+    <p xml:lang="uk_UA">Olive — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам.</p>
+    <p xml:lang="id">Olive adalah aplikasi edit video bersifat non-linier yang bebas dan gratis, bertujuan untuk memberikan alternatif yang lengkap untuk aplikasi edit video profesional.</p>
+    <p xml:lang="fr">Olive est un éditeur vidéo non linéaire libre visant à fournir une alternative complète aux logiciels de montage vidéo professionnels haut de gamme.</p>
+  </description>
   <url type="homepage">https://www.olivevideoeditor.org</url>
   <url type="donation">https://www.patreon.com/olivevideoeditor</url>
   <url type="bugtracker">https://github.com/olive-editor/olive/issues</url>
   <screenshots>
-    <screenshot type="default"><image>https://olivevideoeditor.org/img/screenshot.1600.jpg</image></screenshot>
+    <screenshot type="default"><image>https://olivevideoeditor.org/img/why1.png</image></screenshot>
   </screenshots>
   <content_rating type="oars-1.1"/>
   <releases>
     <release version="@APPDATA_RELEASE_VERSION@" date="@APPDATA_RELEASE_DATE@"/>
   </releases>
+  <launchable type="desktop-id">org.olivevideoeditor.Olive.desktop</launchable>
 </component>
