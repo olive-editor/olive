@@ -787,12 +787,16 @@ void FFmpegEncoder::FlushEncoders()
   }
 
   if (fmt_ctx_) {
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(62,3,100)
     if (fmt_ctx_->oformat->flags & AVFMT_ALLOW_FLUSH) {
+#endif
       int r = av_interleaved_write_frame(fmt_ctx_, nullptr);
       if (r < 0) {
         FFmpegError(tr("Failed to write interleaved packet"), r);
       }
+#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(62,3,100)
     }
+#endif
   }
 }
 
