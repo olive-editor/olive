@@ -60,7 +60,7 @@ QString HumanStrings::FormatToString(const SampleFormat &f)
     break;
   }
 
-  return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(f, 1, 16);
+  return QCoreApplication::translate("AudioParams", "Unknown (0x%1)").arg(static_cast<int>(f), 1, 16);
 }
 
 }
