@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,42 +28,42 @@
 #include "common/define.h"
 #include "exportcodec.h"
 
-namespace olive {
-
-class ExportFormat : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class ExportFormat : public QObject {
+	Q_OBJECT
 public:
-  // Only append to this list (never insert) because indexes are used in serialized files
-  enum Format {
-    kFormatDNxHD,
-    kFormatMatroska,
-    kFormatMPEG4Video,
-    kFormatOpenEXR,
-    kFormatQuickTime,
-    kFormatPNG,
-    kFormatTIFF,
-    kFormatWAV,
-    kFormatAIFF,
-    kFormatMP3,
-    kFormatFLAC,
-    kFormatOgg,
-    kFormatWebM,
-    kFormatSRT,
-    kFormatMPEG4Audio,
+	// Only append to this list (never insert) because indexes are used in serialized files
+	enum Format {
+		kFormatDNxHD,
+		kFormatMatroska,
+		kFormatMPEG4Video,
+		kFormatOpenEXR,
+		kFormatQuickTime,
+		kFormatPNG,
+		kFormatTIFF,
+		kFormatWAV,
+		kFormatAIFF,
+		kFormatMP3,
+		kFormatFLAC,
+		kFormatOgg,
+		kFormatWebM,
+		kFormatSRT,
+		kFormatMPEG4Audio,
 
-    kFormatCount
-  };
+		kFormatCount
+	};
 
-  static QString GetName(Format f);
-  static QString GetExtension(Format f);
-  static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
-  static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
-  static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
+	static QString GetName(Format f);
+	static QString GetExtension(Format f);
+	static QList<ExportCodec::Codec> GetVideoCodecs(ExportFormat::Format f);
+	static QList<ExportCodec::Codec> GetAudioCodecs(ExportFormat::Format f);
+	static QList<ExportCodec::Codec> GetSubtitleCodecs(ExportFormat::Format f);
 
-  static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
-  static std::vector<SampleFormat> GetSampleFormatsForCodec(Format f, ExportCodec::Codec c);
-
+	static QStringList GetPixelFormatsForCodec(Format f, ExportCodec::Codec c);
+	static std::vector<SampleFormat>
+	GetSampleFormatsForCodec(Format f, ExportCodec::Codec c);
 };
 
 }

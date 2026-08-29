@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,17 +21,18 @@
 
 #include "gizmo.h"
 
-namespace olive {
-
-NodeGizmo::NodeGizmo(QObject *parent) :
-  visible_(true)
+namespace olive
 {
-  setParent(parent);
+
+NodeGizmo::NodeGizmo(QObject *parent)
+	: visible_(true)
+{
+	setParent(parent);
 }
 
 NodeGizmo::~NodeGizmo()
 {
-  setParent(nullptr);
+	setParent(nullptr);
 }
 
 }

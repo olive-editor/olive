@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,53 +29,61 @@
 #include "presetmanager.h"
 #include "sequencepreset.h"
 
-namespace olive {
-
-class SequenceDialogPresetTab : public QWidget, public PresetManager<SequencePreset>
+namespace olive
 {
-  Q_OBJECT
+
+class SequenceDialogPresetTab : public QWidget,
+								public PresetManager<SequencePreset> {
+	Q_OBJECT
 public:
-  SequenceDialogPresetTab(QWidget* parent = nullptr);
+	SequenceDialogPresetTab(QWidget *parent = nullptr);
 
 public slots:
-  void SaveParametersAsPreset(SequencePreset preset);
+	void SaveParametersAsPreset(SequencePreset preset);
 
 signals:
-  void PresetChanged(const SequencePreset& preset);
+	void PresetChanged(const SequencePreset &preset);
 
-  void PresetAccepted();
+	void PresetAccepted();
 
 private:
-  QTreeWidgetItem *CreateFolder(const QString& name);
+	QTreeWidgetItem *CreateFolder(const QString &name);
 
-  QTreeWidgetItem *CreateHDPresetFolder(const QString& name, int width, int height, int divider);
+	QTreeWidgetItem *CreateHDPresetFolder(const QString &name, int width,
+										  int height, int divider);
 
-  QTreeWidgetItem *CreateSDPresetFolder(const QString& name, int width, int height, const rational &frame_rate, const rational& standard_par, const rational& wide_par, int divider);
+	QTreeWidgetItem *CreateSDPresetFolder(
+		const QString &name, int width, int height, const rational &frame_rate,
+		const rational &standard_par, const rational &wide_par, int divider);
 
-  QTreeWidgetItem* GetSelectedItem();
-  QTreeWidgetItem* GetSelectedCustomPreset();
+	QTreeWidgetItem *GetSelectedItem();
+	QTreeWidgetItem *GetSelectedCustomPreset();
 
-  void AddStandardItem(QTreeWidgetItem* folder, PresetPtr preset, const QString &description = QString());
+	void AddStandardItem(QTreeWidgetItem *folder, PresetPtr preset,
+						 const QString &description = QString());
 
-  void AddCustomItem(QTreeWidgetItem* folder, PresetPtr preset, int index, const QString& description = QString());
+	void AddCustomItem(QTreeWidgetItem *folder, PresetPtr preset, int index,
+					   const QString &description = QString());
 
-  void AddItemInternal(QTreeWidgetItem* folder, PresetPtr preset, bool is_custom, int index, const QString& description = QString());
+	void AddItemInternal(QTreeWidgetItem *folder, PresetPtr preset,
+						 bool is_custom, int index,
+						 const QString &description = QString());
 
-  QTreeWidget* preset_tree_;
+	QTreeWidget *preset_tree_;
 
-  QTreeWidgetItem* my_presets_folder_;
+	QTreeWidgetItem *my_presets_folder_;
 
-  QVector<PresetPtr> default_preset_data_;
+	QVector<PresetPtr> default_preset_data_;
 
 private slots:
-  void SelectedItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
+	void SelectedItemChanged(QTreeWidgetItem *current,
+							 QTreeWidgetItem *previous);
 
-  void ItemDoubleClicked(QTreeWidgetItem *item, int column);
+	void ItemDoubleClicked(QTreeWidgetItem *item, int column);
 
-  void ShowContextMenu();
+	void ShowContextMenu();
 
-  void DeleteSelectedPreset();
-
+	void DeleteSelectedPreset();
 };
 
 }

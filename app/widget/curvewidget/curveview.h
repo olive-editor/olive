@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,101 +26,108 @@
 #include "widget/keyframeview/keyframeview.h"
 #include "widget/slider/floatslider.h"
 
-namespace olive {
-
-class CurveView : public KeyframeView
+namespace olive
 {
-  Q_OBJECT
+
+class CurveView : public KeyframeView {
+	Q_OBJECT
 public:
-  CurveView(QWidget* parent = nullptr);
+	CurveView(QWidget *parent = nullptr);
 
-  void ConnectInput(const NodeKeyframeTrackReference &ref);
+	void ConnectInput(const NodeKeyframeTrackReference &ref);
 
-  void DisconnectInput(const NodeKeyframeTrackReference &ref);
+	void DisconnectInput(const NodeKeyframeTrackReference &ref);
 
-  void SelectKeyframesOfInput(const NodeKeyframeTrackReference &ref);
+	void SelectKeyframesOfInput(const NodeKeyframeTrackReference &ref);
 
-  void SetKeyframeTrackColor(const NodeKeyframeTrackReference& ref, const QColor& color);
+	void SetKeyframeTrackColor(const NodeKeyframeTrackReference &ref,
+							   const QColor &color);
 
-  const QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection*> &GetConnections() const
-  {
-    return track_connections_;
-  }
+	const QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection *> &
+	GetConnections() const
+	{
+		return track_connections_;
+	}
 
 public slots:
-  void ZoomToFit();
+	void ZoomToFit();
 
-  void ZoomToFitSelected();
+	void ZoomToFitSelected();
 
-  void ResetZoom();
+	void ResetZoom();
 
 protected:
-  virtual void drawBackground(QPainter* painter, const QRectF& rect) override;
-  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+	virtual void drawBackground(QPainter *painter, const QRectF &rect) override;
+	virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
-  virtual void ContextMenuEvent(Menu &m) override;
+	virtual void ContextMenuEvent(Menu &m) override;
 
-  virtual void SceneRectUpdateEvent(QRectF &r) override;
+	virtual void SceneRectUpdateEvent(QRectF &r) override;
 
-  virtual qreal GetKeyframeSceneY(KeyframeViewInputConnection *track, NodeKeyframe *key) override;
+	virtual qreal GetKeyframeSceneY(KeyframeViewInputConnection *track,
+									NodeKeyframe *key) override;
 
-  virtual void DrawKeyframe(QPainter *painter, NodeKeyframe *key, KeyframeViewInputConnection *track, const QRectF &key_rect) override;
+	virtual void DrawKeyframe(QPainter *painter, NodeKeyframe *key,
+							  KeyframeViewInputConnection *track,
+							  const QRectF &key_rect) override;
 
-  virtual bool FirstChanceMousePress(QMouseEvent *event) override;
-  virtual void FirstChanceMouseMove(QMouseEvent *event) override;
-  virtual void FirstChanceMouseRelease(QMouseEvent *event) override;
+	virtual bool FirstChanceMousePress(QMouseEvent *event) override;
+	virtual void FirstChanceMouseMove(QMouseEvent *event) override;
+	virtual void FirstChanceMouseRelease(QMouseEvent *event) override;
 
-  virtual void KeyframeDragStart(QMouseEvent *event) override;
-  virtual void KeyframeDragMove(QMouseEvent *event, QString &tip) override;
-  virtual void KeyframeDragRelease(QMouseEvent *event, MultiUndoCommand *command) override;
+	virtual void KeyframeDragStart(QMouseEvent *event) override;
+	virtual void KeyframeDragMove(QMouseEvent *event, QString &tip) override;
+	virtual void KeyframeDragRelease(QMouseEvent *event,
+									 MultiUndoCommand *command) override;
 
 private:
-  void ZoomToFitInternal(bool selected_only);
+	void ZoomToFitInternal(bool selected_only);
 
-  qreal GetItemYFromKeyframeValue(NodeKeyframe* key);
-  qreal GetUnscaledItemYFromKeyframeValue(NodeKeyframe* key);
+	qreal GetItemYFromKeyframeValue(NodeKeyframe *key);
+	qreal GetUnscaledItemYFromKeyframeValue(NodeKeyframe *key);
 
-  QPointF ScalePoint(const QPointF& point);
+	QPointF ScalePoint(const QPointF &point);
 
-  static FloatSlider::DisplayType GetFloatDisplayTypeFromKeyframe(NodeKeyframe *key);
+	static FloatSlider::DisplayType
+	GetFloatDisplayTypeFromKeyframe(NodeKeyframe *key);
 
-  static double GetOffsetFromKeyframe(NodeKeyframe *key);
+	static double GetOffsetFromKeyframe(NodeKeyframe *key);
 
-  void AdjustLines();
+	void AdjustLines();
 
-  QPointF GetKeyframePosition(NodeKeyframe *key);
+	QPointF GetKeyframePosition(NodeKeyframe *key);
 
-  static QPointF GenerateBezierControlPosition(const NodeKeyframe::BezierType mode,
-                                               const QPointF& start_point,
-                                               const QPointF& scaled_cursor_diff);
+	static QPointF
+	GenerateBezierControlPosition(const NodeKeyframe::BezierType mode,
+								  const QPointF &start_point,
+								  const QPointF &scaled_cursor_diff);
 
-  QPointF GetScaledCursorPos(const QPointF &cursor_pos);
+	QPointF GetScaledCursorPos(const QPointF &cursor_pos);
 
-  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
-  QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection*> track_connections_;
+	QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
+	QHash<NodeKeyframeTrackReference, KeyframeViewInputConnection *>
+		track_connections_;
 
-  int text_padding_;
+	int text_padding_;
 
-  int minimum_grid_space_;
+	int minimum_grid_space_;
 
-  QVector<NodeKeyframeTrackReference> connected_inputs_;
+	QVector<NodeKeyframeTrackReference> connected_inputs_;
 
-  struct BezierPoint
-  {
-    QRectF rect;
-    NodeKeyframe *keyframe;
-    NodeKeyframe::BezierType type;
-  };
+	struct BezierPoint {
+		QRectF rect;
+		NodeKeyframe *keyframe;
+		NodeKeyframe::BezierType type;
+	};
 
-  QVector<BezierPoint> bezier_pts_;
-  const BezierPoint *dragging_bezier_pt_;
+	QVector<BezierPoint> bezier_pts_;
+	const BezierPoint *dragging_bezier_pt_;
 
-  QPointF dragging_bezier_point_start_;
-  QPointF dragging_bezier_point_opposing_start_;
-  QPointF drag_start_;
+	QPointF dragging_bezier_point_start_;
+	QPointF dragging_bezier_point_opposing_start_;
+	QPointF drag_start_;
 
-  QVector<QVariant> drag_keyframe_values_;
-
+	QVector<QVariant> drag_keyframe_values_;
 };
 
 }

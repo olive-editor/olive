@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,10 +22,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-template <typename T>
-inline T mid(T a, T b)
+template <typename T> inline T mid(T a, T b)
 {
-  return (a + b) * 0.5;
+	return (a + b) * 0.5;
 }
 
 #endif // UTIL_H

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,66 +27,75 @@
 
 #include "core.h"
 
-namespace olive {
-
-ConfigDialogBase::ConfigDialogBase(QWidget* parent) :
-  QDialog(parent)
+namespace olive
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
 
-  QSplitter* splitter = new QSplitter();
-  splitter->setChildrenCollapsible(false);
-  layout->addWidget(splitter);
+ConfigDialogBase::ConfigDialogBase(QWidget *parent)
+	: QDialog(parent)
+{
+	QVBoxLayout *layout = new QVBoxLayout(this);
 
-  list_widget_ = new QListWidget();
+	QSplitter *splitter = new QSplitter();
+	splitter->setChildrenCollapsible(false);
+	layout->addWidget(splitter);
 
-  preference_pane_stack_ = new QStackedWidget(this);
+	list_widget_ = new QListWidget();
 
-  splitter->addWidget(list_widget_);
-  splitter->addWidget(preference_pane_stack_);
+	preference_pane_stack_ = new QStackedWidget(this);
 
-  QDialogButtonBox* button_box = new QDialogButtonBox(this);
-  button_box->setOrientation(Qt::Horizontal);
-  button_box->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+	splitter->addWidget(list_widget_);
+	splitter->addWidget(preference_pane_stack_);
 
-  layout->addWidget(button_box);
+	QDialogButtonBox *button_box = new QDialogButtonBox(this);
+	button_box->setOrientation(Qt::Horizontal);
+	button_box->setStandardButtons(QDialogButtonBox::Cancel |
+								   QDialogButtonBox::Ok);
 
-  connect(button_box, &QDialogButtonBox::accepted, this, &ConfigDialogBase::accept);
-  connect(button_box, &QDialogButtonBox::rejected, this, &ConfigDialogBase::reject);
+	layout->addWidget(button_box);
 
-  connect(list_widget_,
-          &QListWidget::currentRowChanged,
-          preference_pane_stack_,
-          &QStackedWidget::setCurrentIndex);
+	connect(button_box, &QDialogButtonBox::accepted, this,
+			&ConfigDialogBase::accept);
+	connect(button_box, &QDialogButtonBox::rejected, this,
+			&ConfigDialogBase::reject);
+
+	connect(list_widget_, &QListWidget::currentRowChanged,
+			preference_pane_stack_, &QStackedWidget::setCurrentIndex);
 }
 
 void ConfigDialogBase::accept()
 {
-  foreach (ConfigDialogBaseTab* tab, tabs_) {
-    if (!tab->Validate()) {
-      return;
-    }
-  }
+	foreach (ConfigDialogBaseTab *tab, tabs_) {
+		if (!tab->Validate()) {
+			return;
+		}
+	}
 
-  MultiUndoCommand* command = new MultiUndoCommand();
+	MultiUndoCommand *command = new MultiUndoCommand();
 
-  foreach (ConfigDialogBaseTab* tab, tabs_) {
-    tab->Accept(command);
-  }
+	foreach (ConfigDialogBaseTab *tab, tabs_) {
+		tab->Accept(command);
+	}
 
-  Core::instance()->undo_stack()->push(command, tr("Set Configuration"));
+	Core::instance()->undo_stack()->push(command, tr("Set Configuration"));
 
-  AcceptEvent();
+	AcceptEvent();
 
-  QDialog::accept();
+	QDialog::accept();
 }
 
 void ConfigDialogBase::AddTab(ConfigDialogBaseTab *tab, const QString &title)
 {
-  list_widget_->addItem(title);
-  preference_pane_stack_->addWidget(tab);
+	list_widget_->addItem(title);
+	preference_pane_stack_->addWidget(tab);
 
-  tabs_.append(tab);
+	tabs_.append(tab);
+}
+
+void ConfigDialogBase::SetCurrentTab(int index)
+{
+	if (index >= 0 && index < list_widget_->count()) {
+		list_widget_->setCurrentRow(index);
+	}
 }
 
 }

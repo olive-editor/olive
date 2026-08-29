@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,7 +32,8 @@
 #include "timeline/timelinemarker.h"
 #include "timeline/timelineworkarea.h"
 
-namespace olive {
+namespace olive
+{
 
 class Footage;
 
@@ -40,229 +42,271 @@ class Footage;
  *
  * Receives update/time change signals from ViewerPanels and responds by sending them a texture of that frame
  */
-class ViewerOutput : public Node
-{
-  Q_OBJECT
+class ViewerOutput : public Node {
+	Q_OBJECT
 public:
-  ViewerOutput(bool create_buffer_inputs = true, bool create_default_streams = true);
+	ViewerOutput(bool create_buffer_inputs = true,
+				 bool create_default_streams = true);
 
-  NODE_DEFAULT_FUNCTIONS(ViewerOutput)
+	NODE_DEFAULT_FUNCTIONS(ViewerOutput)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual QVariant data(const DataType &d) const override;
+	virtual QVariant data(const DataType &d) const override;
 
-  void set_default_parameters();
+	void set_default_parameters();
 
-  void set_parameters_from_footage(const QVector<ViewerOutput *> footage);
+	void set_parameters_from_footage(const QVector<ViewerOutput *> footage);
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+	virtual void InvalidateCache(const TimeRange &range, const QString &from,
+								 int element,
+								 InvalidateCacheOptions options) override;
 
-  VideoParams GetVideoParams(int index = 0) const
-  {
-    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
-    // but it does suppress a warning message that we don't need
-    if (index < InputArraySize(kVideoParamsInput)) {
-      return GetStandardValue(kVideoParamsInput, index).value<VideoParams>();
-    } else {
-      return VideoParams();
-    }
-  }
+	VideoParams GetVideoParams(int index = 0) const
+	{
+		// This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+		// but it does suppress a warning message that we don't need
+		if (index < InputArraySize(kVideoParamsInput)) {
+			return GetStandardValue(kVideoParamsInput, index)
+				.value<VideoParams>();
+		} else {
+			return VideoParams();
+		}
+	}
 
-  AudioParams GetAudioParams(int index = 0) const
-  {
-    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
-    // but it does suppress a warning message that we don't need
-    if (index < InputArraySize(kAudioParamsInput)) {
-      return GetStandardValue(kAudioParamsInput, index).value<AudioParams>();
-    } else {
-      return AudioParams();
-    }
-  }
+	AudioParams GetAudioParams(int index = 0) const
+	{
+		// This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+		// but it does suppress a warning message that we don't need
+		if (index < InputArraySize(kAudioParamsInput)) {
+			return GetStandardValue(kAudioParamsInput, index)
+				.value<AudioParams>();
+		} else {
+			return AudioParams();
+		}
+	}
 
-  SubtitleParams GetSubtitleParams(int index = 0) const
-  {
-    // This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
-    // but it does suppress a warning message that we don't need
-    if (index < InputArraySize(kSubtitleParamsInput)) {
-      return GetStandardValue(kSubtitleParamsInput, index).value<SubtitleParams>();
-    } else {
-      return SubtitleParams();
-    }
-  }
+	SubtitleParams GetSubtitleParams(int index = 0) const
+	{
+		// This check isn't strictly necessary (GetStandardValue will return a null VideoParams anyway),
+		// but it does suppress a warning message that we don't need
+		if (index < InputArraySize(kSubtitleParamsInput)) {
+			return GetStandardValue(kSubtitleParamsInput, index)
+				.value<SubtitleParams>();
+		} else {
+			return SubtitleParams();
+		}
+	}
 
-  const rational &GetPlayhead() { return playhead_; }
+	const rational &GetPlayhead()
+	{
+		return playhead_;
+	}
 
-  void SetVideoParams(const VideoParams &video, int index = 0)
-  {
-    SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
-  }
+	void SetVideoParams(const VideoParams &video, int index = 0)
+	{
+		SetStandardValue(kVideoParamsInput, QVariant::fromValue(video), index);
+	}
 
-  void SetAudioParams(const AudioParams &audio, int index = 0)
-  {
-    SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
-  }
+	void SetAudioParams(const AudioParams &audio, int index = 0)
+	{
+		SetStandardValue(kAudioParamsInput, QVariant::fromValue(audio), index);
+	}
 
-  void SetSubtitleParams(const SubtitleParams &subs, int index = 0)
-  {
-    SetStandardValue(kSubtitleParamsInput, QVariant::fromValue(subs), index);
-  }
+	void SetSubtitleParams(const SubtitleParams &subs, int index = 0)
+	{
+		SetStandardValue(kSubtitleParamsInput, QVariant::fromValue(subs),
+						 index);
+	}
 
-  int GetVideoStreamCount() const
-  {
-    return InputArraySize(kVideoParamsInput);
-  }
+	int GetVideoStreamCount() const
+	{
+		return InputArraySize(kVideoParamsInput);
+	}
 
-  int GetAudioStreamCount() const
-  {
-    return InputArraySize(kAudioParamsInput);
-  }
+	int GetAudioStreamCount() const
+	{
+		return InputArraySize(kAudioParamsInput);
+	}
 
-  int GetSubtitleStreamCount() const
-  {
-    return InputArraySize(kSubtitleParamsInput);
-  }
+	int GetSubtitleStreamCount() const
+	{
+		return InputArraySize(kSubtitleParamsInput);
+	}
 
-  virtual int GetTotalStreamCount() const
-  {
-    return GetVideoStreamCount() + GetAudioStreamCount() + GetSubtitleStreamCount();
-  }
+	virtual int GetTotalStreamCount() const
+	{
+		return GetVideoStreamCount() + GetAudioStreamCount() +
+			   GetSubtitleStreamCount();
+	}
 
-  const AudioWaveformCache *GetConnectedWaveform()
-  {
-    if (Node *n = GetConnectedSampleOutput()) {
-      return n->waveform_cache();
-    } else {
-      return nullptr;
-    }
-  }
+	const AudioWaveformCache *GetConnectedWaveform()
+	{
+		if (Node *n = GetConnectedSampleOutput()) {
+			return n->waveform_cache();
+		} else {
+			return nullptr;
+		}
+	}
 
-  bool HasEnabledVideoStreams() const;
-  bool HasEnabledAudioStreams() const;
-  bool HasEnabledSubtitleStreams() const;
+	bool HasEnabledVideoStreams() const;
+	bool HasEnabledAudioStreams() const;
+	bool HasEnabledSubtitleStreams() const;
 
-  VideoParams GetFirstEnabledVideoStream() const;
-  AudioParams GetFirstEnabledAudioStream() const;
-  SubtitleParams GetFirstEnabledSubtitleStream() const;
+	VideoParams GetFirstEnabledVideoStream() const;
+	AudioParams GetFirstEnabledAudioStream() const;
+	SubtitleParams GetFirstEnabledSubtitleStream() const;
 
-  const rational &GetLength() const { return last_length_; }
-  const rational &GetVideoLength() const { return video_length_; }
-  const rational &GetAudioLength() const { return audio_length_; }
+	const rational &GetLength() const
+	{
+		return last_length_;
+	}
+	const rational &GetVideoLength() const
+	{
+		return video_length_;
+	}
+	const rational &GetAudioLength() const
+	{
+		return audio_length_;
+	}
 
-  TimelineWorkArea *GetWorkArea() const { return workarea_; }
-  TimelineMarkerList *GetMarkers() const { return markers_; }
+	TimelineWorkArea *GetWorkArea() const
+	{
+		return workarea_;
+	}
+	TimelineMarkerList *GetMarkers() const
+	{
+		return markers_;
+	}
 
-  virtual TimeRange GetVideoCacheRange() const override
-  {
-    return TimeRange(0, GetVideoLength());
-  }
+	virtual TimeRange GetVideoCacheRange() const override
+	{
+		return TimeRange(0, GetVideoLength());
+	}
 
-  virtual TimeRange GetAudioCacheRange() const override
-  {
-    return TimeRange(0, GetAudioLength());
-  }
+	virtual TimeRange GetAudioCacheRange() const override
+	{
+		return TimeRange(0, GetAudioLength());
+	}
 
-  QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
+	QVector<Track::Reference> GetEnabledStreamsAsReferences() const;
 
-  QVector<VideoParams> GetEnabledVideoStreams() const;
+	QVector<VideoParams> GetEnabledVideoStreams() const;
 
-  QVector<AudioParams> GetEnabledAudioStreams() const;
+	QVector<AudioParams> GetEnabledAudioStreams() const;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual Node *GetConnectedTextureOutput();
+	virtual Node *GetConnectedTextureOutput();
 
-  virtual ValueHint GetConnectedTextureValueHint();
+	virtual ValueHint GetConnectedTextureValueHint();
 
-  virtual Node *GetConnectedSampleOutput();
+	virtual Node *GetConnectedSampleOutput();
 
-  virtual ValueHint GetConnectedSampleValueHint();
+	virtual ValueHint GetConnectedSampleValueHint();
 
-  void SetWaveformEnabled(bool e);
+	void SetWaveformEnabled(bool e);
 
-  bool IsVideoAutoCacheEnabled() const { qDebug() << "sequence ac is a stub"; return false; }
-  void SetVideoAutoCacheEnabled(bool e) { qDebug() << "sequence ac is a stub"; }
+	bool IsVideoAutoCacheEnabled() const
+	{
+		qDebug() << "sequence ac is a stub";
+		return false;
+	}
+	void SetVideoAutoCacheEnabled(bool e)
+	{
+		qDebug() << "sequence ac is a stub";
+	}
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  const EncodingParams &GetLastUsedEncodingParams() const { return last_used_encoding_params_; }
-  void SetLastUsedEncodingParams(const EncodingParams &p) { last_used_encoding_params_ = p; }
+	const EncodingParams &GetLastUsedEncodingParams() const
+	{
+		return last_used_encoding_params_;
+	}
+	void SetLastUsedEncodingParams(const EncodingParams &p)
+	{
+		last_used_encoding_params_ = p;
+	}
 
-  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+	virtual bool LoadCustom(QXmlStreamReader *reader,
+							SerializedData *data) override;
+	virtual void SaveCustom(QXmlStreamWriter *writer) const override;
 
-  static const QString kVideoParamsInput;
-  static const QString kAudioParamsInput;
-  static const QString kSubtitleParamsInput;
+	static const QString kVideoParamsInput;
+	static const QString kAudioParamsInput;
+	static const QString kSubtitleParamsInput;
 
-  static const QString kTextureInput;
-  static const QString kSamplesInput;
+	static const QString kTextureInput;
+	static const QString kSamplesInput;
 
-  static const SampleFormat kDefaultSampleFormat;
+	static const SampleFormat kDefaultSampleFormat;
 
 signals:
-  void FrameRateChanged(const rational&);
+	void FrameRateChanged(const rational &);
 
-  void LengthChanged(const rational& length);
+	void LengthChanged(const rational &length);
 
-  void SizeChanged(int width, int height);
+	void SizeChanged(int width, int height);
 
-  void PixelAspectChanged(const rational& pixel_aspect);
+	void PixelAspectChanged(const rational &pixel_aspect);
 
-  void InterlacingChanged(VideoParams::Interlacing mode);
+	void InterlacingChanged(VideoParams::Interlacing mode);
 
-  void VideoParamsChanged();
-  void AudioParamsChanged();
+	void VideoParamsChanged();
+	void AudioParamsChanged();
 
-  void TextureInputChanged();
+	void TextureInputChanged();
 
-  void SampleRateChanged(int sr);
+	void SampleRateChanged(int sr);
 
-  void ConnectedWaveformChanged();
+	void ConnectedWaveformChanged();
 
-  void PlayheadChanged(const rational &t);
+	void PlayheadChanged(const rational &t);
 
 public slots:
-  void VerifyLength();
+	void VerifyLength();
 
-  void SetPlayhead(const rational &t);
+	void SetPlayhead(const rational &t);
 
 protected:
-  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
+	virtual void InputConnectedEvent(const QString &input, int element,
+									 Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
+	virtual void InputDisconnectedEvent(const QString &input, int element,
+										Node *output) override;
 
-  virtual rational VerifyLengthInternal(Track::Type type) const;
+	virtual rational VerifyLengthInternal(Track::Type type) const;
 
-  virtual void InputValueChangedEvent(const QString& input, int element) override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
-  int AddStream(Track::Type type, const QVariant &value);
-  int SetStream(Track::Type type, const QVariant &value, int index);
+	int AddStream(Track::Type type, const QVariant &value);
+	int SetStream(Track::Type type, const QVariant &value, int index);
 
 private:
-  rational last_length_;
-  rational video_length_;
-  rational audio_length_;
+	rational last_length_;
+	rational video_length_;
+	rational audio_length_;
 
-  VideoParams cached_video_params_;
+	VideoParams cached_video_params_;
 
-  AudioParams cached_audio_params_;
+	AudioParams cached_audio_params_;
 
-  TimelineWorkArea *workarea_;
-  TimelineMarkerList *markers_;
+	TimelineWorkArea *workarea_;
+	TimelineMarkerList *markers_;
 
-  bool autocache_input_video_;
-  bool autocache_input_audio_;
+	bool autocache_input_video_;
+	bool autocache_input_audio_;
 
-  EncodingParams last_used_encoding_params_;
+	EncodingParams last_used_encoding_params_;
 
-  bool waveform_requests_enabled_;
+	bool waveform_requests_enabled_;
 
-  rational playhead_;
-
+	rational playhead_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,84 +24,85 @@
 
 #include "sliderbase.h"
 
-namespace olive {
-
-class NumericSliderBase : public SliderBase
+namespace olive
 {
-  Q_OBJECT
+
+class NumericSliderBase : public SliderBase {
+	Q_OBJECT
 public:
-  NumericSliderBase(QWidget *parent = nullptr);
+	NumericSliderBase(QWidget *parent = nullptr);
 
-  void SetLadderElementCount(int b)
-  {
-    ladder_element_count_ = b;
-  }
+	void SetLadderElementCount(int b)
+	{
+		ladder_element_count_ = b;
+	}
 
-  void SetDragMultiplier(const double& d);
+	void SetDragMultiplier(const double &d);
 
-  void SetOffset(const QVariant& v);
+	void SetOffset(const QVariant &v);
 
-  bool IsDragging() const;
+	bool IsDragging() const;
 
 protected:
-  const QVariant& GetOffset() const
-  {
-    return offset_;
-  }
+	const QVariant &GetOffset() const
+	{
+		return offset_;
+	}
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const;
+	virtual QVariant AdjustDragDistanceInternal(const QVariant &start,
+												const double &drag) const;
 
-  void SetMinimumInternal(const QVariant& v);
+	void SetMinimumInternal(const QVariant &v);
 
-  void SetMaximumInternal(const QVariant& v);
+	void SetMaximumInternal(const QVariant &v);
 
-  virtual bool ValueGreaterThan(const QVariant& lhs, const QVariant& rhs) const;
+	virtual bool ValueGreaterThan(const QVariant &lhs,
+								  const QVariant &rhs) const;
 
-  virtual bool ValueLessThan(const QVariant& lhs, const QVariant& rhs) const;
+	virtual bool ValueLessThan(const QVariant &lhs, const QVariant &rhs) const;
 
-  virtual bool CanSetValue() const override;
+	virtual bool CanSetValue() const override;
 
 private:
-  bool UsingLadders() const;
+	bool UsingLadders() const;
 
-  virtual QVariant AdjustValue(const QVariant& value) const override;
+	virtual QVariant AdjustValue(const QVariant &value) const override;
 
-  SliderLadder* drag_ladder_;
+	SliderLadder *drag_ladder_;
 
-  int ladder_element_count_;
+	int ladder_element_count_;
 
-  bool dragged_;
+	bool dragged_;
 
-  bool has_min_;
-  QVariant min_value_;
+	bool has_min_;
+	QVariant min_value_;
 
-  bool has_max_;
-  QVariant max_value_;
+	bool has_max_;
+	QVariant max_value_;
 
-  double dragged_diff_;
+	double dragged_diff_;
 
-  QVariant drag_start_value_;
+	QVariant drag_start_value_;
 
-  QVariant offset_;
+	QVariant offset_;
 
-  double drag_multiplier_;
+	double drag_multiplier_;
 
-  bool setting_drag_value_;
+	bool setting_drag_value_;
 
-  /**
+	/**
    * @brief An effects slider somewhere is being dragged
    */
-  static bool effects_slider_is_being_dragged_;
+	static bool effects_slider_is_being_dragged_;
 
 private slots:
-  void LabelPressed();
+	void LabelPressed();
 
-  void RepositionLadder();
+	void RepositionLadder();
 
-  void LadderDragged(int value, double multiplier);
+	void LadderDragged(int value, double multiplier);
 
-  void LadderReleased();
-
+	void LadderReleased();
 };
 
 }

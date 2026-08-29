@@ -2,509 +2,273 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
-    paths-ignore:
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/FUNDING.yml'
-      - 'docker/**'
-      - 'CONTRIBUTING.md'
-      - 'README.md'
   pull_request:
-    paths-ignore:
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/FUNDING.yml'
-      - 'app/ts/*.ts'
-      - 'docker/**'
-      - 'CONTRIBUTING.md'
-      - 'README.md'
-
-env:
-  DOWNLOAD_TOOL: curl -fLOSs --retry 2 --retry-delay 60
-  UPLOAD_TOOL: curl -X POST --retry 2 --retry-delay 60
-  CMAKE_ARGS: -DUSE_WERROR=ON -DBUILD_TESTS=ON
 
 jobs:
-  linux:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Clang should catch any issues that GCC would also report
-          #- build-type: RelWithDebInfo
-          #  cc-compiler: gcc
-          #  cxx-compiler: g++
-          #  compiler-name: GCC 9.3.1
-          #  cmake-gen: Ninja
-          #  os-name: Linux (CentOS 7)
-          - build-type: RelWithDebInfo
-            cc-compiler: clang
-            cxx-compiler: clang++
-            compiler-name: Clang 10.0.0
-            cmake-gen: Ninja
-            os-name: Linux (CentOS 7)
-    name: |
-      ${{ matrix.os-name }}
-      <${{ matrix.compiler-name }},
-       ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }}>
-    runs-on: ubuntu-20.04
-    container:
-      image: olivevideoeditor/ci-olive:2022.3
-
-    steps:
-      - name: Install Node.js 16
-        run: |
-          $DOWNLOAD_TOOL https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz
-          tar -xf node-v16.20.2-linux-x64.tar.xz
-          mkdir -p ${{ github.workspace }}
-          cp -a ./node-v16.20.2-linux-x64/bin/node ${{ github.workspace }}/node16
-          ${{ github.workspace }}/node16 --version
-
-      - name: Checkout Source Code
-        env:
-          INPUT_SUBMODULES: 'true'
-          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mkdir checkout-v3
-          cd checkout-v3
-          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/index.js
-          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/checkout/refs/tags/v3/dist/problem-matcher.json
-          cd ..
-          ${{ github.workspace }}/node16 ./checkout-v3/index.js
-        #uses: actions/checkout@v3
-        #with:
-        #  submodules: true
-
-      - name: Generate Patreon List
-        env:
-          PATREON_KEY: ${{ secrets.PATREON_KEY }}
-        run: |
-          pip3 install requests
-          cd $GITHUB_WORKSPACE/app/dialog/about
-          python3 patreon.py
-        if: github.event_name == 'push'
-        continue-on-error: true
-
-      - name: Configure CMake
-        run: |
-          mkdir build
-          cd build
-          cmake .. -G "${{ matrix.cmake-gen }}" \
-            -DCMAKE_BUILD_TYPE="${{ matrix.build-type }}" \
-            -DCMAKE_C_COMPILER="${{ matrix.cc-compiler }}" \
-            -DCMAKE_CXX_COMPILER="${{ matrix.cxx-compiler }}" \
-            $CMAKE_ARGS
-
-      - name: Build
-        working-directory: build
-        run: |
-          cmake --build .
-
-      - name: Test
-        working-directory: build
-        run: |
-          ctest -C ${{ matrix.build-type }} -V
-
-      - name: Create Package
-        id: package
-        working-directory: build
-        env:
-          ARCH: x86_64
-        run: |
-          # Create install tree
-          cmake --install app --prefix appdir/usr
-
-          # Inject custom AppRun (linuxdeployqt won't replace if it already exists)
-          cp $GITHUB_WORKSPACE/app/packaging/linux/AppRun appdir
-
-          # Process AppDir
-          /usr/local/linuxdeployqt-x86_64.AppImage \
-            appdir/usr/share/applications/org.olivevideoeditor.Olive.desktop \
-            -exclude-libs=libQt5Pdf.so,libQt5Qml.so,libQt5QmlModels.so,libQt5Quick.so,libQt5VirtualKeyboard.so \
-            -bundle-non-qt-libs \
-            -executable=appdir/usr/bin/crashpad_handler \
-            -executable=appdir/usr/bin/minidump_stackwalk \
-            -executable=appdir/usr/bin/olive-crashhandler \
-            --appimage-extract-and-run
-
-          # Dump Crashpad symbols
-          dump_syms appdir/usr/bin/olive-editor > olive-editor.sym
-          # HACK: For some reason, minidump_stackwalk reads identifier as all 0s
-          SYM_DIR=appdir/usr/share/olive-editor/symbols/olive-editor/000000000000000000000000000000000
-          mkdir -p "$SYM_DIR"
-          mv olive-editor.sym "$SYM_DIR"
-
-          # Package AppImage
-          $DOWNLOAD_TOOL https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
-          VERSION=${GITHUB_SHA::8} ./appimagetool-x86_64.AppImage appdir --appimage-extract-and-run
-
-          # Set env variables
-          filename=$(echo Olive*.AppImage)
-          pkgname="${filename/x86_64/Linux-x86_64}"
-          mv "${filename}" "${pkgname}"
-          basename="${filename%.*}"
-          echo "pkgname=${pkgname}" >> $GITHUB_OUTPUT
-          echo "artifact=${basename/x86_64/Linux-x86_64-${{ matrix.cc-compiler }}}" >> $GITHUB_OUTPUT
-
-      - uses: Simran-B/actions-export-envs@v1.2.0
-        id: envs
-
-      - name: Upload Artifact to GitHub
-        env:
-          INPUT_NAME: '${{ steps.package.outputs.artifact }}'
-          INPUT_PATH: 'build/Olive*.AppImage'
-          INPUT_INCLUDE-HIDDEN-FILES: 'true'
-          INPUT_IF-NO-FILES-FOUND: error
-          INPUT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ACTIONS_RUNTIME_TOKEN: ${{ steps.envs.outputs.ACTIONS_RUNTIME_TOKEN }}
-          ACTIONS_RUNTIME_URL: ${{ steps.envs.outputs.ACTIONS_RUNTIME_URL }}
-        run: |
-          mkdir upload-artifact-v3
-          cd upload-artifact-v3
-          $DOWNLOAD_TOOL https://raw.githubusercontent.com/actions/upload-artifact/refs/tags/v3/dist/index.js
-          cd ..
-          ${{ github.workspace }}/node16 ./upload-artifact-v3/index.js
-        continue-on-error: true
-        #uses: actions/upload-artifact@v3
-        #with:
-        #  name: ${{ steps.package.outputs.artifact }}
-        #  path: build/Olive*.AppImage
-
-  windows:
-    strategy:
-      matrix:
-        include:
-          - build-type: RelWithDebInfo
-            compiler-name: MSVC 16.x
-            os-name: Windows
-            os-arch: x86_64
-            os: windows-2019
-            cmake-gen: Ninja
-    name: |
-      ${{ matrix.os-name }}
-      <${{ matrix.compiler-name }},
-       ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }}>
+  build-test:
     runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          show-progress: false
-
-      # HACK: Override CMake version to avoid an FFmpeg discovery problem
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: '3.27.x'
-      - name: CMake version
-        run: cmake --version
-
-      - name: Automatically Generate Package Name
-        shell: bash
-        env:
-          PLATFORM: ${{ matrix.os-name }}
-          ARCH: ${{ matrix.os-arch }}
-        run: |
-          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
-
-      - name: Create Build Folder
-        run: |
-          cmake -E make_directory ${{ runner.workspace }}/build
-
-      - name: Enable Developer Command Prompt (Windows)
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Acquire Dependencies
-        shell: bash
-        working-directory: ${{ runner.workspace }}
-        run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-win32-Release.tar.gz
-          tar xzf olive-dep-win32-Release.tar.gz
-          echo "$(pwd -W)/install" >> $GITHUB_PATH
-          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
-
-      - name: Acquire Google Crashpad
-        shell: bash
-        working-directory: ${{ runner.workspace }}
-        run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-win32-RelWithDebInfo.tar.gz
-          tar xzf crashpad-win32-RelWithDebInfo.tar.gz
-          echo "$(pwd -W)/install" >> $GITHUB_PATH
-          echo "$(pwd -W)/install/bin" >> $GITHUB_PATH
-          echo "$(pwd -W)/install/crashpad" >> $GITHUB_PATH
-
-      - name: Generate Patreon List
-        shell: bash
-        env:
-          PATREON_KEY: ${{ secrets.PATREON_KEY }}
-        run: |
-          pip3 install requests
-          cd $GITHUB_WORKSPACE/app/dialog/about
-          python3 patreon.py
-        if: github.event_name == 'push'
-        continue-on-error: true
-
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{ runner.workspace }}/build
-        run: |
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -G "${{ matrix.cmake-gen }}" \
-            $CMAKE_ARGS
-
-      - name: Build
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          cmake --build .
-
-      #- name: Test
-      #  working-directory: ${{ runner.workspace }}/build
-      #  shell: bash
-      #  run: |
-      #    ctest -C ${{ matrix.build-type }} -V
-
-      - name: Create Package
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        env:
-          ORIGINAL_WORKSPACE: ${{ runner.workspace }}
-        run: |
-          mkdir olive-editor
-          cp app/olive-editor.exe olive-editor
-          cp app/crashhandler/olive-crashhandler.exe olive-editor
-          cp app/olive-editor.pdb olive-editor
-          windeployqt --no-angle olive-editor/olive-crashhandler.exe
-          windeployqt --no-angle olive-editor/olive-editor.exe
-          cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/*.dll olive-editor
-          cp $(cygpath $ORIGINAL_WORKSPACE)/install/crashpad/out/Default/crashpad_handler.exe olive-editor
-          cp $(cygpath $ORIGINAL_WORKSPACE)/install/bin/minidump_stackwalk.exe olive-editor
-
-      - name: Export Crashpad symbols
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          curl -fLSs https://github.com/google/breakpad/blob/master/src/tools/windows/binaries/dump_syms.exe?raw=true > dump_syms.exe
-          ./dump_syms app/olive-editor.pdb > olive-editor.sym
-          SYM_HEADER=($(head -n 1 olive-editor.sym)) # Read first line of symbol file
-          SYM_DIR=olive-editor/symbols/olive-editor.pdb/${SYM_HEADER[3]}
-          mkdir -p "$SYM_DIR"
-          mv olive-editor.sym "$SYM_DIR"
-
-      - name: Deploy Packages
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          # Create Installer Executable
-          #$DOWNLOAD_TOOL http://web.archive.org/web/20210226132532/http://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe
-          cp $(cygpath $GITHUB_WORKSPACE)/app/packaging/windows/nsis/* .
-          cp $(cygpath $GITHUB_WORKSPACE)/LICENSE .
-          $DOWNLOAD_TOOL https://nsis.sourceforge.io/mediawiki/images/6/68/ShellExecAsUser_amd64-Unicode.7z
-          7z e ShellExecAsUser_amd64-Unicode.7z Plugins/x86-unicode/ShellExecAsUser.dll
-          makensis -V4 -DX64 "-XOutFile $PKGNAME.exe" "-X!AddPluginDir /x86-unicode $(pwd -W)" olive.nsi
-
-          # Create Portable ZIP
-          echo -n > olive-editor/portable
-          mkdir deploy
-          mv olive-editor deploy
-
-      - name: Upload Installer Artifact to GitHub
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PKGNAME }}-Installer
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.exe
-
-      - name: Upload Portable Artifact to GitHub
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PKGNAME }}-Portable
-          path: ${{ runner.workspace }}/build/deploy
-
-  macos:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - build-type: RelWithDebInfo
-            compiler-name: Clang LLVM
-            os-name: macOS
-            os-arch: x86_64
-            os: macos-13
-            cmake-gen: Ninja
-            min-deploy: 10.13
-          - build-type: RelWithDebInfo
-            compiler-name: Clang LLVM
-            os-name: macOS
-            os-arch: arm64
-            os: macos-13
-            cmake-gen: Ninja
-            min-deploy: 11.0
+        os: [warp-ubuntu-latest-x64-16x, warp-macos-15-arm64-12x, warp-windows-latest-x64-32x]
     env:
-      DEP_LOCATION: /opt/olive-editor
-    name: |
-      ${{ matrix.os-name }}
-      <${{ matrix.os-arch }},
-       ${{ matrix.compiler-name }},
-       ${{ matrix.build-type }},
-       ${{ matrix.cmake-gen }}>
-    runs-on: ${{ matrix.os }}
+      CMAKE_BUILD_TYPE: Release
+      # Enable OFX integration tests that require external plugin bundles
+      RUN_OFX_ITEST: "1"
+      # Enable plugin subsystem smoke tests
+      OAK_PLUGIN_SMOKE_TEST: "1"
 
     steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          submodules: true
-          show-progress: false
+          submodules: 'true'
 
-      - name: Automatically Generate Package Name
-        shell: bash
-        env:
-          PLATFORM: ${{ matrix.os-name }}
-          ARCH: ${{ matrix.os-arch }}
+      # ------------------------------------------------------------------
+      # Linux dependencies
+      # ------------------------------------------------------------------
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: |
-          echo "PKGNAME=$(echo Olive-${GITHUB_SHA::8}-${PLATFORM}-${ARCH})" >> $GITHUB_ENV
+          sudo apt-get update
+          sudo apt-get install -y \
+            ninja-build pkg-config nasm \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev \
+            libopencolorio-dev libopenimageio-dev libopenexr-dev libexpat1-dev \
+            portaudio19-dev libgl1-mesa-dev libxkbcommon-dev
 
-      - name: Create Build Folder
-        run: |
-          cmake -E make_directory ${{ runner.workspace }}/build
-
-      - name: Acquire Dependencies
-        shell: bash
-        working-directory: ${{ runner.workspace }}
-        run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/dependencies/releases/download/continuous/olive-dep-mac-${{ matrix.os-arch }}.tar.gz
-          sudo tar xzf olive-dep-mac-${{ matrix.os-arch }}.tar.gz -C /
-
-      - name: Acquire Google Crashpad
-        shell: bash
-        working-directory: ${{ runner.workspace }}
-        run: |
-          $DOWNLOAD_TOOL https://github.com/olive-editor/crashpad/releases/download/continuous/crashpad-mac-${{ matrix.os-arch }}.tar.gz
-          sudo tar xzf crashpad-mac-${{ matrix.os-arch }}.tar.gz -C /
-
-      - name: Generate Patreon List
-        env:
-          PATREON_KEY: ${{ secrets.PATREON_KEY }}
-        run: |
-          pip3 install requests
-          cd $GITHUB_WORKSPACE/app/dialog/about
-          python3 patreon.py
-        if: github.event_name == 'push'
-        continue-on-error: true
-
-      - name: Install Ninja
-        shell: bash
+      # ------------------------------------------------------------------
+      # macOS dependencies
+      # ------------------------------------------------------------------
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
         run: |
           brew update
-          brew install ninja
+          brew install ninja pkg-config qt@6 ffmpeg openimageio opencolorio openexr portaudio expat molten-vk vulkan-headers
+          echo "$(brew --prefix qt@6)/bin" >> "$GITHUB_PATH"
+          echo "CMAKE_PREFIX_PATH=$(brew --prefix qt@6)" >> "$GITHUB_ENV"
 
-      - name: Configure CMake
-        shell: bash
-        working-directory: ${{ runner.workspace }}/build
+      - name: Build OpenTimelineIO (macOS)
+        if: runner.os == 'macOS'
         run: |
-          PATH=$DEP_LOCATION:$DEP_LOCATION/bin:$DEP_LOCATION/include:$DEP_LOCATION/lib:$DEP_LOCATION/crashpad:$PATH \
-            cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-              -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.min-deploy }} -G "${{ matrix.cmake-gen }}" \
-              -DCMAKE_OSX_ARCHITECTURES="${{ matrix.os-arch }}" \
-              $CMAKE_ARGS
+          git clone --depth 1 --branch v0.16.0 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+          cmake -S OpenTimelineIO -B OpenTimelineIO/build -G Ninja \
+            -DOTIO_SHARED_LIBS=ON \
+            -DOTIO_PYTHON_BINDINGS=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${PWD}/otio-install"
+          cmake --build OpenTimelineIO/build
+          cmake --install OpenTimelineIO/build
+          echo "OTIO_LOCATION=${PWD}/otio-install" >> "$GITHUB_ENV"
+
+      # ------------------------------------------------------------------
+      # Windows dependencies (MSYS2)
+      # ------------------------------------------------------------------
+      - name: Setup MSYS2
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          cache: true
+          install: >-
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-tools
+            mingw-w64-ucrt-x86_64-ffmpeg
+            mingw-w64-ucrt-x86_64-openimageio
+            mingw-w64-ucrt-x86_64-opencolorio
+            mingw-w64-ucrt-x86_64-openexr
+            mingw-w64-ucrt-x86_64-fmt
+            mingw-w64-ucrt-x86_64-expat
+            mingw-w64-ucrt-x86_64-portaudio
+            mingw-w64-ucrt-x86_64-vulkan-headers
+            mingw-w64-ucrt-x86_64-vulkan-loader
+            mingw-w64-ucrt-x86_64-make
+
+      # ------------------------------------------------------------------
+      # Configure
+      # ------------------------------------------------------------------
+      - name: Configure (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DBUILD_TESTS=ON \
+            -DBUILD_QT6=ON \
+            -DCMAKE_DISABLE_FIND_PACKAGE_Vulkan=ON \
+            -DOCIO_LOCATION=/usr \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+
+      - name: Configure (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DBUILD_TESTS=ON \
+            -DBUILD_QT6=ON \
+            -DOCIO_LOCATION=$(brew --prefix opencolorio) \
+            -DOTIO_LOCATION=${OTIO_LOCATION} \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DBUILD_TESTS=ON \
+            -DBUILD_QT6=ON \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+
+      # ------------------------------------------------------------------
+      # Build Oak
+      # ------------------------------------------------------------------
+      - name: Build
+        if: runner.os != 'Windows'
+        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
+
+      # ------------------------------------------------------------------
+      # Clone and build OpenFX-Misc plugins (used by OFX integration tests)
+      # ------------------------------------------------------------------
+      - name: Clone OpenFX-Misc
+        run: git clone --recursive --depth 1 https://github.com/NatronGitHub/openfx-misc.git
+
+      - name: Build OpenFX-Misc plugins (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd openfx-misc
+          make -j16
+          sudo make install
+          PLUGIN_FILE=$(find /usr/OFX/Plugins /usr/local/OFX/Plugins . -name "*.ofx.bundle" -print -quit 2>/dev/null | head -1)
+          if [ -n "$PLUGIN_FILE" ]; then
+            PLUGIN_DIR=$(dirname "$PLUGIN_FILE")
+          else
+            PLUGIN_DIR="$PWD"
+          fi
+          echo "OAK_OFX_ITEST=1" >> "$GITHUB_ENV"
+          echo "OAK_OFX_PLUGIN_PATH=$PLUGIN_DIR" >> "$GITHUB_ENV"
+          echo "OAK_OFX_PLUGIN_ID=net.sf.openfx.ChromaKeyerPlugin" >> "$GITHUB_ENV"
+
+      # ------------------------------------------------------------------
+      # Run all tests (including previously environment-gated OFX tests)
+      # ------------------------------------------------------------------
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ctest --test-dir build --output-on-failure -C ${{ env.CMAKE_BUILD_TYPE }}
+
+      - name: Test (macOS)
+        if: runner.os == 'macOS'
+        run: ctest --test-dir build --output-on-failure -C ${{ env.CMAKE_BUILD_TYPE }}
+
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: ctest --test-dir build --output-on-failure -C ${{ env.CMAKE_BUILD_TYPE }}
+
+      # ------------------------------------------------------------------
+      # Filtered gtest runs for clearer CI output
+      # ------------------------------------------------------------------
+      - name: Plugin Smoke Tests (Linux)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="PluginSmoke*"
+
+      - name: Plugin Smoke Tests (macOS)
+        if: runner.os == 'macOS'
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="PluginSmoke*"
+
+      - name: Plugin Smoke Tests (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="PluginSmoke*"
+
+      - name: OFX Integration Tests (Linux)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="PluginIntegration.*:PluginMisc.*"
+
+      - name: OFX Integration Tests (macOS)
+        if: runner.os == 'macOS'
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="PluginIntegration.*:PluginMisc.*"
+
+      - name: Audio Smoke Tests (Linux)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="AudioSmoke*"
+
+      - name: Audio Smoke Tests (macOS)
+        if: runner.os == 'macOS'
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="AudioSmoke*"
+
+      - name: Audio Smoke Tests (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="AudioSmoke*"
+
+      - name: Viewer Smoke Tests (Linux)
+        if: runner.os == 'Linux'
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="ViewerSmoke*"
+
+      - name: Viewer Smoke Tests (macOS)
+        if: runner.os == 'macOS'
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="ViewerSmoke*"
+
+      - name: Viewer Smoke Tests (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="ViewerSmoke*"
+
+  # ------------------------------------------------------------------
+  # Experimental dynamic render backend (Linux only)
+  # ------------------------------------------------------------------
+  build-test-dynamic-backend:
+    runs-on: warp-ubuntu-latest-x64-16x
+    env:
+      CMAKE_BUILD_TYPE: Release
+      QT_QPA_PLATFORM: offscreen
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ninja-build pkg-config nasm \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev \
+            libopencolorio-dev libopenimageio-dev libopenexr-dev libexpat1-dev \
+            portaudio19-dev libgl1-mesa-dev libxkbcommon-dev
+
+      - name: Configure
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DBUILD_TESTS=ON \
+            -DBUILD_QT6=ON \
+            -DOAK_ENABLE_DYNAMIC_RENDER_BACKEND=ON \
+            -DCMAKE_DISABLE_FIND_PACKAGE_Vulkan=ON \
+            -DOCIO_LOCATION=/usr \
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 
       - name: Build
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          cmake --build .
+        run: cmake --build build --config ${{ env.CMAKE_BUILD_TYPE }}
 
       - name: Test
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          ctest -C ${{ matrix.build-type }} -V
-        if: matrix.os-arch == 'x86_64' # ARM64 tests naturally won't be able to run on x86_64 runners
+        run: ctest --test-dir build --output-on-failure -C ${{ env.CMAKE_BUILD_TYPE }}
 
-      - name: Bundle Application
-        working-directory: ${{ runner.workspace }}/build
-        shell: bash
-        run: |
-          BUNDLE_NAME="Olive.app"
-          brew install dylibbundler
-
-          mkdir deploy-${{ matrix.os-arch }}
-          cd deploy-${{ matrix.os-arch }}
-
-          mv ../app/$BUNDLE_NAME .
-          mkdir $BUNDLE_NAME/Contents/Frameworks
-
-          # Copy Qt frameworks and plugins
-          cp -Ra $DEP_LOCATION/lib/Qt*.framework $BUNDLE_NAME/Contents/Frameworks
-          cp -Ra $DEP_LOCATION/plugins $BUNDLE_NAME/Contents
-
-          dylibbundler -b -ns -x "$BUNDLE_NAME/Contents/MacOS/Olive" -s "$DEP_LOCATION/lib" -d "$BUNDLE_NAME/Contents/Frameworks" -p "@executable_path/../Frameworks" \
-            -x $BUNDLE_NAME/Contents/MacOS/olive-crashhandler -x $BUNDLE_NAME/Contents/Frameworks/QtNetwork.framework/Versions/5/QtNetwork
-
-          # HACK: On x86_64, dylibbundler doesn't resolve this symlink. Weirdly it does on ARM64,
-          #       but perhaps I'll bring it up with them soon.
-          cp -a $BUNDLE_NAME/Contents/Frameworks/libpng16.16.37.0.dylib $BUNDLE_NAME/Contents/Frameworks/libpng16.16.dylib
-
-          # Crashpad symbols
-          $DEP_LOCATION/bin/dump_syms $BUNDLE_NAME/Contents/MacOS/Olive > Olive.sym
-          SYM_HEADER=($(head -n 1 Olive.sym)) # Read first line of symbol file
-          SYM_DIR=$BUNDLE_NAME/Contents/Resources/symbols/Olive/${SYM_HEADER[3]}
-          mkdir -p "$SYM_DIR"
-          mv Olive.sym "$SYM_DIR"
-
-      - name: Sign Application
-        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
-        shell: bash
-        if: github.event_name == 'push'
-        env:
-          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          BUNDLE_NAME="Olive.app"
-
-          # Install certificate
-          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-          # import certificate from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode > $CERTIFICATE_PATH
-
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-          # import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security list-keychain -d user -s $KEYCHAIN_PATH
-
-          # HACK: Remove unsignable frameworks
-          rm -r $BUNDLE_NAME/Contents/Frameworks/QtUiPlugin.framework
-          if [ "${{ matrix.os-arch }}" == "arm64" ]
-          then
-            rm -r $BUNDLE_NAME/Contents/Frameworks/QtZlib.framework
-          fi
-
-          # Sign application
-          codesign --deep --sign "Developer ID Application: Olive Studios LLC" $BUNDLE_NAME
-
-      - name: Deploy
-        shell: bash
-        working-directory: ${{ runner.workspace }}/build/deploy-${{ matrix.os-arch }}
-        run: |
-          ln -s /Applications Applications
-          cd ..
-          hdiutil create img-${{ matrix.os-arch }}.dmg -volname Olive -fs HFS+ -srcfolder deploy-${{ matrix.os-arch }}
-          hdiutil convert img-${{ matrix.os-arch }}.dmg -format UDZO -o $PKGNAME.dmg
-
-      - name: Upload Artifact to GitHub
-        uses: actions/upload-artifact@v3
-        continue-on-error: true
-        with:
-          name: ${{ env.PKGNAME }}
-          path: ${{ runner.workspace }}/build/${{ env.PKGNAME }}.dmg
+      - name: Dynamic Render Backend Smoke Tests
+        run: ./build/tests/gtest/olive-gtest --gtest_filter="DynamicRenderBackend*"

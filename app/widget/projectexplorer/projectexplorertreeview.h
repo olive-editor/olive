@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +26,8 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The view widget used when ProjectExplorer is in Tree View
@@ -33,14 +35,13 @@ namespace olive {
  * A fairly simple subclass of QTreeView that provides a double clicked signal whether the index is valid or not
  * (QAbstractItemView has a doubleClicked() signal but it's only emitted with a valid index).
  */
-class ProjectExplorerTreeView : public QTreeView
-{
-  Q_OBJECT
+class ProjectExplorerTreeView : public QTreeView {
+	Q_OBJECT
 public:
-  ProjectExplorerTreeView(QWidget* parent);
+	ProjectExplorerTreeView(QWidget *parent);
 
 protected:
-  /**
+	/**
    * @brief Double click event override
    *
    * Function that signals DoubleClickedView().
@@ -48,15 +49,15 @@ protected:
    * FIXME: This code is the same as the code in ProjectExplorerListViewBase. Is there a way to merge these two through
    *
    */
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 signals:
-  /**
+	/**
    * @brief Unconditional double click signal
    *
    * Emits a signal when the view is double clicked but not on any particular item
    */
-  void DoubleClickedEmptyArea();
+	void DoubleClickedEmptyArea();
 };
 
 }

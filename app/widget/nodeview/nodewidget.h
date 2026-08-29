@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,30 +27,29 @@
 #include "nodeview.h"
 #include "nodeviewtoolbar.h"
 
-namespace olive {
-
-class NodeWidget : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class NodeWidget : public QWidget {
+	Q_OBJECT
 public:
-  NodeWidget(QWidget *parent = nullptr);
+	NodeWidget(QWidget *parent = nullptr);
 
-  NodeView *view() const
-  {
-    return node_view_;
-  }
+	NodeView *view() const
+	{
+		return node_view_;
+	}
 
-  void SetContexts(const QVector<Node*> &nodes)
-  {
-    node_view_->SetContexts(nodes);
-    toolbar_->setEnabled(!nodes.isEmpty());
-  }
+	void SetContexts(const QVector<Node *> &nodes)
+	{
+		node_view_->SetContexts(nodes);
+		toolbar_->setEnabled(!nodes.isEmpty());
+	}
 
 private:
-  NodeView *node_view_;
+	NodeView *node_view_;
 
-  NodeViewToolBar *toolbar_;
-
+	NodeViewToolBar *toolbar_;
 };
 
 }

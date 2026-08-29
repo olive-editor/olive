@@ -15,26 +15,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/viewer/audiowaveformview.cpp
-  widget/viewer/audiowaveformview.h
-  widget/viewer/footageviewer.cpp
-  widget/viewer/footageviewer.h
-  widget/viewer/viewer.cpp
-  widget/viewer/viewer.h
-  widget/viewer/viewerdisplay.cpp
-  widget/viewer/viewerdisplay.h
-  widget/viewer/viewerplaybacktimer.cpp
-  widget/viewer/viewerplaybacktimer.h
-  widget/viewer/viewerpreventsleep.cpp
-  widget/viewer/viewerpreventsleep.h
-  widget/viewer/viewerqueue.h
-  widget/viewer/viewersafemargininfo.h
-  widget/viewer/viewersizer.cpp
-  widget/viewer/viewersizer.h
-  widget/viewer/viewertexteditor.cpp
-  widget/viewer/viewertexteditor.h
-  widget/viewer/viewerwindow.cpp
-  widget/viewer/viewerwindow.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/viewer/audiowaveformview.cpp
+        widget/viewer/audiowaveformview.h
+        widget/viewer/footageviewer.cpp
+        widget/viewer/footageviewer.h
+        widget/viewer/viewer.cpp
+        widget/viewer/viewer.h
+        widget/viewer/viewerdisplay.cpp
+        widget/viewer/viewerdisplay.h
+        widget/viewer/viewerplaybacktimer.cpp
+        widget/viewer/viewerplaybacktimer.h
+        widget/viewer/viewerpreventsleep.cpp
+        widget/viewer/viewerpreventsleep.h
+        widget/viewer/viewerqueue.h
+        widget/viewer/viewersafemargininfo.h
+        widget/viewer/viewersizer.cpp
+        widget/viewer/viewersizer.h
+        widget/viewer/viewertexteditor.cpp
+        widget/viewer/viewertexteditor.h
+        widget/viewer/viewerwindow.cpp
+        widget/viewer/viewerwindow.h
+        PARENT_SCOPE
 )

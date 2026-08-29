@@ -56,6 +56,6 @@ add_subdirectory(toolbar)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

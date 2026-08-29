@@ -20,6 +20,6 @@ add_subdirectory(sequence)
 add_subdirectory(serializer)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

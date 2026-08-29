@@ -15,10 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  task/project/load/load.h
-  task/project/load/load.cpp
-  task/project/load/loadbasetask.h
-  task/project/load/loadbasetask.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        task/project/load/load.h
+        task/project/load/load.cpp
+        task/project/load/loadbasetask.h
+        task/project/load/loadbasetask.cpp
+        PARENT_SCOPE
 )

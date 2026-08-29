@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,76 +23,82 @@
 
 #include "dialog/color/colordialog.h"
 
-namespace olive {
-
-ColorButton::ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget *parent) :
-  QPushButton(parent),
-  color_manager_(color_manager),
-  color_processor_(nullptr),
-  dialog_open_(false)
+namespace olive
 {
-  setAutoFillBackground(true);
 
-  if (show_dialog_on_click) {
-    connect(this, &ColorButton::clicked, this, &ColorButton::ShowColorDialog);
-  }
+ColorButton::ColorButton(ColorManager *color_manager, bool show_dialog_on_click,
+						 QWidget *parent)
+	: QPushButton(parent)
+	, color_manager_(color_manager)
+	, color_processor_(nullptr)
+	, dialog_open_(false)
+{
+	setAutoFillBackground(true);
 
-  SetColor(Color(1.0f, 1.0f, 1.0f));
+	if (show_dialog_on_click) {
+		connect(this, &ColorButton::clicked, this,
+				&ColorButton::ShowColorDialog);
+	}
+
+	SetColor(Color(1.0f, 1.0f, 1.0f));
 }
 
 const ManagedColor &ColorButton::GetColor() const
 {
-  return color_;
+	return color_;
 }
 
 void ColorButton::SetColor(const ManagedColor &c)
 {
-  color_ = c;
+	color_ = c;
 
-  color_.set_color_input(color_manager_->GetCompliantColorSpace(color_.color_input()));
-  color_.set_color_output(color_manager_->GetCompliantColorSpace(color_.color_output()));
+	color_.set_color_input(
+		color_manager_->GetCompliantColorSpace(color_.color_input()));
+	color_.set_color_output(
+		color_manager_->GetCompliantColorSpace(color_.color_output()));
 
-  UpdateColor();
+	UpdateColor();
 }
 
 void ColorButton::ShowColorDialog()
 {
-  if (!dialog_open_) {
-    dialog_open_ = true;
-    ColorDialog *cd = new ColorDialog(color_manager_, color_, this);
+	if (!dialog_open_) {
+		dialog_open_ = true;
+		ColorDialog *cd = new ColorDialog(color_manager_, color_, this);
 
-    connect(cd, &ColorDialog::finished, this, &ColorButton::ColorDialogFinished);
+		connect(cd, &ColorDialog::finished, this,
+				&ColorButton::ColorDialogFinished);
 
-    cd->show();
-  }
+		cd->show();
+	}
 }
 
 void ColorButton::ColorDialogFinished(int e)
 {
-  ColorDialog *cd = static_cast<ColorDialog*>(sender());
+	ColorDialog *cd = static_cast<ColorDialog *>(sender());
 
-  if (e == QDialog::Accepted) {
-    color_ = cd->GetSelectedColor();
+	if (e == QDialog::Accepted) {
+		color_ = cd->GetSelectedColor();
 
-    UpdateColor();
+		UpdateColor();
 
-    emit ColorChanged(color_);
-  }
+		emit ColorChanged(color_);
+	}
 
-  cd->deleteLater();
+	cd->deleteLater();
 
-  dialog_open_ = false;
+	dialog_open_ = false;
 }
 
 void ColorButton::UpdateColor()
 {
-  color_processor_ = ColorProcessor::Create(color_manager_,
-                                            color_.color_input(),
-                                            color_.color_output());
+	color_processor_ = ColorProcessor::Create(
+		color_manager_, color_.color_input(), color_.color_output());
 
-  QColor managed = QtUtils::toQColor(color_processor_->ConvertColor(color_));
+	QColor managed = QtUtils::toQColor(color_processor_->ConvertColor(color_));
 
-  setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}").arg(MACRO_VAL_AS_STR(olive), managed.name()));
+	setStyleSheet(QStringLiteral("%1--ColorButton {background: %2;}")
+					  .arg(MACRO_VAL_AS_STR(olive), managed.name()));
 }
 
 }

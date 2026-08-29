@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,54 +28,57 @@
 #include "common/qtutils.h"
 #include "ui/colorcoding.h"
 
-namespace olive {
-
-ColorLabelMenu::ColorLabelMenu(QWidget *parent) :
-  Menu(parent)
+namespace olive
 {
-  // Used for size calculations
-  int box_size = fontMetrics().height();
 
-  color_items_.resize(ColorCoding::standard_colors().size());
-  for (int i=0; i<ColorCoding::standard_colors().size(); i++) {
-    QPixmap p(box_size, box_size);
+ColorLabelMenu::ColorLabelMenu(QWidget *parent)
+	: Menu(parent)
+{
+	// Used for size calculations
+	int box_size = fontMetrics().height();
 
-    QPainter painter(&p);
-    painter.setPen(Qt::black);
-    painter.setBrush(QtUtils::toQColor(ColorCoding::standard_colors().at(i)));
-    painter.drawRect(p.rect().adjusted(0, 0, -1, -1));
+	color_items_.resize(ColorCoding::standard_colors().size());
+	for (int i = 0; i < ColorCoding::standard_colors().size(); i++) {
+		QPixmap p(box_size, box_size);
 
-    QAction *a = AddItem(QStringLiteral("colorlabel%1").arg(i), this, &ColorLabelMenu::ActionTriggered);
-    a->setIcon(p);
-    a->setData(i);
-    color_items_.replace(i, a);
-  }
+		QPainter painter(&p);
+		painter.setPen(Qt::black);
+		painter.setBrush(
+			QtUtils::toQColor(ColorCoding::standard_colors().at(i)));
+		painter.drawRect(p.rect().adjusted(0, 0, -1, -1));
 
-  Retranslate();
+		QAction *a = AddItem(QStringLiteral("colorlabel%1").arg(i), this,
+							 &ColorLabelMenu::ActionTriggered);
+		a->setIcon(p);
+		a->setData(i);
+		color_items_.replace(i, a);
+	}
+
+	Retranslate();
 }
 
 void ColorLabelMenu::changeEvent(QEvent *event)
 {
-  if (event->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
+	if (event->type() == QEvent::LanguageChange) {
+		Retranslate();
+	}
 
-  Menu::changeEvent(event);
+	Menu::changeEvent(event);
 }
 
 void ColorLabelMenu::Retranslate()
 {
-  this->setTitle(tr("Color"));
+	this->setTitle(tr("Color"));
 
-  for (int i=0; i<color_items_.size(); i++) {
-    color_items_.at(i)->setText(ColorCoding::GetColorName(i));
-  }
+	for (int i = 0; i < color_items_.size(); i++) {
+		color_items_.at(i)->setText(ColorCoding::GetColorName(i));
+	}
 }
 
 void ColorLabelMenu::ActionTriggered()
 {
-  QAction* a = static_cast<QAction*>(sender());
-  emit ColorSelected(a->data().toInt());
+	QAction *a = static_cast<QAction *>(sender());
+	emit ColorSelected(a->data().toInt());
 }
 
 }

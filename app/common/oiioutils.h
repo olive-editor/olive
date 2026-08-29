@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,37 +28,40 @@
 #include "codec/frame.h"
 #include "render/videoparams.h"
 
-namespace olive {
+namespace olive
+{
 
 class OIIOUtils {
 public:
-  static OIIO::TypeDesc::BASETYPE GetOIIOBaseTypeFromFormat(PixelFormat format)
-  {
-    switch (format) {
-    case PixelFormat::U8:
-      return OIIO::TypeDesc::UINT8;
-    case PixelFormat::U16:
-      return OIIO::TypeDesc::UINT16;
-    case PixelFormat::F16:
-      return OIIO::TypeDesc::HALF;
-    case PixelFormat::F32:
-      return OIIO::TypeDesc::FLOAT;
-    case PixelFormat::INVALID:
-    case PixelFormat::COUNT:
-      break;
-    }
+	static OIIO::TypeDesc::BASETYPE
+	GetOIIOBaseTypeFromFormat(PixelFormat format)
+	{
+		switch (format) {
+		case PixelFormat::U8:
+			return OIIO::TypeDesc::UINT8;
+		case PixelFormat::U10:
+			return OIIO::TypeDesc::UNKNOWN;
+		case PixelFormat::U16:
+			return OIIO::TypeDesc::UINT16;
+		case PixelFormat::F16:
+			return OIIO::TypeDesc::HALF;
+		case PixelFormat::F32:
+			return OIIO::TypeDesc::FLOAT;
+		case PixelFormat::INVALID:
+		case PixelFormat::COUNT:
+			break;
+		}
 
-    return OIIO::TypeDesc::UNKNOWN;
-  }
+		return OIIO::TypeDesc::UNKNOWN;
+	}
 
-  static void FrameToBuffer(const Frame *frame, OIIO::ImageBuf* buf);
+	static void FrameToBuffer(const Frame *frame, OIIO::ImageBuf *buf);
 
-  static void BufferToFrame(OIIO::ImageBuf* buf, Frame* frame);
+	static void BufferToFrame(OIIO::ImageBuf *buf, Frame *frame);
 
-  static PixelFormat GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type);
+	static PixelFormat GetFormatFromOIIOBasetype(OIIO::TypeDesc::BASETYPE type);
 
-  static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec& spec);
-
+	static rational GetPixelAspectRatioFromOIIO(const OIIO::ImageSpec &spec);
 };
 
 }

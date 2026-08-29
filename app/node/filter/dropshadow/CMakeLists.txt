@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/filter/dropshadow/dropshadowfilter.h
-  node/filter/dropshadow/dropshadowfilter.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/filter/dropshadow/dropshadowfilter.h
+        node/filter/dropshadow/dropshadowfilter.cpp
+        PARENT_SCOPE
 )

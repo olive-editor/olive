@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,34 +24,35 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class TextGeneratorV1 : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class TextGeneratorV1 : public Node {
+	Q_OBJECT
 public:
-  TextGeneratorV1();
+	TextGeneratorV1();
 
-  NODE_DEFAULT_FUNCTIONS(TextGeneratorV1)
+	NODE_DEFAULT_FUNCTIONS(TextGeneratorV1)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
+	virtual void GenerateFrame(FramePtr frame,
+							   const GenerateJob &job) const override;
 
-  static const QString kTextInput;
-  static const QString kHtmlInput;
-  static const QString kColorInput;
-  static const QString kVAlignInput;
-  static const QString kFontInput;
-  static const QString kFontSizeInput;
-
+	static const QString kTextInput;
+	static const QString kHtmlInput;
+	static const QString kColorInput;
+	static const QString kVAlignInput;
+	static const QString kFontInput;
+	static const QString kFontSizeInput;
 };
 
 }

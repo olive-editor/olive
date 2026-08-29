@@ -18,6 +18,6 @@ add_subdirectory(track)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

@@ -17,14 +17,14 @@
 add_subdirectory(base)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/slider/floatslider.h
-  widget/slider/floatslider.cpp
-  widget/slider/integerslider.h
-  widget/slider/integerslider.cpp
-  widget/slider/rationalslider.h
-  widget/slider/rationalslider.cpp
-  widget/slider/stringslider.h
-  widget/slider/stringslider.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/slider/floatslider.h
+        widget/slider/floatslider.cpp
+        widget/slider/integerslider.h
+        widget/slider/integerslider.cpp
+        widget/slider/rationalslider.h
+        widget/slider/rationalslider.cpp
+        widget/slider/stringslider.h
+        widget/slider/stringslider.cpp
+        PARENT_SCOPE
 )

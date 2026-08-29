@@ -17,20 +17,20 @@
 add_subdirectory(codec)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/export/export.cpp
-  dialog/export/export.h
-  dialog/export/exportadvancedvideodialog.cpp
-  dialog/export/exportadvancedvideodialog.h
-  dialog/export/exportaudiotab.cpp
-  dialog/export/exportaudiotab.h
-  dialog/export/exportformatcombobox.cpp
-  dialog/export/exportformatcombobox.h
-  dialog/export/exportsavepresetdialog.cpp
-  dialog/export/exportsavepresetdialog.h
-  dialog/export/exportsubtitlestab.cpp
-  dialog/export/exportsubtitlestab.h
-  dialog/export/exportvideotab.cpp
-  dialog/export/exportvideotab.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/export/export.cpp
+        dialog/export/export.h
+        dialog/export/exportadvancedvideodialog.cpp
+        dialog/export/exportadvancedvideodialog.h
+        dialog/export/exportaudiotab.cpp
+        dialog/export/exportaudiotab.h
+        dialog/export/exportformatcombobox.cpp
+        dialog/export/exportformatcombobox.h
+        dialog/export/exportsavepresetdialog.cpp
+        dialog/export/exportsavepresetdialog.h
+        dialog/export/exportsubtitlestab.cpp
+        dialog/export/exportsubtitlestab.h
+        dialog/export/exportvideotab.cpp
+        dialog/export/exportvideotab.h
+        PARENT_SCOPE
 )

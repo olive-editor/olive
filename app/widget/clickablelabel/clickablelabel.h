@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,23 +26,22 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class ClickableLabel : public QLabel
+namespace olive
 {
-  Q_OBJECT
+
+class ClickableLabel : public QLabel {
+	Q_OBJECT
 public:
-  ClickableLabel(const QString& text, QWidget* parent = nullptr);
-  ClickableLabel(QWidget* parent = nullptr);
+	ClickableLabel(const QString &text, QWidget *parent = nullptr);
+	ClickableLabel(QWidget *parent = nullptr);
 
 protected:
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
-  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+	virtual void mouseReleaseEvent(QMouseEvent *event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 signals:
-  void MouseClicked();
-  void MouseDoubleClicked();
-
+	void MouseClicked();
+	void MouseDoubleClicked();
 };
 
 }

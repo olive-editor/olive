@@ -17,8 +17,8 @@
 add_subdirectory(streamproperties)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/footageproperties/footageproperties.cpp
-  dialog/footageproperties/footageproperties.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/footageproperties/footageproperties.cpp
+        dialog/footageproperties/footageproperties.h
+        PARENT_SCOPE
 )

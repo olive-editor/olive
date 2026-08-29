@@ -1,30 +1,30 @@
-# Olive Video Editor [![Build status](https://github.com/olive-editor/olive/workflows/CI/badge.svg?branch=master)](https://github.com/olive-editor/olive/actions?query=branch%3Amaster)
+# Oak Video Editor[![CI](https://github.com/OakVideoEditorCommunity/oak/actions/workflows/ci.yml/badge.svg)](https://github.com/OakVideoEditorCommunity/oak/actions/workflows/ci.yml)
+ [中文](docs/zh/README.md)
 
-Olive is a free non-linear video editor for Windows, macOS, and Linux.
+Oak Video Editor is a free non-linear video editor for Windows, macOS, and Linux.
 
+This project is a community-maintained fork of Olive Video Editor.
 ![screen](https://olivevideoeditor.org/img/020-2.png)
 
-**Discover more:** [Website](https://www.olivevideoeditor.org/) | [Binaries](https://olivevideoeditor.org/download) | [Patreon](https://www.patreon.com/olivevideoeditor) | [Wiki](https://github.com/olive-editor/olive/wiki/Overview-Guide) | [Community Discord (Unofficial)](https://discord.gg/4Ae9KZn)
 
-**NOTE: Olive is alpha software and is considered highly unstable. While we highly appreciate users testing and providing usage information, please use at your own risk.**
+**NOTE: Oak Video Editor is alpha software and is considered highly unstable. While we highly appreciate users testing and providing usage information, please use at your own risk.**
 
 ## Binaries
 
-- [0.1.0 alpha](https://github.com/olive-editor/olive/releases/tag/0.1.0)
-- [0.2.0 unstable development build](https://github.com/olive-editor/olive/releases/tag/0.2.0-nightly)
+The binary can be downloaded here:
 
-## Support Olive
+[v0.4.0](https://github.com/OakVideoEditorCommunity/oak/releases/tag/v0.4.0-alpha)
 
-Please consider supporting Olive:
+## Building from Source
 
-<a href="https://www.patreon.com/olivevideoeditor" title="Become a Patron">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/f6fda794-a64f-46a7-86bd-9631207bf071" width="200" height="63">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/646de54d-1451-4873-b6b2-c63790a4671a" width="200" height="63">
-    <img alt="The Patreon logo" src="https://github.com/user-attachments/assets/2bcca96f-8462-4904-b879-f64b42e07567" width="200" height="63">
-  </picture>
-</a>
+See [`docs/build.md`](docs/build.md) for build instructions on Windows (MSYS2), Linux (Debian/Ubuntu, Fedora, Arch Linux), and macOS.
 
-## Compiling from Source:
+## Roadmap
 
-Compiling instructions for Windows, macOS, and Linux can be found [on the main site](https://olivevideoeditor.org/compile).
+| Version | Theme | Core Deliverables | Boundary Notes |
+|:--|:--|:--|:--|
+| **0.3** (Current) | **Plugin Architecture Milestone** | Production-ready OpenFX host support | Not about quantity of plugins, but "any OFX plugin loads without crashing" |
+| **0.4** | **Color, Audio & Performance** | `.cube`/`.3dl` support, scopes (waveform/vectorscope/histogram), three-way color wheels, waveform auto-sync, BWF timecode sync, audio meters (LUFS/VU), proxy media workflow, hardware-accelerated export (NVENC/VideoToolbox), batch render queue | Combines the previous 0.4-0.6 scope into one usability milestone: color workflow, audio sync, and 4K/8K performance |
+| **0.5** | **Animation, Tracking & Collaboration** | Bézier keyframe curve editor, basic point tracking, image stabilizer, full multicam angle switching, OpenTimelineIO, EDL/XML import/export | Combines the previous 0.7-0.8 scope into one timeline/interchange milestone |
+| **0.6** | **Stability Milestone** | Project file format freeze (backward compatibility promise), crash recovery, autosave, memory optimization | "Feature freeze" testing period before 1.0 |
+| **1.0** | **Production Ready** | Complete documentation, installers, known issues list, community support channels | Declared "ready for serious projects" |

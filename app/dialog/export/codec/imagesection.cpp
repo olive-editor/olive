@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,37 +24,40 @@
 #include <QGridLayout>
 #include <QLabel>
 
-namespace olive {
-
-ImageSection::ImageSection(QWidget* parent) :
-  CodecSection(parent)
+namespace olive
 {
-  QGridLayout* layout = new QGridLayout(this);
-  layout->setContentsMargins(0, 0, 0, 0);
 
-  int row = 0;
+ImageSection::ImageSection(QWidget *parent)
+	: CodecSection(parent)
+{
+	QGridLayout *layout = new QGridLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-  layout->addWidget(new QLabel(tr("Image Sequence:")), row, 0);
+	int row = 0;
 
-  image_sequence_checkbox_ = new QCheckBox();
-  connect(image_sequence_checkbox_, &QCheckBox::toggled, this, &ImageSection::ImageSequenceCheckBoxToggled);
-  layout->addWidget(image_sequence_checkbox_, row, 1);
+	layout->addWidget(new QLabel(tr("Image Sequence:")), row, 0);
 
-  row++;
+	image_sequence_checkbox_ = new QCheckBox();
+	connect(image_sequence_checkbox_, &QCheckBox::toggled, this,
+			&ImageSection::ImageSequenceCheckBoxToggled);
+	layout->addWidget(image_sequence_checkbox_, row, 1);
 
-  layout->addWidget(new QLabel(tr("Frame to Export:")), row, 0);
+	row++;
 
-  frame_slider_ = new RationalSlider();
-  frame_slider_->SetMinimum(0);
-  frame_slider_->SetValue(0);
-  frame_slider_->SetDisplayType(RationalSlider::kTime);
-  connect(frame_slider_, &RationalSlider::ValueChanged, this, &ImageSection::TimeChanged);
-  layout->addWidget(frame_slider_, row, 1);
+	layout->addWidget(new QLabel(tr("Frame to Export:")), row, 0);
+
+	frame_slider_ = new RationalSlider();
+	frame_slider_->SetMinimum(0);
+	frame_slider_->SetValue(0);
+	frame_slider_->SetDisplayType(RationalSlider::kTime);
+	connect(frame_slider_, &RationalSlider::ValueChanged, this,
+			&ImageSection::TimeChanged);
+	layout->addWidget(frame_slider_, row, 1);
 }
 
 void ImageSection::ImageSequenceCheckBoxToggled(bool e)
 {
-  frame_slider_->setEnabled(!e);
+	frame_slider_->setEnabled(!e);
 }
 
 }

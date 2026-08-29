@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,55 +24,54 @@
 
 #include "previewautocacher.h"
 
-namespace olive {
-
-class PreviewAudioDevice : public QIODevice
+namespace olive
 {
-  Q_OBJECT
+
+class PreviewAudioDevice : public QIODevice {
+	Q_OBJECT
 public:
-  PreviewAudioDevice(QObject *parent = nullptr);
+	PreviewAudioDevice(QObject *parent = nullptr);
 
-  virtual ~PreviewAudioDevice() override;
+	virtual ~PreviewAudioDevice() override;
 
-  void StartQueuing();
+	void StartQueuing();
 
-  virtual bool isSequential() const override;
+	virtual bool isSequential() const override;
 
-  virtual qint64 readData(char *data, qint64 maxSize) override;
+	virtual qint64 readData(char *data, qint64 maxSize) override;
 
-  virtual qint64 writeData(const char *data, qint64 length) override;
+	virtual qint64 writeData(const char *data, qint64 length) override;
 
-  int bytes_per_frame() const
-  {
-    return bytes_per_frame_;
-  }
+	int bytes_per_frame() const
+	{
+		return bytes_per_frame_;
+	}
 
-  void set_bytes_per_frame(int b)
-  {
-    bytes_per_frame_ = b;
-  }
+	void set_bytes_per_frame(int b)
+	{
+		bytes_per_frame_ = b;
+	}
 
-  void set_notify_interval(qint64 i)
-  {
-    notify_interval_ = i;
-  }
+	void set_notify_interval(qint64 i)
+	{
+		notify_interval_ = i;
+	}
 
-  void clear();
+	void clear();
 
 signals:
-  void Notify();
+	void Notify();
 
 private:
-  QMutex lock_;
+	QMutex lock_;
 
-  QByteArray buffer_;
+	QByteArray buffer_;
 
-  int bytes_per_frame_;
+	int bytes_per_frame_;
 
-  qint64 notify_interval_;
+	qint64 notify_interval_;
 
-  qint64 bytes_read_;
-
+	qint64 bytes_read_;
 };
 
 }

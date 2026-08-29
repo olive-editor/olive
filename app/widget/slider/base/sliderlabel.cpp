@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,91 +25,91 @@
 #include <QMouseEvent>
 #include <QDebug>
 
-namespace olive {
-
-SliderLabel::SliderLabel(QWidget *parent) :
-  QLabel(parent),
-  override_color_enabled_(false)
+namespace olive
 {
-  QPalette p = palette();
 
-  p.setColor(QPalette::Disabled,
-             QPalette::Highlight,
-             p.color(QPalette::Disabled, QPalette::ButtonText));
+SliderLabel::SliderLabel(QWidget *parent)
+	: QLabel(parent)
+	, override_color_enabled_(false)
+{
+	QPalette p = palette();
 
-  setPalette(p);
+	p.setColor(QPalette::Disabled, QPalette::Highlight,
+			   p.color(QPalette::Disabled, QPalette::ButtonText));
 
-  // Use highlight color as font color
-  setForegroundRole(QPalette::Link);
+	setPalette(p);
 
-  // Set underlined
-  QFont f = font();
-  f.setUnderline(true);
-  setFont(f);
+	// Use highlight color as font color
+	setForegroundRole(QPalette::Link);
 
-  // Allow users to tab to this widget
-  setFocusPolicy(Qt::TabFocus);
+	// Set underlined
+	QFont f = font();
+	f.setUnderline(true);
+	setFont(f);
 
-  // Add custom context menu
-  setContextMenuPolicy(Qt::CustomContextMenu);
+	// Allow users to tab to this widget
+	setFocusPolicy(Qt::TabFocus);
+
+	// Add custom context menu
+	setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SliderLabel::SetColor(const QColor &c)
 {
-  // Prevent infinite loop in changeEvent when we set the stylesheet
-  override_color_enabled_ = false;
-  override_color_ = c;
+	// Prevent infinite loop in changeEvent when we set the stylesheet
+	override_color_enabled_ = false;
+	override_color_ = c;
 
-  // Different colors will look different depending on the theme (light/dark mode). We abstract
-  // that away here so that other classes can simply choose a color and we will handle making it
-  // more legible based on the background
-  QColor adjusted;
-  if (palette().window().color().lightness() < 128) {
-    adjusted = override_color_.lighter(150);
-  } else {
-    adjusted = override_color_.darker(150);
-  }
+	// Different colors will look different depending on the theme (light/dark mode). We abstract
+	// that away here so that other classes can simply choose a color and we will handle making it
+	// more legible based on the background
+	QColor adjusted;
+	if (palette().window().color().lightness() < 128) {
+		adjusted = override_color_.lighter(150);
+	} else {
+		adjusted = override_color_.darker(150);
+	}
 
-  setStyleSheet(QStringLiteral("color: %1").arg(adjusted.name()));
-  override_color_enabled_ = true;
+	setStyleSheet(QStringLiteral("color: %1").arg(adjusted.name()));
+	override_color_enabled_ = true;
 }
 
 void SliderLabel::mousePressEvent(QMouseEvent *e)
 {
-  if (e->button() == Qt::LeftButton) {
-    if (e->modifiers() & Qt::AltModifier) {
-      emit RequestReset();
-    } else {
-      emit LabelPressed();
-    }
-  }
+	if (e->button() == Qt::LeftButton) {
+		if (e->modifiers() & Qt::AltModifier) {
+			emit RequestReset();
+		} else {
+			emit LabelPressed();
+		}
+	}
 }
 
 void SliderLabel::mouseReleaseEvent(QMouseEvent *e)
 {
-  if (e->button() == Qt::LeftButton) {
-    if (!(e->modifiers() & Qt::AltModifier)) {
-      emit LabelReleased();
-    }
-  }
+	if (e->button() == Qt::LeftButton) {
+		if (!(e->modifiers() & Qt::AltModifier)) {
+			emit LabelReleased();
+		}
+	}
 }
 
 void SliderLabel::focusInEvent(QFocusEvent *event)
 {
-  QWidget::focusInEvent(event);
+	QWidget::focusInEvent(event);
 
-  if (event->reason() == Qt::TabFocusReason) {
-    emit focused();
-  }
+	if (event->reason() == Qt::TabFocusReason) {
+		emit focused();
+	}
 }
 
 void SliderLabel::changeEvent(QEvent *event)
 {
-  QWidget::changeEvent(event);
+	QWidget::changeEvent(event);
 
-  if (override_color_enabled_ && event->type() == QEvent::StyleChange) {
-    SetColor(override_color_);
-  }
+	if (override_color_enabled_ && event->type() == QEvent::StyleChange) {
+		SetColor(override_color_);
+	}
 }
 
 }

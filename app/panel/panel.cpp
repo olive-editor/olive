@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,104 +28,119 @@
 #include <QStyle>
 #include <QStyleOption>
 #include <QVariant>
-
 #include "panel/panelmanager.h"
 
-namespace olive {
+#include <OpenImageIO/hash.h>
 
-#define super KDDockWidgets::DockWidget
-
-PanelWidget::PanelWidget(const QString &object_name) :
-  super(object_name),
-  border_visible_(false),
-  signal_instead_of_close_(false)
+namespace olive
 {
-  setFocusPolicy(Qt::ClickFocus);
 
-  connect(this, &PanelWidget::shown, this, static_cast<void(PanelWidget::*)()>(&PanelWidget::setFocus));
+#define super KDDockWidgets::QtWidgets::DockWidget
 
-  PanelManager::instance()->RegisterPanel(this);
+PanelWidget::PanelWidget(const QString &object_name)
+	: super(object_name)
+	, border_visible_(false)
+	, signal_instead_of_close_(false)
+{
+	// KDDockWidgets stores object_name as its uniqueName but does not set it
+	// as the QObject::objectName; PanelManager::GetPanelWithName() (and layout
+	// restore in MainWindow) look panels up by objectName, so mirror it here
+	setObjectName(object_name);
+
+	View<QWidget>::setFocusPolicy(Qt::ClickFocus);
+
+	connect(this, &PanelWidget::shown, this,
+			reinterpret_cast<void (PanelWidget::*)()>(&PanelWidget::setFocus));
+
+	PanelManager::instance()->RegisterPanel(this);
 }
 
 PanelWidget::~PanelWidget()
 {
-  PanelManager::instance()->UnregisterPanel(this);
+	PanelManager::instance()->UnregisterPanel(this);
 }
 
 void PanelWidget::SetBorderVisible(bool enabled)
 {
-  border_visible_ = enabled;
+	border_visible_ = enabled;
 
-  update();
+	update();
 }
 
 void PanelWidget::SetTitle(const QString &t)
 {
-  title_ = t;
-  UpdateTitle();
+	title_ = t;
+	UpdateTitle();
 }
 
 void PanelWidget::SetSubtitle(const QString &t)
 {
-  subtitle_ = t;
-  UpdateTitle();
+	subtitle_ = t;
+	UpdateTitle();
 }
 
 void PanelWidget::paintEvent(QPaintEvent *event)
 {
-  // Perform default behavior
-  super::paintEvent(event);
+	// Perform default behavior
+	super::paintEvent(event);
 
-  // Check if this panel (or a child of it) has focus using PanelFocusManager
-  if (border_visible_) {
+	// Check if this panel (or a child of it) has focus using PanelFocusManager
+	if (border_visible_) {
+		// Draw a highlight border if so
+		QPainter p(this);
 
-    // Draw a highlight border if so
-    QPainter p(this);
+		// We need to adjust the rect by 1 pixel since the bottom and right are "offscreen"
+		QRect highlight_border = rect();
+		highlight_border.adjust(0, 0, -1, -1);
 
-    // We need to adjust the rect by 1 pixel since the bottom and right are "offscreen"
-    QRect highlight_border = rect();
-    highlight_border.adjust(0, 0, -1, -1);
+		// Set the color to the palette's highlight color
+		p.setPen(palette().highlight().color());
 
-    // Set the color to the palette's highlight color
-    p.setPen(palette().highlight().color());
-
-    // Draw the highlight border
-    p.drawRect(highlight_border);
-  }
+		// Draw the highlight border
+		p.drawRect(highlight_border);
+	}
 }
 
 void PanelWidget::UpdateTitle()
 {
-  // If there's no subtitle, just use the title. Otherwise, we set a formatted combination of the two that can
-  // differ based on translation
-  if (subtitle_.isEmpty()) {
-    this->setTitle(title_);
-  } else {
-    this->setTitle(tr("%1: %2").arg(title_, subtitle_));
-  }
+	// If there's no subtitle, just use the title. Otherwise, we set a formatted combination of the two that can
+	// differ based on translation
+	if (subtitle_.isEmpty()) {
+		this->setTitle(title_);
+	} else {
+		this->setTitle(tr("%1: %2").arg(title_, subtitle_));
+	}
 }
 
 void PanelWidget::SetSignalInsteadOfClose(bool e)
 {
-  signal_instead_of_close_ = e;
+	signal_instead_of_close_ = e;
 }
 
 void PanelWidget::closeEvent(QCloseEvent *event)
 {
-  if (signal_instead_of_close_) {
-    event->ignore();
-    emit CloseRequested();
-  } else {
-    super::closeEvent(event);
-  }
+	if (signal_instead_of_close_) {
+		event->ignore();
+		emit CloseRequested();
+	} else {
+		super::closeEvent(event);
+	}
 }
 
 void PanelWidget::changeEvent(QEvent *e)
 {
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
-  super::changeEvent(e);
+	if (e->type() == QEvent::LanguageChange) {
+		Retranslate();
+	}
+
+	if (e->type() == QEvent::WindowStateChange) {
+		if (isVisible() && !isMinimized()) {
+			emit shown(Qt::OtherFocusReason);
+		} else {
+			emit hidden();
+		}
+	}
+	super::changeEvent(e);
 }
 
 void PanelWidget::Retranslate()
@@ -133,11 +149,11 @@ void PanelWidget::Retranslate()
 
 void PanelWidget::SetWidgetWithPadding(QWidget *widget)
 {
-  QWidget* wrapper = new QWidget();
-  QHBoxLayout* layout = new QHBoxLayout(wrapper);
-  layout->setContentsMargins(layout->contentsMargins() / 2);
-  layout->addWidget(widget);
-  setWidget(wrapper);
+	QWidget *wrapper = new QWidget();
+	QHBoxLayout *layout = new QHBoxLayout(wrapper);
+	layout->setContentsMargins(layout->contentsMargins() / 2);
+	layout->addWidget(widget);
+	setWidget(wrapper);
 }
 
 }

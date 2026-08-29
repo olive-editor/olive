@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,121 +24,125 @@
 #include <QDebug>
 #include <QThread>
 
-namespace olive {
+namespace olive
+{
 
-TaskManager* TaskManager::instance_ = nullptr;
+TaskManager *TaskManager::instance_ = nullptr;
 
 TaskManager::TaskManager()
 {
-  thread_pool_.setMaxThreadCount(1);
+	thread_pool_.setMaxThreadCount(1);
 }
 
 TaskManager::~TaskManager()
 {
-  thread_pool_.clear();
+	thread_pool_.clear();
 
-  foreach (Task* t, tasks_) {
-    t->Cancel();
-  }
+	foreach (Task *t, tasks_) {
+		t->Cancel();
+	}
 
-  thread_pool_.waitForDone();
+	thread_pool_.waitForDone();
 
-  foreach (Task* t, tasks_) {
-    t->deleteLater();
-  }
+	foreach (Task *t, tasks_) {
+		t->deleteLater();
+	}
 }
 
 void TaskManager::CreateInstance()
 {
-  instance_ = new TaskManager();
+	instance_ = new TaskManager();
 }
 
 void TaskManager::DestroyInstance()
 {
-  delete instance_;
-  instance_ = nullptr;
+	delete instance_;
+	instance_ = nullptr;
 }
 
 TaskManager *TaskManager::instance()
 {
-  return instance_;
+	return instance_;
 }
 
 int TaskManager::GetTaskCount() const
 {
-  return tasks_.size();
+	return tasks_.size();
 }
 
 Task *TaskManager::GetFirstTask() const
 {
-  return tasks_.begin().value();
+	return tasks_.begin().value();
 }
 
-void TaskManager::CancelTaskAndWait(Task* t)
+void TaskManager::CancelTaskAndWait(Task *t)
 {
-  t->Cancel();
+	t->Cancel();
 
-  QFutureWatcher<bool>* w = tasks_.key(t);
+	QFutureWatcher<bool> *w = tasks_.key(t);
 
-  if (w) {
-    w->waitForFinished();
-  }
+	if (w) {
+		w->waitForFinished();
+	}
 }
 
-void TaskManager::AddTask(Task* t)
+void TaskManager::AddTask(Task *t)
 {
-  // Create a watcher for signalling
-  QFutureWatcher<bool>* watcher = new QFutureWatcher<bool>();
-  connect(watcher, &QFutureWatcher<bool>::finished, this, &TaskManager::TaskFinished);
+	// Create a watcher for signalling
+	QFutureWatcher<bool> *watcher = new QFutureWatcher<bool>();
+	connect(watcher, &QFutureWatcher<bool>::finished, this,
+			&TaskManager::TaskFinished);
 
-  // Add the Task to the queue
-  tasks_.insert(watcher, t);
+	// Add the Task to the queue
+	tasks_.insert(watcher, t);
 
-  // Run task concurrently
-  watcher->setFuture(
+	// Run task concurrently
+	watcher->setFuture(
 #if QT_VERSION_MAJOR >= 6
-        QtConcurrent::run(&thread_pool_, &Task::Start, t)
+		QtConcurrent::run(&thread_pool_, &Task::Start, t)
 #else
-        QtConcurrent::run(&thread_pool_, t, &Task::Start)
+		QtConcurrent::run(&thread_pool_, t, &Task::Start)
 #endif
-        );
+	);
 
-  // Emit signal that a Task was added
-  emit TaskAdded(t);
-  emit TaskListChanged();
+	// Emit signal that a Task was added
+	emit TaskAdded(t);
+	emit TaskListChanged();
 }
 
 void TaskManager::CancelTask(Task *t)
 {
-  if (std::find(failed_tasks_.begin(), failed_tasks_.end(), t) != failed_tasks_.end()) {
-    failed_tasks_.remove(t);
-    emit TaskRemoved(t);
-    t->deleteLater();
-  } else {
-    t->Cancel();
-  }
+	if (std::find(failed_tasks_.begin(), failed_tasks_.end(), t) !=
+		failed_tasks_.end()) {
+		failed_tasks_.remove(t);
+		emit TaskRemoved(t);
+		t->deleteLater();
+	} else {
+		t->Cancel();
+	}
 }
 
 void TaskManager::TaskFinished()
 {
-  QFutureWatcher<bool>* watcher = static_cast<QFutureWatcher<bool>*>(sender());
-  Task* t = tasks_.value(watcher);
+	QFutureWatcher<bool> *watcher =
+		static_cast<QFutureWatcher<bool> *>(sender());
+	Task *t = tasks_.value(watcher);
 
-  tasks_.remove(watcher);
+	tasks_.remove(watcher);
 
-  if (watcher->result()) {
-    // Task completed successfully
-    emit TaskRemoved(t);
-    t->deleteLater();
-  } else {
-    // Task failed, keep it so the user can see the error message
-    emit TaskFailed(t);
-    failed_tasks_.push_back(t);
-  }
+	if (watcher->result()) {
+		// Task completed successfully
+		emit TaskRemoved(t);
+		t->deleteLater();
+	} else {
+		// Task failed, keep it so the user can see the error message
+		emit TaskFailed(t);
+		failed_tasks_.push_back(t);
+	}
 
-  watcher->deleteLater();
+	watcher->deleteLater();
 
-  emit TaskListChanged();
+	emit TaskListChanged();
 }
 
 }

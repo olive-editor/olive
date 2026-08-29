@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,42 +25,42 @@
 #include "node/color/ociobase/ociobase.h"
 #include "render/colorprocessor.h"
 
-namespace olive {
-
-class DisplayTransformNode : public OCIOBaseNode
+namespace olive
 {
-  Q_OBJECT
- public:
-  DisplayTransformNode();
 
-  NODE_DEFAULT_FUNCTIONS(DisplayTransformNode)
+class DisplayTransformNode : public OCIOBaseNode {
+	Q_OBJECT
+public:
+	DisplayTransformNode();
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	NODE_DEFAULT_FUNCTIONS(DisplayTransformNode)
 
-  virtual void Retranslate() override;
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  QString GetDisplay() const;
-  QString GetView() const;
-  ColorProcessor::Direction GetDirection() const;
+	virtual void Retranslate() override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
-  static const QString kDisplayInput;
-  static const QString kViewInput;
-  static const QString kDirectionInput;
+	QString GetDisplay() const;
+	QString GetView() const;
+	ColorProcessor::Direction GetDirection() const;
+
+	static const QString kDisplayInput;
+	static const QString kViewInput;
+	static const QString kDirectionInput;
 
 protected slots:
-  virtual void ConfigChanged() override;
+	virtual void ConfigChanged() override;
 
 private:
-  void GenerateProcessor();
+	void GenerateProcessor();
 
-  void UpdateDisplays();
+	void UpdateDisplays();
 
-  void UpdateViews();
-
+	void UpdateViews();
 };
 
 } // olive

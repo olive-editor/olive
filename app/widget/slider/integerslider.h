@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,36 +24,37 @@
 
 #include "base/numericsliderbase.h"
 
-namespace olive {
-
-class IntegerSlider : public NumericSliderBase
+namespace olive
 {
-  Q_OBJECT
+
+class IntegerSlider : public NumericSliderBase {
+	Q_OBJECT
 public:
-  IntegerSlider(QWidget* parent = nullptr);
+	IntegerSlider(QWidget *parent = nullptr);
 
-  int64_t GetValue();
+	int64_t GetValue();
 
-  void SetValue(const int64_t& v);
+	void SetValue(const int64_t &v);
 
-  void SetMinimum(const int64_t& d);
+	void SetMinimum(const int64_t &d);
 
-  void SetMaximum(const int64_t& d);
+	void SetMaximum(const int64_t &d);
 
-  void SetDefaultValue(const int64_t& d);
+	void SetDefaultValue(const int64_t &d);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) const override;
+	virtual QString ValueToString(const QVariant &v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+	virtual QVariant StringToValue(const QString &s, bool *ok) const override;
 
-  virtual void ValueSignalEvent(const QVariant &value) override;
+	virtual void ValueSignalEvent(const QVariant &value) override;
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+	virtual QVariant
+	AdjustDragDistanceInternal(const QVariant &start,
+							   const double &drag) const override;
 
 signals:
-  void ValueChanged(int64_t);
-
+	void ValueChanged(int64_t);
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,6 +36,6 @@
 // arrays encoded in UTF-16.
 #define QSTRING_TO_BASE_STRING(x) x.toStdWString()
 #define BASE_STRING_TO_QSTRING(x) QString::fromStdWString(x)
-#endif  // BUILDFLAG(IS_WIN)
+#endif // BUILDFLAG(IS_WIN)
 
 #endif // CRASHPADUTILS_H

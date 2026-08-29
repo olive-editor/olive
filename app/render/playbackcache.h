@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,127 +33,153 @@
 
 using namespace olive::core;
 
-namespace olive {
+namespace olive
+{
 
 class Node;
 class Project;
 class ViewerOutput;
 
-class PlaybackCache : public QObject
-{
-  Q_OBJECT
+class PlaybackCache : public QObject {
+	Q_OBJECT
 public:
-  PlaybackCache(QObject* parent = nullptr);
+	PlaybackCache(QObject *parent = nullptr);
 
-  const QUuid &GetUuid() const { return uuid_; }
-  void SetUuid(const QUuid &u);
+	const QUuid &GetUuid() const
+	{
+		return uuid_;
+	}
+	void SetUuid(const QUuid &u);
 
-  TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
-  TimeRangeList GetInvalidatedRanges(const rational &length) const
-  {
-    return GetInvalidatedRanges(TimeRange(0, length));
-  }
+	TimeRangeList GetInvalidatedRanges(TimeRange intersecting) const;
+	TimeRangeList GetInvalidatedRanges(const rational &length) const
+	{
+		return GetInvalidatedRanges(TimeRange(0, length));
+	}
 
-  bool HasInvalidatedRanges(const TimeRange &intersecting) const;
-  bool HasInvalidatedRanges(const rational &length) const
-  {
-    return HasInvalidatedRanges(TimeRange(0, length));
-  }
+	bool HasInvalidatedRanges(const TimeRange &intersecting) const;
+	bool HasInvalidatedRanges(const rational &length) const
+	{
+		return HasInvalidatedRanges(TimeRange(0, length));
+	}
 
-  QString GetCacheDirectory() const;
+	QString GetCacheDirectory() const;
 
-  void Invalidate(const TimeRange& r);
+	void Invalidate(const TimeRange &r);
 
-  bool HasValidatedRanges() const { return !validated_.isEmpty(); }
-  const TimeRangeList &GetValidatedRanges() const { return validated_; }
+	bool HasValidatedRanges() const
+	{
+		return !validated_.isEmpty();
+	}
+	const TimeRangeList &GetValidatedRanges() const
+	{
+		return validated_;
+	}
 
-  Node *parent() const;
+	Node *parent() const;
 
-  QDir GetThisCacheDirectory() const;
-  static QDir GetThisCacheDirectory(const QString &cache_path, const QUuid &cache_id);
+	QDir GetThisCacheDirectory() const;
+	static QDir GetThisCacheDirectory(const QString &cache_path,
+									  const QUuid &cache_id);
 
-  void LoadState();
-  void SaveState();
+	void LoadState();
+	void SaveState();
 
-  void Draw(QPainter *painter, const rational &start, double scale, const QRect &rect) const;
+	void Draw(QPainter *painter, const rational &start, double scale,
+			  const QRect &rect) const;
 
-  static int GetCacheIndicatorHeight()
-  {
-    return QFontMetrics(QFont()).height()/4;
-  }
+	static int GetCacheIndicatorHeight()
+	{
+		return QFontMetrics(QFont()).height() / 4;
+	}
 
-  bool IsSavingEnabled() const { return saving_enabled_; }
-  void SetSavingEnabled(bool e) { saving_enabled_ = e; }
+	bool IsSavingEnabled() const
+	{
+		return saving_enabled_;
+	}
+	void SetSavingEnabled(bool e)
+	{
+		saving_enabled_ = e;
+	}
 
-  virtual void SetPassthrough(PlaybackCache *cache);
+	virtual void SetPassthrough(PlaybackCache *cache);
 
-  QMutex *mutex() { return &mutex_; }
+	QMutex *mutex()
+	{
+		return &mutex_;
+	}
 
-  class Passthrough : public TimeRange
-  {
-  public:
-    Passthrough(const TimeRange &r) :
-      TimeRange(r)
-    {}
+	class Passthrough : public TimeRange {
+	public:
+		Passthrough(const TimeRange &r)
+			: TimeRange(r)
+		{
+		}
 
-    QUuid cache;
-  };
+		QUuid cache;
+	};
 
-  const std::vector<Passthrough> &GetPassthroughs() const { return passthroughs_; }
+	const std::vector<Passthrough> &GetPassthroughs() const
+	{
+		return passthroughs_;
+	}
 
-  void ClearRequestRange(const TimeRange &r)
-  {
-    requested_.remove(r);
-  }
+	void ClearRequestRange(const TimeRange &r)
+	{
+		requested_.remove(r);
+	}
 
-  void ResignalRequests()
-  {
-    for (const TimeRange &r : requested_) {
-      emit Requested(request_context_, r);
-    }
-  }
+	void ResignalRequests()
+	{
+		for (const TimeRange &r : requested_) {
+			emit Requested(request_context_, r);
+		}
+	}
 
 public slots:
-  void InvalidateAll();
+	void InvalidateAll();
 
-  void Request(ViewerOutput *context, const TimeRange &r);
+	void Request(ViewerOutput *context, const TimeRange &r);
 
 signals:
-  void Invalidated(const TimeRange& r);
+	void Invalidated(const TimeRange &r);
 
-  void Validated(const TimeRange& r);
+	void Validated(const TimeRange &r);
 
-  void Requested(ViewerOutput *context, const TimeRange& r);
+	void Requested(ViewerOutput *context, const TimeRange &r);
 
-  void CancelAll();
+	void CancelAll();
 
 protected:
-  void Validate(const TimeRange& r, bool signal = true);
+	void Validate(const TimeRange &r, bool signal = true);
 
-  virtual void InvalidateEvent(const TimeRange& range);
+	virtual void InvalidateEvent(const TimeRange &range);
 
-  virtual void LoadStateEvent(QDataStream &stream){}
+	virtual void LoadStateEvent(QDataStream &stream)
+	{
+	}
 
-  virtual void SaveStateEvent(QDataStream &stream){}
+	virtual void SaveStateEvent(QDataStream &stream)
+	{
+	}
 
-  Project* GetProject() const;
+	Project *GetProject() const;
 
 private:
-  TimeRangeList validated_;
+	TimeRangeList validated_;
 
-  TimeRangeList requested_;
-  ViewerOutput *request_context_;
+	TimeRangeList requested_;
+	ViewerOutput *request_context_;
 
-  QUuid uuid_;
+	QUuid uuid_;
 
-  bool saving_enabled_;
+	bool saving_enabled_;
 
-  QMutex mutex_;
+	QMutex mutex_;
 
-  std::vector<Passthrough> passthroughs_;
+	std::vector<Passthrough> passthroughs_;
 
-  qint64 last_loaded_state_;
-
+	qint64 last_loaded_state_;
 };
 
 }

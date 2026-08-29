@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,33 +31,36 @@
 #include "widget/slider/rationalslider.h"
 #include "widget/slider/integerslider.h"
 
-namespace olive {
-
-class PreferencesGeneralTab : public ConfigDialogBaseTab
+namespace olive
 {
-  Q_OBJECT
-public:
-  PreferencesGeneralTab();
 
-  virtual void Accept(MultiUndoCommand* command) override;
+class PreferencesGeneralTab : public ConfigDialogBaseTab {
+	Q_OBJECT
+public:
+	PreferencesGeneralTab();
+
+	virtual void Accept(MultiUndoCommand *command) override;
 
 private:
-  void AddLanguage(const QString& locale_name);
+	void AddLanguage(const QString &locale_name);
 
-  QComboBox* language_combobox_;
+	QComboBox *language_combobox_;
 
-  QComboBox* autoscroll_method_;
+	QComboBox *autoscroll_method_;
 
-  QCheckBox* rectified_waveforms_;
+	QCheckBox *rectified_waveforms_;
 
-  RationalSlider* default_still_length_;
+	RationalSlider *default_still_length_;
 
-  QCheckBox* autorecovery_enabled_;
+	QCheckBox *autorecovery_enabled_;
 
-  IntegerSlider* autorecovery_interval_;
+	IntegerSlider *autorecovery_interval_;
 
-  IntegerSlider* autorecovery_maximum_;
+	IntegerSlider *autorecovery_maximum_;
 
+	QCheckBox *hover_focus_;
+	QCheckBox *slider_ladder_;
+	QCheckBox *scroll_zooms_;
 };
 
 }

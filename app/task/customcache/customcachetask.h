@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,31 +27,30 @@
 
 #include "task/task.h"
 
-namespace olive {
-
-class CustomCacheTask : public Task
+namespace olive
 {
-  Q_OBJECT
-public:
-  CustomCacheTask(const QString &sequence_name);
 
-  void Finish();
+class CustomCacheTask : public Task {
+	Q_OBJECT
+public:
+	CustomCacheTask(const QString &sequence_name);
+
+	void Finish();
 
 signals:
-  void Cancelled();
+	void Cancelled();
 
 protected:
-  virtual bool Run() override;
+	virtual bool Run() override;
 
-  virtual void CancelEvent() override;
+	virtual void CancelEvent() override;
 
 private:
-  QMutex mutex_;
+	QMutex mutex_;
 
-  QWaitCondition wait_cond_;
+	QWaitCondition wait_cond_;
 
-  bool cancelled_through_finish_;
-
+	bool cancelled_through_finish_;
 };
 
 }

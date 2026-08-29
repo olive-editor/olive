@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,130 +31,127 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/stringslider.h"
 
-namespace olive {
-
-class ColorValuesTab : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ColorValuesTab : public QWidget {
+	Q_OBJECT
 public:
-  ColorValuesTab(bool with_legacy_option = false, QWidget* parent = nullptr);
+	ColorValuesTab(bool with_legacy_option = false, QWidget *parent = nullptr);
 
-  Color GetColor() const;
+	Color GetColor() const;
 
-  void SetColor(const Color& c);
+	void SetColor(const Color &c);
 
-  double GetRed() const;
-  double GetGreen() const;
-  double GetBlue() const;
-  void SetRed(double r);
-  void SetGreen(double g);
-  void SetBlue(double b);
+	double GetRed() const;
+	double GetGreen() const;
+	double GetBlue() const;
+	void SetRed(double r);
+	void SetGreen(double g);
+	void SetBlue(double b);
 
 signals:
-  void ColorChanged(const Color& c);
+	void ColorChanged(const Color &c);
 
 private:
-  static const double kLegacyMultiplier;
+	static const double kLegacyMultiplier;
 
-  double GetValueInternal(FloatSlider *slider) const;
-  void SetValueInternal(FloatSlider *slider, double v);
+	double GetValueInternal(FloatSlider *slider) const;
+	void SetValueInternal(FloatSlider *slider, double v);
 
-  bool AreSlidersLegacyValues() const;
+	bool AreSlidersLegacyValues() const;
 
-  FloatSlider* CreateColorSlider();
+	FloatSlider *CreateColorSlider();
 
-  FloatSlider* red_slider_;
-  FloatSlider* green_slider_;
-  FloatSlider* blue_slider_;
+	FloatSlider *red_slider_;
+	FloatSlider *green_slider_;
+	FloatSlider *blue_slider_;
 
-  QLabel *hex_lbl_;
-  StringSlider *hex_slider_;
+	QLabel *hex_lbl_;
+	StringSlider *hex_slider_;
 
-  QVector<FloatSlider*> sliders_;
+	QVector<FloatSlider *> sliders_;
 
-  QCheckBox *legacy_box_;
+	QCheckBox *legacy_box_;
 
 private slots:
-  void SliderChanged();
+	void SliderChanged();
 
-  void LegacyChanged(bool e);
+	void LegacyChanged(bool e);
 
-  void UpdateHex();
+	void UpdateHex();
 
-  void HexChanged(const QString &s);
-
+	void HexChanged(const QString &s);
 };
 
-class ColorValuesWidget : public QWidget
-{
-  Q_OBJECT
+class ColorValuesWidget : public QWidget {
+	Q_OBJECT
 public:
-  ColorValuesWidget(ColorManager* manager, QWidget* parent = nullptr);
+	ColorValuesWidget(ColorManager *manager, QWidget *parent = nullptr);
 
-  Color GetColor() const;
+	Color GetColor() const;
 
-  void SetColorProcessor(ColorProcessorPtr input_to_ref,
-                         ColorProcessorPtr ref_to_display,
-                         ColorProcessorPtr display_to_ref,
-                         ColorProcessorPtr ref_to_input);
+	void SetColorProcessor(ColorProcessorPtr input_to_ref,
+						   ColorProcessorPtr ref_to_display,
+						   ColorProcessorPtr display_to_ref,
+						   ColorProcessorPtr ref_to_input);
 
-  virtual bool eventFilter(QObject *watcher, QEvent *event) override;
+	virtual bool eventFilter(QObject *watcher, QEvent *event) override;
 
-  void IgnorePickFrom(QWidget *w)
-  {
-    ignore_pick_from_.append(w);
-  }
+	void IgnorePickFrom(QWidget *w)
+	{
+		ignore_pick_from_.append(w);
+	}
 
 public slots:
-  void SetColor(const Color& c);
+	void SetColor(const Color &c);
 
-  void SetReferenceColor(const Color& c);
+	void SetReferenceColor(const Color &c);
 
 signals:
-  void ColorChanged(const Color& c);
+	void ColorChanged(const Color &c);
 
 private:
-  void UpdateInputFromRef();
+	void UpdateInputFromRef();
 
-  void UpdateDisplayFromRef();
+	void UpdateDisplayFromRef();
 
-  void UpdateRefFromInput();
+	void UpdateRefFromInput();
 
-  void UpdateRefFromDisplay();
+	void UpdateRefFromDisplay();
 
-  ColorManager* manager_;
+	ColorManager *manager_;
 
-  ColorPreviewBox* preview_;
+	ColorPreviewBox *preview_;
 
-  ColorValuesTab* input_tab_;
+	ColorValuesTab *input_tab_;
 
-  ColorValuesTab* reference_tab_;
+	ColorValuesTab *reference_tab_;
 
-  ColorValuesTab* display_tab_;
+	ColorValuesTab *display_tab_;
 
-  ColorProcessorPtr input_to_ref_;
+	ColorProcessorPtr input_to_ref_;
 
-  ColorProcessorPtr ref_to_display_;
+	ColorProcessorPtr ref_to_display_;
 
-  ColorProcessorPtr display_to_ref_;
+	ColorProcessorPtr display_to_ref_;
 
-  ColorProcessorPtr ref_to_input_;
+	ColorProcessorPtr ref_to_input_;
 
-  QPushButton *color_picker_btn_;
+	QPushButton *color_picker_btn_;
 
-  Color picker_end_color_;
+	Color picker_end_color_;
 
-  QVector<QWidget *> ignore_pick_from_;
+	QVector<QWidget *> ignore_pick_from_;
 
 private slots:
-  void UpdateValuesFromInput();
+	void UpdateValuesFromInput();
 
-  void UpdateValuesFromRef();
+	void UpdateValuesFromRef();
 
-  void UpdateValuesFromDisplay();
+	void UpdateValuesFromDisplay();
 
-  void ColorPickedBtnToggled(bool e);
-
+	void ColorPickedBtnToggled(bool e);
 };
 
 }

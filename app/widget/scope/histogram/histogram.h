@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,31 +24,32 @@
 
 #include "widget/scope/scopebase/scopebase.h"
 
-namespace olive {
-
-class HistogramScope : public ScopeBase
+namespace olive
 {
-  Q_OBJECT
-public:
-  HistogramScope(QWidget* parent = nullptr);
 
-  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(HistogramScope)
+class HistogramScope : public ScopeBase {
+	Q_OBJECT
+public:
+	HistogramScope(QWidget *parent = nullptr);
+
+	MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(HistogramScope)
 
 protected slots:
-  virtual void OnInit() override;
+	virtual void OnInit() override;
 
-  virtual void OnDestroy() override;
+	virtual void OnDestroy() override;
 
 protected:
-  virtual ShaderCode GenerateShaderCode() override;
-  QVariant CreateSecondaryShader();
+	virtual ShaderCode GenerateShaderCode() override;
+	QVariant CreateSecondaryShader();
 
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
+	virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline) override;
+
+	virtual void DrawScopeSoftware(QPainter &p, const QImage &image) override;
 
 private:
-  QVariant pipeline_secondary_;
-  TexturePtr texture_row_sums_;
-
+	QVariant pipeline_secondary_;
+	TexturePtr texture_row_sums_;
 };
 
 }

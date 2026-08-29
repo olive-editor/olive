@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,64 +26,70 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-NodeParamViewArrayWidget::NodeParamViewArrayWidget(Node *node, const QString &input, QWidget* parent) :
-  QWidget(parent),
-  node_(node),
-  input_(input)
+namespace olive
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
 
-  count_lbl_ = new QLabel();
-  layout->addWidget(count_lbl_);
+NodeParamViewArrayWidget::NodeParamViewArrayWidget(Node *node,
+												   const QString &input,
+												   QWidget *parent)
+	: QWidget(parent)
+	, node_(node)
+	, input_(input)
+{
+	QHBoxLayout *layout = new QHBoxLayout(this);
 
-  connect(node_, &Node::InputArraySizeChanged, this, &NodeParamViewArrayWidget::UpdateCounter);
+	count_lbl_ = new QLabel();
+	layout->addWidget(count_lbl_);
 
-  UpdateCounter(input_, 0, node_->InputArraySize(input_));
+	connect(node_, &Node::InputArraySizeChanged, this,
+			&NodeParamViewArrayWidget::UpdateCounter);
+
+	UpdateCounter(input_, 0, node_->InputArraySize(input_));
 }
 
 void NodeParamViewArrayWidget::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  QWidget::mouseDoubleClickEvent(event);
+	QWidget::mouseDoubleClickEvent(event);
 
-  emit DoubleClicked();
+	emit DoubleClicked();
 }
 
-void NodeParamViewArrayWidget::UpdateCounter(const QString& input, int old_size, int new_size)
+void NodeParamViewArrayWidget::UpdateCounter(const QString &input, int old_size,
+											 int new_size)
 {
-  Q_UNUSED(old_size)
-  if (input == input_) {
-    count_lbl_->setText(tr("%n element(s)", nullptr, new_size));
-  }
+	Q_UNUSED(old_size)
+	if (input == input_) {
+		count_lbl_->setText(tr("%n element(s)", nullptr, new_size));
+	}
 }
 
-NodeParamViewArrayButton::NodeParamViewArrayButton(NodeParamViewArrayButton::Type type, QWidget *parent) :
-  QPushButton(parent),
-  type_(type)
+NodeParamViewArrayButton::NodeParamViewArrayButton(
+	NodeParamViewArrayButton::Type type, QWidget *parent)
+	: QPushButton(parent)
+	, type_(type)
 {
-  Retranslate();
+	Retranslate();
 
-  int sz = sizeHint().height() / 3 * 2;
-  setFixedSize(sz, sz);
+	int sz = sizeHint().height() / 3 * 2;
+	setFixedSize(sz, sz);
 }
 
 void NodeParamViewArrayButton::changeEvent(QEvent *event)
 {
-  if (event->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
+	if (event->type() == QEvent::LanguageChange) {
+		Retranslate();
+	}
 
-  QPushButton::changeEvent(event);
+	QPushButton::changeEvent(event);
 }
 
 void NodeParamViewArrayButton::Retranslate()
 {
-  if (type_ == kAdd) {
-    setText(tr("+"));
-  } else {
-    setText(tr("-"));
-  }
+	if (type_ == kAdd) {
+		setText(tr("+"));
+	} else {
+		setText(tr("-"));
+	}
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,34 +24,36 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class PanNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class PanNode : public Node {
+	Q_OBJECT
 public:
-  PanNode();
+	PanNode();
 
-  NODE_DEFAULT_FUNCTIONS(PanNode)
+	NODE_DEFAULT_FUNCTIONS(PanNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
+	virtual void ProcessSamples(const NodeValueRow &values,
+								const SampleBuffer &input, SampleBuffer &output,
+								int index) const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  static const QString kSamplesInput;
-  static const QString kPanningInput;
+	static const QString kSamplesInput;
+	static const QString kPanningInput;
 
 private:
-  NodeInput* samples_input_;
-  NodeInput* panning_input_;
-
+	NodeInput *samples_input_;
+	NodeInput *panning_input_;
 };
 
 }

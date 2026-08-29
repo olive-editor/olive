@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +26,8 @@
 #include <QScrollBar>
 #include <QWidget>
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
@@ -38,97 +40,97 @@ using namespace core;
  * The aspect ratio is calculated width divided by height. If the aspect ratio is zero (either width or height == 0),
  * the widget is hidden until a valid size is provided.
  */
-class ViewerSizer : public QWidget
-{
-  Q_OBJECT
+class ViewerSizer : public QWidget {
+	Q_OBJECT
 public:
-  ViewerSizer(QWidget* parent = nullptr);
+	ViewerSizer(QWidget *parent = nullptr);
 
-  /**
+	/**
    * @brief Set the widget to be adjusted by this widget
    *
    * ViewerSizer takes ownership of this widget. If a widget was previously set, it is destroyed.
    */
-  void SetWidget(QWidget* widget);
+	void SetWidget(QWidget *widget);
 
-  QSize GetContainerSize() const;
+	QSize GetContainerSize() const;
 
-  static constexpr int kZoomLevelCount = 10;
-  static constexpr double kZoomLevels[kZoomLevelCount] = {0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0};
+	static constexpr int kZoomLevelCount = 10;
+	static constexpr double kZoomLevels[kZoomLevelCount] = {
+		0.05, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 4.0, 8.0
+	};
 
 public slots:
-  /**
+	/**
    * @brief Set resolution to use
    *
    * This is not the actual resolution of the viewer, it's used to calculate the aspect ratio
    */
-  void SetChildSize(int width, int height);
+	void SetChildSize(int width, int height);
 
-  /**
+	/**
    * @brief Set pixel aspect ratio
    */
-  void SetPixelAspectRatio(const rational& pixel_aspect);
+	void SetPixelAspectRatio(const rational &pixel_aspect);
 
-  /**
+	/**
    * @brief Set the zoom value of the child widget
    *
    * The number is an integer percentage (100 = 100%). Set to 0 to auto-fit.
    */
-  void SetZoom(double percent);
-  void SetZoomAnchored(double percent, double cursor_x, double cursor_y);
+	void SetZoom(double percent);
+	void SetZoomAnchored(double percent, double cursor_x, double cursor_y);
 
-  void HandDragMove(int x, int y);
+	void HandDragMove(int x, int y);
 
-  virtual bool eventFilter(QObject *watched, QEvent *event) override;
+	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 
 signals:
-  void RequestScale(const QMatrix4x4& matrix);
+	void RequestScale(const QMatrix4x4 &matrix);
 
-  void RequestTranslate(const QMatrix4x4& matrix);
+	void RequestTranslate(const QMatrix4x4 &matrix);
 
 protected:
-  /**
+	/**
    * @brief Listen for resize events to ensure the child widget remains correctly sized
    */
-  virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void resizeEvent(QResizeEvent *event) override;
 
 private:
-  /**
+	/**
    * @brief Main sizing function, resizes widget_ to fit aspect_ratio_ (or hides if aspect ratio is 0)
    */
-  void UpdateSize();
+	void UpdateSize();
 
-  int GetZoomedValue(int value);
+	int GetZoomedValue(int value);
 
-  double GetRealCurrentZoom() const;
+	double GetRealCurrentZoom() const;
 
-  /**
+	/**
    * @brief Reference to widget
    *
    * If this is nullptr, all sizing operations are no-ops
    */
-  QWidget* widget_;
+	QWidget *widget_;
 
-  /**
+	/**
    * @brief Internal resolution values
    */
-  int width_;
-  int height_;
+	int width_;
+	int height_;
 
-  rational pixel_aspect_;
+	rational pixel_aspect_;
 
-  /**
+	/**
    * @brief Internal zoom value
    */
-  double zoom_;
-  double current_widget_scale_;
+	double zoom_;
+	double current_widget_scale_;
 
-  QScrollBar* horiz_scrollbar_;
-  QScrollBar* vert_scrollbar_;
+	QScrollBar *horiz_scrollbar_;
+	QScrollBar *vert_scrollbar_;
 
 private slots:
-  void ScrollBarMoved();
-
+	void ScrollBarMoved();
 };
 
 }

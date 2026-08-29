@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,39 +28,30 @@
 
 using namespace olive::core;
 
-namespace olive {
+namespace olive
+{
 
 class Block;
 class Track;
 
 class Timeline {
 public:
-  enum MovementMode {
-    kNone,
-    kMove,
-    kTrimIn,
-    kTrimOut
-  };
+	enum MovementMode { kNone, kMove, kTrimIn, kTrimOut };
 
-  enum ThumbnailMode {
-    kThumbnailOff,
-    kThumbnailInOut,
-    kThumbnailOn
-  };
+	enum ThumbnailMode { kThumbnailOff, kThumbnailInOut, kThumbnailOn };
 
-  enum WaveformMode {
-    kWaveformsDisabled,
-    kWaveformsEnabled
-  };
+	enum WaveformMode { kWaveformsDisabled, kWaveformsEnabled };
 
-  static bool IsATrimMode(MovementMode mode) {return mode == kTrimIn || mode == kTrimOut;}
+	static bool IsATrimMode(MovementMode mode)
+	{
+		return mode == kTrimIn || mode == kTrimOut;
+	}
 
-  struct EditToInfo {
-    Track* track;
-    rational nearest_time;
-    Block* nearest_block;
-  };
-
+	struct EditToInfo {
+		Track *track;
+		rational nearest_time;
+		Block *nearest_block;
+	};
 };
 
 #define PLAYHEAD_COLOR palette().highlight().color()

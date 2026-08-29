@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,41 +24,40 @@
 
 #include <olive/core/core.h>
 #include <QComboBox>
-
 #include "ui/humanstrings.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class ChannelLayoutComboBox : public QComboBox
-{
-  Q_OBJECT
+class ChannelLayoutComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  ChannelLayoutComboBox(QWidget* parent = nullptr) :
-    QComboBox(parent)
-  {
-    foreach (const uint64_t& ch_layout, AudioParams::kSupportedChannelLayouts) {
-      this->addItem(HumanStrings::ChannelLayoutToString(ch_layout),
-                    QVariant::fromValue(ch_layout));
-    }
-  }
-
-  uint64_t GetChannelLayout() const
-  {
-    return this->currentData().toULongLong();
-  }
-
-  void SetChannelLayout(uint64_t ch)
-  {
-    for (int i=0; i<this->count(); i++) {
-      if (this->itemData(i).toULongLong() == ch) {
-        this->setCurrentIndex(i);
-        break;
-      }
-    }
-  }
-
+	ChannelLayoutComboBox(QWidget *parent = nullptr)
+		: QComboBox(parent)
+	{
+		foreach (const uint64_t &ch_layout,
+				 AudioParams::kSupportedChannelLayouts) {
+			this->addItem(HumanStrings::ChannelLayoutToString(ch_layout),
+						  QVariant::fromValue(ch_layout));
+		}
+	}
+	[[nodiscard]] uint64_t GetChannelLayout() const
+	{
+		return this->currentData().toULongLong();
+	}
+	void SetChannelLayout(uint64_t ch)
+	{
+		for (int i = 0; i < this->count(); i++) {
+			if (this->itemData(i).toULongLong() == ch) {
+				this->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
+public slots:
+private:
 };
 
 }

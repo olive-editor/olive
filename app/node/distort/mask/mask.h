@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,45 +24,46 @@
 
 #include "node/generator/polygon/polygon.h"
 
-namespace olive {
-
-class MaskDistortNode : public PolygonGenerator
+namespace olive
 {
-  Q_OBJECT
+
+class MaskDistortNode : public PolygonGenerator {
+	Q_OBJECT
 public:
-  MaskDistortNode();
+	MaskDistortNode();
 
-  NODE_DEFAULT_FUNCTIONS(MaskDistortNode)
+	NODE_DEFAULT_FUNCTIONS(MaskDistortNode)
 
-  virtual QString Name() const override
-  {
-    return tr("Mask");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Mask");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.mask");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.mask");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryDistort};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryDistort };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Apply a polygonal mask.");
-  }
+	virtual QString Description() const override
+	{
+		return tr("Apply a polygonal mask.");
+	}
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kInvertInput;
-  static const QString kFeatherInput;
-
+	static const QString kInvertInput;
+	static const QString kFeatherInput;
 };
 
 }

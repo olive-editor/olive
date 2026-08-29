@@ -18,8 +18,8 @@ add_subdirectory(crossdissolve)
 add_subdirectory(diptocolor)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/block/transition/transition.h
-  node/block/transition/transition.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/block/transition/transition.h
+        node/block/transition/transition.cpp
+        PARENT_SCOPE
 )

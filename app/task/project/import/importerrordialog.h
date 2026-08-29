@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,14 +26,14 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class ProjectImportErrorDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
-public:
-  ProjectImportErrorDialog(const QStringList& filenames, QWidget* parent = nullptr);
 
+class ProjectImportErrorDialog : public QDialog {
+	Q_OBJECT
+public:
+	ProjectImportErrorDialog(const QStringList &filenames,
+							 QWidget *parent = nullptr);
 };
 
 }

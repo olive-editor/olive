@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 #include "flipdistortnode.h"
 
-namespace olive {
+namespace olive
+{
 
 const QString FlipDistortNode::kTextureInput = QStringLiteral("tex_in");
 const QString FlipDistortNode::kHorizontalInput = QStringLiteral("horiz_in");
@@ -30,63 +32,68 @@ const QString FlipDistortNode::kVerticalInput = QStringLiteral("vert_in");
 
 FlipDistortNode::FlipDistortNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+	AddInput(kTextureInput, NodeValue::kTexture,
+			 InputFlags(kInputFlagNotKeyframable));
 
-  AddInput(kHorizontalInput, NodeValue::kBoolean, false);
+	AddInput(kHorizontalInput, NodeValue::kBoolean, false);
 
-  AddInput(kVerticalInput, NodeValue::kBoolean, false);
+	AddInput(kVerticalInput, NodeValue::kBoolean, false);
 
-  SetFlag(kVideoEffect);
-  SetEffectInput(kTextureInput);
+	SetFlag(kVideoEffect);
+	SetEffectInput(kTextureInput);
 }
 
 QString FlipDistortNode::Name() const
 {
-  return tr("Flip");
+	return tr("Flip");
 }
 
 QString FlipDistortNode::id() const
 {
-  return QStringLiteral("org.oliveeditor.Olive.flip");
+	return QStringLiteral("org.olivevideoeditor.Olive.flip");
 }
 
 QVector<Node::CategoryID> FlipDistortNode::Category() const
 {
-  return {kCategoryDistort};
+	return { kCategoryDistort };
 }
 
 QString FlipDistortNode::Description() const
 {
-  return tr("Flips an image horizontally or vertically");
+	return tr("Flips an image horizontally or vertically");
 }
 
 void FlipDistortNode::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kTextureInput, tr("Input"));
-  SetInputName(kHorizontalInput, tr("Horizontal"));
-  SetInputName(kVerticalInput, tr("Vertical"));
+	SetInputName(kTextureInput, tr("Input"));
+	SetInputName(kHorizontalInput, tr("Horizontal"));
+	SetInputName(kVerticalInput, tr("Vertical"));
 }
 
 ShaderCode FlipDistortNode::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
+	Q_UNUSED(request)
+	return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/flip.frag"));
 }
 
-void FlipDistortNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void FlipDistortNode::Value(const NodeValueRow &value,
+							const NodeGlobals &globals,
+							NodeValueTable *table) const
 {
-  // If there's no texture, no need to run an operation
-  if (TexturePtr tex = value[kTextureInput].toTexture()) {
-    // Only run shader if at least one of flip or flop are selected
-    if (value[kHorizontalInput].toBool() || value[kVerticalInput].toBool()) {
-      table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)), this);
-    } else {
-      // If we're not flipping or flopping just push the texture
-      table->Push(value[kTextureInput]);
-    }
-  }
+	// If there's no texture, no need to run an operation
+	if (TexturePtr tex = value[kTextureInput].toTexture()) {
+		// Only run shader if at least one of flip or flop are selected
+		if (value[kHorizontalInput].toBool() ||
+			value[kVerticalInput].toBool()) {
+			table->Push(NodeValue::kTexture, tex->toJob(ShaderJob(value)),
+						this);
+		} else {
+			// If we're not flipping or flopping just push the texture
+			table->Push(value[kTextureInput]);
+		}
+	}
 }
 
 }

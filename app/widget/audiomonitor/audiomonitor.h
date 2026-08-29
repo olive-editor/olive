@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,87 +30,89 @@
 #include "common/define.h"
 #include "render/audiowaveformcache.h"
 
-namespace olive {
-
-class AudioMonitor : public QOpenGLWidget
+namespace olive
 {
-  Q_OBJECT
+
+class AudioMonitor : public QOpenGLWidget {
+	Q_OBJECT
 public:
-  AudioMonitor(QWidget *parent = nullptr);
+	AudioMonitor(QWidget *parent = nullptr);
 
-  virtual ~AudioMonitor() override;
+	virtual ~AudioMonitor() override;
 
-  bool IsPlaying() const
-  {
-    return waveform_;
-  }
+	bool IsPlaying() const
+	{
+		return waveform_;
+	}
 
-  static void StartWaveformOnAll(const AudioWaveformCache *waveform, const rational& start, int playback_speed)
-  {
-    foreach (AudioMonitor *m, instances_) {
-      m->StartWaveform(waveform, start, playback_speed);
-    }
-  }
+	static void StartWaveformOnAll(const AudioWaveformCache *waveform,
+								   const rational &start, int playback_speed)
+	{
+		foreach (AudioMonitor *m, instances_) {
+			m->StartWaveform(waveform, start, playback_speed);
+		}
+	}
 
-  static void StopOnAll()
-  {
-    foreach (AudioMonitor *m, instances_) {
-      m->Stop();
-    }
-  }
+	static void StopOnAll()
+	{
+		foreach (AudioMonitor *m, instances_) {
+			m->Stop();
+		}
+	}
 
-  static void PushSampleBufferOnAll(const SampleBuffer &d)
-  {
-    foreach (AudioMonitor *m, instances_) {
-      m->PushSampleBuffer(d);
-    }
-  }
+	static void PushSampleBufferOnAll(const SampleBuffer &d)
+	{
+		foreach (AudioMonitor *m, instances_) {
+			m->PushSampleBuffer(d);
+		}
+	}
 
 public slots:
-  void SetParams(const AudioParams& params);
+	void SetParams(const AudioParams &params);
 
-  void Stop();
+	void Stop();
 
-  void PushSampleBuffer(const SampleBuffer &samples);
+	void PushSampleBuffer(const SampleBuffer &samples);
 
-  void StartWaveform(const AudioWaveformCache *waveform, const rational& start, int playback_speed);
+	void StartWaveform(const AudioWaveformCache *waveform,
+					   const rational &start, int playback_speed);
 
 protected:
-  virtual void paintGL() override;
+	virtual void paintGL() override;
 
-  virtual void mousePressEvent(QMouseEvent* event) override;
+	virtual void mousePressEvent(QMouseEvent *event) override;
 
 private:
-  void SetUpdateLoop(bool e);
+	void SetUpdateLoop(bool e);
 
-  void UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_time);
+	void UpdateValuesFromWaveform(QVector<double> &v, qint64 delta_time);
 
-  void AudioVisualWaveformSampleToInternalValues(const AudioVisualWaveform::Sample &in, QVector<double> &out);
+	void AudioVisualWaveformSampleToInternalValues(
+		const AudioVisualWaveform::Sample &in, QVector<double> &out);
 
-  void PushValue(const QVector<double>& v);
+	void PushValue(const QVector<double> &v);
 
-  void BytesToSampleSummary(const QByteArray& bytes, QVector<double>& v);
+	void BytesToSampleSummary(const QByteArray &bytes, QVector<double> &v);
 
-  QVector<double> GetAverages() const;
+	QVector<double> GetAverages() const;
 
-  AudioParams params_;
+	AudioParams params_;
 
-  qint64 last_time_;
+	qint64 last_time_;
 
-  const AudioWaveformCache* waveform_;
-  rational waveform_time_;
-  rational waveform_length_;
+	const AudioWaveformCache *waveform_;
+	rational waveform_time_;
+	rational waveform_length_;
 
-  int playback_speed_;
+	int playback_speed_;
 
-  QVector< QVector<double> > values_;
-  QVector<bool> peaked_;
+	QVector<QVector<double>> values_;
+	QVector<bool> peaked_;
 
-  QPixmap cached_background_;
-  int cached_channels_;
+	QPixmap cached_background_;
+	int cached_channels_;
 
-  static QVector<AudioMonitor*> instances_;
-
+	static QVector<AudioMonitor *> instances_;
 };
 
 }

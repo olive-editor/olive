@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,19 +21,20 @@
 
 #include "table.h"
 
-namespace olive {
-
-NodeTablePanel::NodeTablePanel() :
-  TimeBasedPanel(QStringLiteral("NodeTablePanel"))
+namespace olive
 {
-  SetTimeBasedWidget(new NodeTableWidget(this));
 
-  Retranslate();
+NodeTablePanel::NodeTablePanel()
+	: TimeBasedPanel(QStringLiteral("NodeTablePanel"))
+{
+	SetTimeBasedWidget(new NodeTableWidget(this));
+
+	Retranslate();
 }
 
 void NodeTablePanel::Retranslate()
 {
-  SetTitle(tr("Table View"));
+	SetTitle(tr("Table View"));
 }
 
 }

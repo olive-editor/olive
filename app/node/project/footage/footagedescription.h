@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,132 +22,189 @@
 #ifndef FOOTAGEDESCRIPTION_H
 #define FOOTAGEDESCRIPTION_H
 
+#include <QString>
+
 #include "node/output/track/track.h"
 #include "render/subtitleparams.h"
 #include "render/videoparams.h"
 
-namespace olive {
-
-class FootageDescription
+namespace olive
 {
+
+class FootageDescription {
 public:
-  FootageDescription(const QString& decoder = QString()) :
-    decoder_(decoder),
-    total_stream_count_(0)
-  {
-  }
+	FootageDescription(const QString &decoder = QString())
+		: decoder_(decoder)
+		, total_stream_count_(0)
+		, has_source_start_time_(false)
+	{
+	}
 
-  bool IsValid() const
-  {
-    return !decoder_.isEmpty() && (!video_streams_.isEmpty() || !audio_streams_.isEmpty() || !subtitle_streams_.isEmpty());
-  }
+	bool IsValid() const
+	{
+		return !decoder_.isEmpty() &&
+			   (!video_streams_.isEmpty() || !audio_streams_.isEmpty() ||
+				!subtitle_streams_.isEmpty());
+	}
 
-  const QString& decoder() const
-  {
-    return decoder_;
-  }
+	const QString &decoder() const
+	{
+		return decoder_;
+	}
 
-  void AddVideoStream(const VideoParams& video_params)
-  {
-    Q_ASSERT(!HasStreamIndex(video_params.stream_index()));
+	void AddVideoStream(const VideoParams &video_params)
+	{
+		Q_ASSERT(!HasStreamIndex(video_params.stream_index()));
 
-    video_streams_.append(video_params);
-  }
+		video_streams_.append(video_params);
+	}
 
-  void AddAudioStream(const AudioParams& audio_params)
-  {
-    Q_ASSERT(!HasStreamIndex(audio_params.stream_index()));
+	void AddAudioStream(const AudioParams &audio_params)
+	{
+		Q_ASSERT(!HasStreamIndex(audio_params.stream_index()));
 
-    audio_streams_.append(audio_params);
-  }
+		audio_streams_.append(audio_params);
+	}
 
-  void AddSubtitleStream(const SubtitleParams& sub_params)
-  {
-    Q_ASSERT(!HasStreamIndex(sub_params.stream_index()));
+	void AddSubtitleStream(const SubtitleParams &sub_params)
+	{
+		Q_ASSERT(!HasStreamIndex(sub_params.stream_index()));
 
-    subtitle_streams_.append(sub_params);
-  }
+		subtitle_streams_.append(sub_params);
+	}
 
-  Track::Type GetTypeOfStream(int index)
-  {
-    if (StreamIsVideo(index)) {
-      return Track::kVideo;
-    } else if (StreamIsAudio(index)) {
-      return Track::kAudio;
-    } else if (StreamIsSubtitle(index)) {
-      return Track::kSubtitle;
-    } else {
-      return Track::kNone;
-    }
-  }
+	Track::Type GetTypeOfStream(int index)
+	{
+		if (StreamIsVideo(index)) {
+			return Track::kVideo;
+		} else if (StreamIsAudio(index)) {
+			return Track::kAudio;
+		} else if (StreamIsSubtitle(index)) {
+			return Track::kSubtitle;
+		} else {
+			return Track::kNone;
+		}
+	}
 
-  bool StreamIsVideo(int index) const
-  {
-    foreach (const VideoParams& vp, video_streams_) {
-      if (vp.stream_index() == index) {
-        return true;
-      }
-    }
+	bool StreamIsVideo(int index) const
+	{
+		foreach (const VideoParams &vp, video_streams_) {
+			if (vp.stream_index() == index) {
+				return true;
+			}
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  bool StreamIsAudio(int index) const
-  {
-    foreach (const AudioParams& ap, audio_streams_) {
-      if (ap.stream_index() == index) {
-        return true;
-      }
-    }
+	bool StreamIsAudio(int index) const
+	{
+		foreach (const AudioParams &ap, audio_streams_) {
+			if (ap.stream_index() == index) {
+				return true;
+			}
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  bool StreamIsSubtitle(int index) const
-  {
-    foreach (const SubtitleParams& sp, subtitle_streams_) {
-      if (sp.stream_index() == index) {
-        return true;
-      }
-    }
+	bool StreamIsSubtitle(int index) const
+	{
+		foreach (const SubtitleParams &sp, subtitle_streams_) {
+			if (sp.stream_index() == index) {
+				return true;
+			}
+		}
 
-    return false;
-  }
+		return false;
+	}
 
-  bool HasStreamIndex(int index) const
-  {
-    return StreamIsVideo(index) || StreamIsAudio(index) || StreamIsSubtitle(index);
-  }
+	bool HasStreamIndex(int index) const
+	{
+		return StreamIsVideo(index) || StreamIsAudio(index) ||
+			   StreamIsSubtitle(index);
+	}
 
-  int GetStreamCount() const { return total_stream_count_; }
-  void SetStreamCount(int s) { total_stream_count_ = s; }
+	int GetStreamCount() const
+	{
+		return total_stream_count_;
+	}
+	void SetStreamCount(int s)
+	{
+		total_stream_count_ = s;
+	}
 
-  bool Load(const QString& filename);
+	void SetSourceStartTime(const rational &time, const QString &source)
+	{
+		source_start_time_ = time;
+		source_start_time_source_ = source;
+		has_source_start_time_ = true;
+	}
 
-  bool Save(const QString& filename) const;
+	bool HasSourceStartTime() const
+	{
+		return has_source_start_time_;
+	}
 
-  const QVector<VideoParams>& GetVideoStreams() const { return video_streams_; }
-  QVector<VideoParams>& GetVideoStreams() { return video_streams_; }
+	const rational &source_start_time() const
+	{
+		return source_start_time_;
+	}
 
-  const QVector<AudioParams>& GetAudioStreams() const { return audio_streams_; }
-  QVector<AudioParams>& GetAudioStreams() { return audio_streams_; }
+	const QString &source_start_time_source() const
+	{
+		return source_start_time_source_;
+	}
 
-  const QVector<SubtitleParams>& GetSubtitleStreams() const { return subtitle_streams_; }
-  QVector<SubtitleParams>& GetSubtitleStreams() { return subtitle_streams_; }
+	bool Load(const QString &filename);
+
+	bool Save(const QString &filename) const;
+
+	const QVector<VideoParams> &GetVideoStreams() const
+	{
+		return video_streams_;
+	}
+	QVector<VideoParams> &GetVideoStreams()
+	{
+		return video_streams_;
+	}
+
+	const QVector<AudioParams> &GetAudioStreams() const
+	{
+		return audio_streams_;
+	}
+	QVector<AudioParams> &GetAudioStreams()
+	{
+		return audio_streams_;
+	}
+
+	const QVector<SubtitleParams> &GetSubtitleStreams() const
+	{
+		return subtitle_streams_;
+	}
+	QVector<SubtitleParams> &GetSubtitleStreams()
+	{
+		return subtitle_streams_;
+	}
 
 private:
-  static constexpr unsigned kFootageMetaVersion = 6;
+	static constexpr unsigned kFootageMetaVersion = 7;
 
-  QString decoder_;
+	QString decoder_;
 
-  QVector<VideoParams> video_streams_;
+	QVector<VideoParams> video_streams_;
 
-  QVector<AudioParams> audio_streams_;
+	QVector<AudioParams> audio_streams_;
 
-  QVector<SubtitleParams> subtitle_streams_;
+	QVector<SubtitleParams> subtitle_streams_;
 
-  int total_stream_count_;
+	int total_stream_count_;
 
+	rational source_start_time_;
+
+	QString source_start_time_source_;
+
+	bool has_source_start_time_;
 };
 
 }

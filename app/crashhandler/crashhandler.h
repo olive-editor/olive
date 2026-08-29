@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,51 +31,50 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class CrashHandlerDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class CrashHandlerDialog : public QDialog {
+	Q_OBJECT
 public:
-  CrashHandlerDialog(const QString& report_path);
+	CrashHandlerDialog(const QString &report_path);
 
 private:
-  void SetGUIObjectsEnabled(bool e);
+	void SetGUIObjectsEnabled(bool e);
 
-  void GenerateReport();
+	void GenerateReport();
 
-  static QString GetSymbolPath();
+	static QString GetSymbolPath();
 
-  QTextEdit* summary_edit_;
+	QTextEdit *summary_edit_;
 
-  QTextEdit* crash_report_;
+	QTextEdit *crash_report_;
 
-  QPushButton* send_report_btn_;
+	QPushButton *send_report_btn_;
 
-  QPushButton* dont_send_btn_;
+	QPushButton *dont_send_btn_;
 
-  QString report_filename_;
+	QString report_filename_;
 
-  QByteArray report_data_;
+	QByteArray report_data_;
 
-  bool waiting_for_upload_;
+	bool waiting_for_upload_;
 
 protected:
-  virtual void closeEvent(QCloseEvent* e) override;
+	virtual void closeEvent(QCloseEvent *e) override;
 
 private slots:
-  void ReplyFinished(QNetworkReply *reply);
+	void ReplyFinished(QNetworkReply *reply);
 
-  void HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+	void HandleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
 
-  void AttemptToFindReport();
+	void AttemptToFindReport();
 
-  void ReadProcessHasData();
+	void ReadProcessHasData();
 
-  void ReadProcessFinished();
+	void ReadProcessFinished();
 
-  void SendErrorReport();
-
+	void SendErrorReport();
 };
 
 }

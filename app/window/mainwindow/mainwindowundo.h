@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,44 +24,49 @@
 
 #include "node/project/sequence/sequence.h"
 
-namespace olive {
-
-class OpenSequenceCommand : public UndoCommand
+namespace olive
 {
-public:
-  OpenSequenceCommand(Sequence* sequence) :
-    sequence_(sequence)
-  {}
 
-  virtual Project* GetRelevantProject() const override {return nullptr;}
+class OpenSequenceCommand : public UndoCommand {
+public:
+	OpenSequenceCommand(Sequence *sequence)
+		: sequence_(sequence)
+	{
+	}
+
+	virtual Project *GetRelevantProject() const override
+	{
+		return nullptr;
+	}
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  Sequence* sequence_;
-
+	Sequence *sequence_;
 };
 
-class CloseSequenceCommand : public UndoCommand
-{
+class CloseSequenceCommand : public UndoCommand {
 public:
-  CloseSequenceCommand(Sequence* sequence) :
-    sequence_(sequence)
-  {}
+	CloseSequenceCommand(Sequence *sequence)
+		: sequence_(sequence)
+	{
+	}
 
-  virtual Project* GetRelevantProject() const override {return nullptr;}
+	virtual Project *GetRelevantProject() const override
+	{
+		return nullptr;
+	}
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  Sequence* sequence_;
-
+	Sequence *sequence_;
 };
 
 }

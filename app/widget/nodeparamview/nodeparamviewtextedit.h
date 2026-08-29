@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,60 +28,59 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class NodeParamViewTextEdit : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class NodeParamViewTextEdit : public QWidget {
+	Q_OBJECT
 public:
-  NodeParamViewTextEdit(QWidget* parent = nullptr);
+	NodeParamViewTextEdit(QWidget *parent = nullptr);
 
-  QString text() const
-  {
-    return line_edit_->toPlainText();
-  }
+	QString text() const
+	{
+		return line_edit_->toPlainText();
+	}
 
-  void SetEditInViewerOnlyMode(bool on);
+	void SetEditInViewerOnlyMode(bool on);
 
 public slots:
-  void setText(const QString &s)
-  {
-    line_edit_->blockSignals(true);
-    line_edit_->setPlainText(s);
-    line_edit_->blockSignals(false);
-  }
+	void setText(const QString &s)
+	{
+		line_edit_->blockSignals(true);
+		line_edit_->setPlainText(s);
+		line_edit_->blockSignals(false);
+	}
 
-  void setTextPreservingCursor(const QString &s)
-  {
-    // Save cursor position
-    int cursor_pos = line_edit_->textCursor().position();
+	void setTextPreservingCursor(const QString &s)
+	{
+		// Save cursor position
+		int cursor_pos = line_edit_->textCursor().position();
 
-    // Set text
-    this->setText(s);
+		// Set text
+		this->setText(s);
 
-    // Get new text cursor
-    QTextCursor c = line_edit_->textCursor();
-    c.setPosition(cursor_pos);
-    line_edit_->setTextCursor(c);
-  }
+		// Get new text cursor
+		QTextCursor c = line_edit_->textCursor();
+		c.setPosition(cursor_pos);
+		line_edit_->setTextCursor(c);
+	}
 
 signals:
-  void textEdited(const QString &);
+	void textEdited(const QString &);
 
-  void RequestEditInViewer();
+	void RequestEditInViewer();
 
 private:
-  QPlainTextEdit* line_edit_;
+	QPlainTextEdit *line_edit_;
 
-  QPushButton* edit_btn_;
+	QPushButton *edit_btn_;
 
-  QPushButton *edit_in_viewer_btn_;
+	QPushButton *edit_in_viewer_btn_;
 
 private slots:
-  void ShowTextDialog();
+	void ShowTextDialog();
 
-  void InnerWidgetTextChanged();
-
+	void InnerWidgetTextChanged();
 };
 
 }

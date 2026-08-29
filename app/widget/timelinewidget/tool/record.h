@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,24 +24,23 @@
 
 #include "beam.h"
 
-namespace olive {
-
-class RecordTool : public BeamTool
+namespace olive
 {
-public:
-  RecordTool(TimelineWidget* parent);
 
-  virtual void MousePress(TimelineViewMouseEvent *event) override;
-  virtual void MouseMove(TimelineViewMouseEvent *event) override;
-  virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+class RecordTool : public BeamTool {
+public:
+	RecordTool(TimelineWidget *parent);
+
+	virtual void MousePress(TimelineViewMouseEvent *event) override;
+	virtual void MouseMove(TimelineViewMouseEvent *event) override;
+	virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
 protected:
-  void MouseMoveInternal(const rational& cursor_frame, bool outwards);
+	void MouseMoveInternal(const rational &cursor_frame, bool outwards);
 
-  TimelineViewGhostItem* ghost_;
+	TimelineViewGhostItem *ghost_;
 
-  rational drag_start_point_;
-
+	rational drag_start_point_;
 };
 
 }

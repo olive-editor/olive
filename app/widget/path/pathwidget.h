@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,30 +27,28 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class PathWidget : public QWidget
+namespace olive
 {
-  Q_OBJECT
-public:
-  PathWidget(const QString& path,
-             QWidget* parent = nullptr);
 
-  QString text() const
-  {
-    return path_edit_->text();
-  }
+class PathWidget : public QWidget {
+	Q_OBJECT
+public:
+	PathWidget(const QString &path, QWidget *parent = nullptr);
+
+	QString text() const
+	{
+		return path_edit_->text();
+	}
 
 private slots:
-  void BrowseClicked();
+	void BrowseClicked();
 
-  void LineEditChanged();
+	void LineEditChanged();
 
 private:
-  QLineEdit* path_edit_;
+	QLineEdit *path_edit_;
 
-  QPushButton* browse_btn_;
-
+	QPushButton *browse_btn_;
 };
 
 }

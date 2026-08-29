@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Studios LLC
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,24 +26,24 @@
 
 #include "undo/undostack.h"
 
-namespace olive {
-
-class HistoryWidget : public QTreeView
+namespace olive
 {
-  Q_OBJECT
+
+class HistoryWidget : public QTreeView {
+	Q_OBJECT
 public:
-  HistoryWidget(QWidget *parent = nullptr);
+	HistoryWidget(QWidget *parent = nullptr);
 
 private:
-  UndoStack *stack_;
+	UndoStack *stack_;
 
-  size_t current_row_;
+	size_t current_row_;
 
 private slots:
-  void indexChanged(int i);
+	void indexChanged(int i);
 
-  void currentRowChanged(const QModelIndex &current, const QModelIndex &previous);
-
+	void currentRowChanged(const QModelIndex &current,
+						   const QModelIndex &previous);
 };
 
 }

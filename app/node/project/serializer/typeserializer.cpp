@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,44 +21,55 @@
 
 #include "typeserializer.h"
 
-namespace olive {
+namespace olive
+{
 
 AudioParams TypeSerializer::LoadAudioParams(QXmlStreamReader *reader)
 {
-  AudioParams a;
+	AudioParams a;
 
-  while (XMLReadNextStartElement(reader)) {
-    if (reader->name() == QStringLiteral("samplerate")) {
-      a.set_sample_rate(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("channellayout")) {
-      a.set_channel_layout(reader->readElementText().toULongLong());
-    } else if (reader->name() == QStringLiteral("format")) {
-      a.set_format(SampleFormat::from_string(reader->readElementText().toStdString()));
-    } else if (reader->name() == QStringLiteral("enabled")) {
-      a.set_enabled(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("streamindex")) {
-      a.set_stream_index(reader->readElementText().toInt());
-    } else if (reader->name() == QStringLiteral("duration")) {
-      a.set_duration(reader->readElementText().toLongLong());
-    } else if (reader->name() == QStringLiteral("timebase")) {
-      a.set_time_base(rational::fromString(reader->readElementText().toStdString()));
-    } else {
-      reader->skipCurrentElement();
-    }
-  }
+	while (XMLReadNextStartElement(reader)) {
+		if (reader->name() == QStringLiteral("samplerate")) {
+			a.set_sample_rate(reader->readElementText().toInt());
+		} else if (reader->name() == QStringLiteral("channellayout")) {
+			a.set_channel_layout(reader->readElementText().toULongLong());
+		} else if (reader->name() == QStringLiteral("format")) {
+			a.set_format(SampleFormat::from_string(
+				reader->readElementText().toStdString()));
+		} else if (reader->name() == QStringLiteral("enabled")) {
+			a.set_enabled(reader->readElementText().toInt());
+		} else if (reader->name() == QStringLiteral("streamindex")) {
+			a.set_stream_index(reader->readElementText().toInt());
+		} else if (reader->name() == QStringLiteral("duration")) {
+			a.set_duration(reader->readElementText().toLongLong());
+		} else if (reader->name() == QStringLiteral("timebase")) {
+			a.set_time_base(
+				rational::fromString(reader->readElementText().toStdString()));
+		} else {
+			reader->skipCurrentElement();
+		}
+	}
 
-  return a;
+	return a;
 }
 
-void TypeSerializer::SaveAudioParams(QXmlStreamWriter *writer, const AudioParams &a)
+void TypeSerializer::SaveAudioParams(QXmlStreamWriter *writer,
+									 const AudioParams &a)
 {
-  writer->writeTextElement(QStringLiteral("samplerate"), QString::number(a.sample_rate()));
-  writer->writeTextElement(QStringLiteral("channellayout"), QString::number(a.channel_layout()));
-  writer->writeTextElement(QStringLiteral("format"), QString::fromStdString(a.format().to_string()));
-  writer->writeTextElement(QStringLiteral("enabled"), QString::number(a.enabled()));
-  writer->writeTextElement(QStringLiteral("streamindex"), QString::number(a.stream_index()));
-  writer->writeTextElement(QStringLiteral("duration"), QString::number(a.duration()));
-  writer->writeTextElement(QStringLiteral("timebase"), QString::fromStdString(a.time_base().toString()));
+	writer->writeTextElement(QStringLiteral("samplerate"),
+							 QString::number(a.sample_rate()));
+	writer->writeTextElement(QStringLiteral("channellayout"),
+							 QString::number(a.channel_layout()));
+	writer->writeTextElement(QStringLiteral("format"),
+							 QString::fromStdString(a.format().to_string()));
+	writer->writeTextElement(QStringLiteral("enabled"),
+							 QString::number(a.enabled()));
+	writer->writeTextElement(QStringLiteral("streamindex"),
+							 QString::number(a.stream_index()));
+	writer->writeTextElement(QStringLiteral("duration"),
+							 QString::number(a.duration()));
+	writer->writeTextElement(QStringLiteral("timebase"),
+							 QString::fromStdString(a.time_base().toString()));
 }
 
 }

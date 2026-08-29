@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,282 +36,318 @@
 #include "render/renderer.h"
 #include "widget/menu/menu.h"
 
-namespace olive {
+namespace olive
+{
 
 class ManagedDisplayWidgetOpenGL
 #ifdef USE_QOPENGLWINDOW
-    : public QOpenGLWindow
+	: public QOpenGLWindow
 #else
-    : public QOpenGLWidget
+	: public QOpenGLWidget
 #endif
 {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  ManagedDisplayWidgetOpenGL() = default;
+	ManagedDisplayWidgetOpenGL() = default;
 
-  virtual ~ManagedDisplayWidgetOpenGL() override
-  {
-    if (context()) {
-      DestroyListener();
-      disconnect(context(), &QOpenGLContext::aboutToBeDestroyed,
-                 this, &ManagedDisplayWidgetOpenGL::DestroyListener);
-    }
-  }
+	virtual ~ManagedDisplayWidgetOpenGL() override
+	{
+		if (context()) {
+			DestroyListener();
+			disconnect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+					   &ManagedDisplayWidgetOpenGL::DestroyListener);
+		}
+	}
 
 signals:
-  // Render signals
-  void OnInit();
-  void OnPaint();
-  void OnDestroy();
+	// Render signals
+	void OnInit();
+	void OnPaint();
+	void OnDestroy();
 
 protected:
-  virtual void initializeGL() override
-  {
-    connect(context(), &QOpenGLContext::aboutToBeDestroyed,
-            this, &ManagedDisplayWidgetOpenGL::DestroyListener,
-            Qt::DirectConnection);
+	virtual void initializeGL() override
+	{
+		connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+				&ManagedDisplayWidgetOpenGL::DestroyListener,
+				Qt::DirectConnection);
 
-    emit OnInit();
-  }
+		emit OnInit();
+	}
 
-  virtual void paintGL() override
-  {
-    emit OnPaint();
-  }
+	virtual void paintGL() override
+	{
+		emit OnPaint();
+	}
 
 private slots:
-  void DestroyListener()
-  {
-    makeCurrent();
+	void DestroyListener()
+	{
+		makeCurrent();
 
-    emit OnDestroy();
+		emit OnDestroy();
 
-    doneCurrent();
-  }
-
+		doneCurrent();
+	}
 };
 
 #define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER \
-  makeCurrent();OnDestroy();doneCurrent()
-#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(x) \
-  virtual ~x() override{MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER;}
+	makeCurrent();                                    \
+	OnDestroy();                                      \
+	doneCurrent()
+#define MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(x)     \
+	virtual ~x() override                              \
+	{                                                  \
+		MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR_INNER; \
+	}
 
-class ManagedDisplayWidget : public QWidget
-{
-  Q_OBJECT
+/**
+ * @brief Inner widget for backend-neutral rendering paths (e.g. Vulkan).
+ *
+ * It does not own a GL context; instead it forwards Qt paint events to the
+ * ManagedDisplayWidget so that the viewer can render via QPainter.
+ */
+class ManagedDisplayWidgetBackendNeutral : public QWidget {
+	Q_OBJECT
 public:
-  ManagedDisplayWidget(QWidget* parent = nullptr);
-
-  virtual ~ManagedDisplayWidget() override;
-
-  /**
-   * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
-   */
-  void DisconnectColorManager();
-
-  /**
-   * @brief Access currently connected ColorManager (nullptr if none)
-   */
-  ColorManager* color_manager() const;
-
-  /**
-   * @brief Get current color transform
-   */
-  const ColorTransform& GetColorTransform() const;
-
-  /**
-   * @brief Get menu that can be used to select the colorspace
-   */
-  Menu* GetColorSpaceMenu(QMenu* parent, bool auto_connect = true);
-
-  /**
-   * @brief Get menu that can be used to select the display transform
-   */
-  Menu* GetDisplayMenu(QMenu* parent, bool auto_connect = true);
-
-  /**
-   * @brief Get menu that can be used to select the view transform
-   */
-  Menu* GetViewMenu(QMenu* parent, bool auto_connect = true);
-
-  /**
-   * @brief Get menu that can be used to select the look transform
-   */
-  Menu* GetLookMenu(QMenu* parent, bool auto_connect = true);
-
-  /**
-   * @brief Passes update signal through to inner widget
-   */
-  void update();
-
-  virtual bool eventFilter(QObject *o, QEvent *e) override;
-
-public slots:
-  /**
-   * @brief Replaces the color transform with a new one
-   */
-  void SetColorTransform(const ColorTransform& transform);
-
-  /**
-   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
-   */
-  void ConnectColorManager(ColorManager* color_manager);
+	ManagedDisplayWidgetBackendNeutral(QWidget *parent = nullptr)
+		: QWidget(parent)
+	{
+	}
 
 signals:
-  /**
-   * @brief Emitted when the color processor changes
-   */
-  void ColorProcessorChanged(ColorProcessorPtr processor);
-
-  /**
-   * @brief Emitted when a new color manager is connected
-   */
-  void ColorManagerChanged(ColorManager* color_manager);
-
-  void frameSwapped();
+	void OnPaint();
 
 protected:
-  /**
+	virtual void paintEvent(QPaintEvent *event) override
+	{
+		QWidget::paintEvent(event);
+
+		emit OnPaint();
+	}
+};
+
+class ManagedDisplayWidget : public QWidget {
+	Q_OBJECT
+public:
+	ManagedDisplayWidget(QWidget *parent = nullptr);
+
+	virtual ~ManagedDisplayWidget() override;
+
+	/**
+   * @brief Disconnect a ColorManager (equivalent to ConnectColorManager(nullptr))
+   */
+	void DisconnectColorManager();
+
+	/**
+   * @brief Access currently connected ColorManager (nullptr if none)
+   */
+	ColorManager *color_manager() const;
+
+	/**
+   * @brief Get current color transform
+   */
+	const ColorTransform &GetColorTransform() const;
+
+	/**
+   * @brief Get menu that can be used to select the colorspace
+   */
+	Menu *GetColorSpaceMenu(QMenu *parent, bool auto_connect = true);
+
+	/**
+   * @brief Get menu that can be used to select the display transform
+   */
+	Menu *GetDisplayMenu(QMenu *parent, bool auto_connect = true);
+
+	/**
+   * @brief Get menu that can be used to select the view transform
+   */
+	Menu *GetViewMenu(QMenu *parent, bool auto_connect = true);
+
+	/**
+   * @brief Get menu that can be used to select the look transform
+   */
+	Menu *GetLookMenu(QMenu *parent, bool auto_connect = true);
+
+	/**
+   * @brief Passes update signal through to inner widget
+   */
+	void update();
+
+	virtual bool eventFilter(QObject *o, QEvent *e) override;
+
+public slots:
+	/**
+   * @brief Replaces the color transform with a new one
+   */
+	void SetColorTransform(const ColorTransform &transform);
+
+	/**
+   * @brief Connect a ColorManager (ColorManagers usually belong to the Project)
+   */
+	void ConnectColorManager(ColorManager *color_manager);
+
+signals:
+	/**
+   * @brief Emitted when the color processor changes
+   */
+	void ColorProcessorChanged(ColorProcessorPtr processor);
+
+	/**
+   * @brief Emitted when a new color manager is connected
+   */
+	void ColorManagerChanged(ColorManager *color_manager);
+
+	void frameSwapped();
+
+protected:
+	/**
    * @brief Provides access to the color processor (nullptr if none is set)
    */
-  ColorProcessorPtr color_service();
+	ColorProcessorPtr color_service();
 
-  /**
+	/**
    * @brief Enables a context menu that allows simple access to the DVL pipeline
    */
-  void EnableDefaultContextMenu();
+	void EnableDefaultContextMenu();
 
-  /**
+	/**
    * @brief Function called whenever the processor changes
    *
    * Default functionality is just to call update()
    */
-  virtual void ColorProcessorChangedEvent();
+	virtual void ColorProcessorChangedEvent();
 
-  Renderer* renderer() const
-  {
-    return attached_renderer_;
-  }
+	Renderer *renderer() const
+	{
+		return attached_renderer_;
+	}
 
-  void makeCurrent();
+	void makeCurrent();
 
-  void doneCurrent();
+	void doneCurrent();
 
 #ifdef USE_QOPENGLWINDOW
-  QWindow*
+	QWindow *
 #else
-  QWidget*
+	QWidget *
 #endif
-  inner_widget() const
-  {
-    return inner_widget_;
-  }
+	inner_widget() const
+	{
+		return inner_widget_;
+	}
 
-  /**
+	/**
    * @brief Get inner widget as paint device for QPainter
    *
    * NOTE: This will be incompatible with QVulkanWindow so functions using it
    *       will need to be replaced soon.
    */
-  QPaintDevice *paint_device() const;
+	QPaintDevice *paint_device() const;
 
-  void SetInnerMouseTracking(bool e);
+	void SetInnerMouseTracking(bool e);
 
-  QRect GetInnerRect() const
-  {
-    return wrapper_ ? wrapper_->rect() : QRect();
-  }
+	bool IsBackendNeutral() const
+	{
+		return is_backend_neutral_;
+	}
 
-  VideoParams GetViewportParams() const;
+	QRect GetInnerRect() const
+	{
+		return wrapper_ ? wrapper_->rect() : QRect();
+	}
+
+	VideoParams GetViewportParams() const;
 
 protected slots:
-  /**
+	/**
    * @brief Called whenever the internal rendering context has been created
    */
-  virtual void OnInit();
+	virtual void OnInit();
 
-  /**
+	/**
    * @brief Called while the internal rendering context is being rendered
    */
-  virtual void OnPaint() = 0;
+	virtual void OnPaint() = 0;
 
-  /**
+	/**
    * @brief Called just before the internal rendering context is destroyed
    */
-  virtual void OnDestroy();
+	virtual void OnDestroy();
 
 private:
-  /**
+	/**
    * @brief Call this if this user has selected a different display/view/look to recreate the processor
    */
-  void SetupColorProcessor();
+	void SetupColorProcessor();
 
-  /**
+	/**
    * @brief Cleanup function
    */
-  void ClearOCIOLutTexture();
+	void ClearOCIOLutTexture();
 
-  /**
+	/**
    * @brief Main drawing surface abstraction
    */
 #ifdef USE_QOPENGLWINDOW
-  QWindow* inner_widget_;
+	QWindow *inner_widget_;
 #else
-  QWidget* inner_widget_;
+	QWidget *inner_widget_;
 #endif
-  QWidget *wrapper_;
+	QWidget *wrapper_;
 
-  /**
+	/**
    * @brief Renderer abstraction
    */
-  Renderer* attached_renderer_;
+	Renderer *attached_renderer_;
 
-  /**
+	/**
    * @brief Connected color manager
    */
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  /**
+	/**
    * @brief Color management service
    */
-  ColorProcessorPtr color_service_;
+	ColorProcessorPtr color_service_;
 
-  /**
+	/**
    * @brief Internal color transform storage
    */
-  ColorTransform color_transform_;
+	ColorTransform color_transform_;
+
+	bool is_backend_neutral_ = false;
 
 private slots:
-  /**
+	/**
    * @brief Sets all color settings to the defaults pertaining to this configuration
    */
-  void ColorConfigChanged();
+	void ColorConfigChanged();
 
-  /**
+	/**
    * @brief The default context menu shown
    */
-  void ShowDefaultContextMenu();
+	void ShowDefaultContextMenu();
 
-  /**
+	/**
    * @brief If GetDisplayMenu() is called with `auto_connect` set to true, it will be connected to this
    */
-  void MenuDisplaySelect(QAction* action);
+	void MenuDisplaySelect(QAction *action);
 
-  /**
+	/**
    * @brief If GetViewMenu() is called with `auto_connect` set to true, it will be connected to this
    */
-  void MenuViewSelect(QAction* action);
+	void MenuViewSelect(QAction *action);
 
-  /**
+	/**
    * @brief If GetLookMenu() is called with `auto_connect` set to true, it will be connected to this
    */
-  void MenuLookSelect(QAction* action);
+	void MenuLookSelect(QAction *action);
 
-  /**
+	/**
    * @brief If GetColorSpaceMenu() is called with `auto_connect` set to true, it will be connected to this
    */
-  void MenuColorspaceSelect(QAction* action);
-
+	void MenuColorspaceSelect(QAction *action);
 };
 
 }

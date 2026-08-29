@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,42 +29,41 @@
 #include "trackviewitem.h"
 #include "trackviewsplitter.h"
 
-namespace olive {
-
-class TrackView : public QScrollArea
+namespace olive
 {
-  Q_OBJECT
-public:
-  TrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
-            QWidget* parent = nullptr);
 
-  void ConnectTrackList(TrackList* list);
-  void DisconnectTrackList();
+class TrackView : public QScrollArea {
+	Q_OBJECT
+public:
+	TrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
+			  QWidget *parent = nullptr);
+
+	void ConnectTrackList(TrackList *list);
+	void DisconnectTrackList();
 
 signals:
-  void AboutToDeleteTrack(Track *track);
+	void AboutToDeleteTrack(Track *track);
 
 protected:
-  virtual void resizeEvent(QResizeEvent *e) override;
+	virtual void resizeEvent(QResizeEvent *e) override;
 
 private:
-  TrackList* list_;
+	TrackList *list_;
 
-  TrackViewSplitter* splitter_;
+	TrackViewSplitter *splitter_;
 
-  Qt::Alignment alignment_;
+	Qt::Alignment alignment_;
 
-  int last_scrollbar_max_;
+	int last_scrollbar_max_;
 
 private slots:
-  void ScrollbarRangeChanged(int min, int max);
+	void ScrollbarRangeChanged(int min, int max);
 
-  void TrackHeightChanged(int index, int height);
+	void TrackHeightChanged(int index, int height);
 
-  void InsertTrack(Track* track);
+	void InsertTrack(Track *track);
 
-  void RemoveTrack(Track* track);
-
+	void RemoveTrack(Track *track);
 };
 
 }

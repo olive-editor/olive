@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,66 +27,65 @@
 #include "panel/panel.h"
 #include "widget/projectexplorer/projectexplorer.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A PanelWidget wrapper around a ProjectExplorer and a ProjectToolbar
  */
-class ProjectPanel : public PanelWidget, public FootageManagementPanel
-{
-  Q_OBJECT
+class ProjectPanel : public PanelWidget, public FootageManagementPanel {
+	Q_OBJECT
 public:
-  ProjectPanel(const QString &unique_name);
+	ProjectPanel(const QString &unique_name);
 
-  Project* project() const;
-  void set_project(Project* p);
+	Project *project() const;
+	void set_project(Project *p);
 
-  Folder *get_root() const;
+	Folder *get_root() const;
 
-  void set_root(Folder* item);
+	void set_root(Folder *item);
 
-  QVector<Node *> SelectedItems() const;
+	QVector<Node *> SelectedItems() const;
 
-  Folder* GetSelectedFolder() const;
+	Folder *GetSelectedFolder() const;
 
-  virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
+	virtual QVector<ViewerOutput *> GetSelectedFootage() const override;
 
-  ProjectViewModel* model() const;
+	ProjectViewModel *model() const;
 
-  bool SelectItem(Node *n, bool deselect_all_first = true)
-  {
-    return explorer_->SelectItem(n, deselect_all_first);
-  }
+	bool SelectItem(Node *n, bool deselect_all_first = true)
+	{
+		return explorer_->SelectItem(n, deselect_all_first);
+	}
 
-  virtual void SelectAll() override;
-  virtual void DeselectAll() override;
+	virtual void SelectAll() override;
+	virtual void DeselectAll() override;
 
-  virtual void DeleteSelected() override;
+	virtual void DeleteSelected() override;
 
-  virtual void RenameSelected() override;
+	virtual void RenameSelected() override;
 
 public slots:
-  void Edit(Node *item);
+	void Edit(Node *item);
 
 signals:
-  void ProjectNameChanged();
+	void ProjectNameChanged();
 
-  void SelectionChanged(const QVector<Node *> &selected);
+	void SelectionChanged(const QVector<Node *> &selected);
 
 private:
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  ProjectExplorer* explorer_;
+	ProjectExplorer *explorer_;
 
 private slots:
-  void ItemDoubleClickSlot(Node *item);
+	void ItemDoubleClickSlot(Node *item);
 
-  void ShowNewMenu();
+	void ShowNewMenu();
 
-  void UpdateSubtitle();
+	void UpdateSubtitle();
 
-  void SaveConnectedProject();
-
+	void SaveConnectedProject();
 };
 
 }

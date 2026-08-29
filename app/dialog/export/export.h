@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -37,107 +38,105 @@
 #include "widget/nodeparamview/nodeparamviewwidgetbridge.h"
 #include "widget/viewer/viewer.h"
 
-namespace olive {
-
-class ExportDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class ExportDialog : public QDialog {
+	Q_OBJECT
 public:
-  ExportDialog(ViewerOutput* viewer_node, bool stills_only_mode, QWidget* parent = nullptr);
-  ExportDialog(ViewerOutput* viewer_node, QWidget* parent = nullptr) :
-    ExportDialog(viewer_node, false, parent)
-  {}
+	ExportDialog(ViewerOutput *viewer_node, bool stills_only_mode,
+				 QWidget *parent = nullptr);
+	ExportDialog(ViewerOutput *viewer_node, QWidget *parent = nullptr)
+		: ExportDialog(viewer_node, false, parent)
+	{
+	}
 
-  rational GetSelectedTimebase() const;
-  void SetSelectedTimebase(const rational &r);
+	rational GetSelectedTimebase() const;
+	void SetSelectedTimebase(const rational &r);
 
-  EncodingParams GenerateParams() const;
-  void SetParams(const EncodingParams &e);
+	EncodingParams GenerateParams() const;
+	void SetParams(const EncodingParams &e);
 
-  virtual bool eventFilter(QObject *o, QEvent *e) override;
+	virtual bool eventFilter(QObject *o, QEvent *e) override;
 
 public slots:
-  virtual void done(int r) override;
+	virtual void done(int r) override;
 
 signals:
-  void RequestImportFile(const QString &s);
+	void RequestImportFile(const QString &s);
 
 private:
-  void AddPreferencesTab(QWidget *inner_widget, const QString &title);
+	void AddPreferencesTab(QWidget *inner_widget, const QString &title);
 
-  void LoadPresets();
-  void SetDefaultFilename();
+	void LoadPresets();
+	void SetDefaultFilename();
 
-  bool SequenceHasSubtitles() const;
+	bool SequenceHasSubtitles() const;
 
-  void SetDefaults();
+	void SetDefaults();
 
-  ViewerOutput* viewer_node_;
+	ViewerOutput *viewer_node_;
 
-  ExportFormat::Format previously_selected_format_;
+	ExportFormat::Format previously_selected_format_;
 
-  rational GetExportLength() const;
-  int64_t GetExportLengthInTimebaseUnits() const;
+	rational GetExportLength() const;
+	int64_t GetExportLengthInTimebaseUnits() const;
 
-  enum RangeSelection {
-    kRangeEntireSequence,
-    kRangeInToOut
-  };
+	enum RangeSelection { kRangeEntireSequence, kRangeInToOut };
 
-  enum AutoPreset {
-    kPresetDefault = -1,
-    kPresetLastUsed = -2,
-  };
+	enum AutoPreset {
+		kPresetDefault = -1,
+		kPresetLastUsed = -2,
+	};
 
-  QTabWidget* preferences_tabs_;
+	QTabWidget *preferences_tabs_;
 
-  QComboBox* preset_combobox_;
-  QComboBox* range_combobox_;
-  std::vector<EncodingParams> presets_;
+	QComboBox *preset_combobox_;
+	QComboBox *range_combobox_;
+	std::vector<EncodingParams> presets_;
 
-  QCheckBox* video_enabled_;
-  QCheckBox* audio_enabled_;
-  QCheckBox* subtitles_enabled_;
+	QCheckBox *video_enabled_;
+	QCheckBox *audio_enabled_;
+	QCheckBox *subtitles_enabled_;
 
-  ViewerWidget* preview_viewer_;
-  QLineEdit* filename_edit_;
-  ExportFormatComboBox* format_combobox_;
+	ViewerWidget *preview_viewer_;
+	QLineEdit *filename_edit_;
+	ExportFormatComboBox *format_combobox_;
 
-  ExportVideoTab* video_tab_;
-  ExportAudioTab* audio_tab_;
-  ExportSubtitlesTab* subtitle_tab_;
+	ExportVideoTab *video_tab_;
+	ExportAudioTab *audio_tab_;
+	ExportSubtitlesTab *subtitle_tab_;
 
-  double video_aspect_ratio_;
+	double video_aspect_ratio_;
 
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  QWidget* preferences_area_;
-  QCheckBox *export_bkg_box_;
-  QCheckBox *import_file_after_export_;
+	QWidget *preferences_area_;
+	QCheckBox *export_bkg_box_;
+	QCheckBox *import_file_after_export_;
 
-  bool stills_only_mode_;
+	bool stills_only_mode_;
 
-  bool loading_presets_;
+	bool loading_presets_;
 
 private slots:
-  void BrowseFilename();
+	void BrowseFilename();
 
-  void FormatChanged(ExportFormat::Format current_format);
+	void FormatChanged(ExportFormat::Format current_format);
 
-  void ResolutionChanged();
+	void ResolutionChanged();
 
-  void UpdateViewerDimensions();
+	void UpdateViewerDimensions();
 
-  void StartExport();
+	void StartExport();
 
-  void ExportFinished();
+	void ExportFinished();
 
-  void ImageSequenceCheckBoxChanged(bool e);
+	void ImageSequenceCheckBoxChanged(bool e);
 
-  void SavePreset();
+	void SavePreset();
 
-  void PresetComboBoxChanged();
-
+	void PresetComboBoxChanged();
 };
 
 }

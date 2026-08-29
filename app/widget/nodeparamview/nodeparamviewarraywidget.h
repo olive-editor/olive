@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,51 +28,46 @@
 
 #include "node/param.h"
 
-namespace olive {
-
-class NodeParamViewArrayButton : public QPushButton
+namespace olive
 {
-  Q_OBJECT
-public:
-  enum Type {
-    kAdd,
-    kRemove
-  };
 
-  NodeParamViewArrayButton(Type type, QWidget* parent = nullptr);
+class NodeParamViewArrayButton : public QPushButton {
+	Q_OBJECT
+public:
+	enum Type { kAdd, kRemove };
+
+	NodeParamViewArrayButton(Type type, QWidget *parent = nullptr);
 
 protected:
-  virtual void changeEvent(QEvent* event) override;
+	virtual void changeEvent(QEvent *event) override;
 
 private:
-  void Retranslate();
+	void Retranslate();
 
-  Type type_;
-
+	Type type_;
 };
 
-class NodeParamViewArrayWidget : public QWidget
-{
-  Q_OBJECT
+class NodeParamViewArrayWidget : public QWidget {
+	Q_OBJECT
 public:
-  NodeParamViewArrayWidget(Node* node, const QString& input, QWidget* parent = nullptr);
+	NodeParamViewArrayWidget(Node *node, const QString &input,
+							 QWidget *parent = nullptr);
 
 signals:
-  void DoubleClicked();
+	void DoubleClicked();
 
 protected:
-  virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
-  Node* node_;
+	Node *node_;
 
-  QString input_;
+	QString input_;
 
-  QLabel* count_lbl_;
+	QLabel *count_lbl_;
 
 private slots:
-  void UpdateCounter(const QString &input, int old_size, int new_size);
-
+	void UpdateCounter(const QString &input, int old_size, int new_size);
 };
 
 }

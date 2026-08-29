@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,26 +26,25 @@
 
 #include "nodeviewcommon.h"
 
-namespace olive {
-
-class NodeViewItemConnector : public QGraphicsPolygonItem
+namespace olive
 {
+
+class NodeViewItemConnector : public QGraphicsPolygonItem {
 public:
-  NodeViewItemConnector(bool is_output, QGraphicsItem *parent = nullptr);
+	NodeViewItemConnector(bool is_output, QGraphicsItem *parent = nullptr);
 
-  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+	void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
-  bool IsOutput() const
-  {
-    return output_;
-  }
+	bool IsOutput() const
+	{
+		return output_;
+	}
 
-  virtual QPainterPath shape() const override;
-  virtual QRectF boundingRect() const override;
+	virtual QPainterPath shape() const override;
+	virtual QRectF boundingRect() const override;
 
 private:
-  bool output_;
-
+	bool output_;
 };
 
 }

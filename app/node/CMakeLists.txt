@@ -1,5 +1,6 @@
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2022 Olive Team
+# Modifications Copyright (C) 2025 mikesolar
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,35 +28,36 @@ add_subdirectory(input)
 add_subdirectory(keying)
 add_subdirectory(math)
 add_subdirectory(output)
+add_subdirectory(plugins)
 add_subdirectory(project)
 add_subdirectory(time)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/factory.cpp
-  node/factory.h
-  node/globals.cpp
-  node/globals.h
-  node/inputdragger.cpp
-  node/inputdragger.h
-  node/inputimmediate.cpp
-  node/inputimmediate.h
-  node/keyframe.cpp
-  node/keyframe.h
-  node/node.cpp
-  node/node.h
-  node/nodeundo.cpp
-  node/nodeundo.h
-  node/param.cpp
-  node/param.h
-  node/project.cpp
-  node/project.h
-  node/splitvalue.h
-  node/traverser.cpp
-  node/traverser.h
-  node/value.cpp
-  node/value.h
-  node/valuedatabase.cpp
-  node/valuedatabase.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/factory.cpp
+        node/factory.h
+        node/globals.cpp
+        node/globals.h
+        node/inputdragger.cpp
+        node/inputdragger.h
+        node/inputimmediate.cpp
+        node/inputimmediate.h
+        node/keyframe.cpp
+        node/keyframe.h
+        node/node.cpp
+        node/node.h
+        node/nodeundo.cpp
+        node/nodeundo.h
+        node/param.cpp
+        node/param.h
+        node/project.cpp
+        node/project.h
+        node/splitvalue.h
+        node/traverser.cpp
+        node/traverser.h
+        node/value.cpp
+        node/value.h
+        node/valuedatabase.cpp
+        node/valuedatabase.h
+        PARENT_SCOPE
 )

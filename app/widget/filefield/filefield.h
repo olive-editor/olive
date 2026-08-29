@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,49 +25,68 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-namespace olive {
-
-class FileField : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class FileField : public QWidget {
+	Q_OBJECT
 public:
-  FileField(QWidget* parent = nullptr);
+	FileField(QWidget *parent = nullptr);
 
-  QString GetFilename() const
-  {
-    return line_edit_->text();
-  }
+	QString GetFilename() const
+	{
+		return line_edit_->text();
+	}
 
-  void SetFilename(const QString& s)
-  {
-    line_edit_->setText(s);
-  }
+	virtual void SetFilename(const QString &s)
+	{
+		line_edit_->setText(s);
+	}
 
-  void SetPlaceholder(const QString& s)
-  {
-    line_edit_->setPlaceholderText(s);
-  }
+	void SetPlaceholder(const QString &s)
+	{
+		line_edit_->setPlaceholderText(s);
+	}
 
-  void SetDirectoryMode(bool e)
-  {
-    directory_mode_ = e;
-  }
+	void SetDirectoryMode(bool e)
+	{
+		directory_mode_ = e;
+	}
+
+	void SetNameFilter(const QString &filter)
+	{
+		name_filter_ = filter;
+	}
+
+	/**
+	 * @brief Sets extra sidebar shortcuts (e.g. a library directory) for the
+	 * browse dialog
+	 *
+	 * Note: setting sidebar URLs requires Qt's non-native file dialog.
+	 */
+	void SetSidebarUrls(const QList<QUrl> &urls)
+	{
+		sidebar_urls_ = urls;
+	}
 
 signals:
-  void FilenameChanged(const QString& filename);
+	void FilenameChanged(const QString &filename);
 
 private:
-  QLineEdit* line_edit_;
+	QLineEdit *line_edit_;
 
-  QPushButton* browse_btn_;
+	QPushButton *browse_btn_;
 
-  bool directory_mode_;
+	bool directory_mode_;
+
+	QString name_filter_;
+
+	QList<QUrl> sidebar_urls_;
 
 private slots:
-  void BrowseBtnClicked();
+	void BrowseBtnClicked();
 
-  void LineEditChanged(const QString &text);
-
+	void LineEditChanged(const QString &text);
 };
 
 }

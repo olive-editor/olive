@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,18 +21,19 @@
 
 #include "clitaskdialog.h"
 
-namespace olive {
-
-CLITaskDialog::CLITaskDialog(Task *task, QObject* parent) :
-  CLIProgressDialog(task->GetTitle(), parent),
-  task_(task)
+namespace olive
 {
-  connect(task_, &Task::ProgressChanged, this, &CLITaskDialog::SetProgress);
+
+CLITaskDialog::CLITaskDialog(Task *task, QObject *parent)
+	: CLIProgressDialog(task->GetTitle(), parent)
+	, task_(task)
+{
+	connect(task_, &Task::ProgressChanged, this, &CLITaskDialog::SetProgress);
 }
 
 bool CLITaskDialog::Run()
 {
-  return task_->Start();
+	return task_->Start();
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,23 +25,24 @@
 #include "node/node.h"
 #include "node/nodeundo.h"
 
-namespace olive {
-
-inline bool NodeCanBeRemoved(Node* n)
+namespace olive
 {
-  return n->output_connections().empty();
+
+inline bool NodeCanBeRemoved(Node *n)
+{
+	return n->output_connections().empty();
 }
 
-inline UndoCommand* CreateRemoveCommand(Node* n)
+inline UndoCommand *CreateRemoveCommand(Node *n)
 {
-  return new NodeRemoveWithExclusiveDependenciesAndDisconnect(n);
+	return new NodeRemoveWithExclusiveDependenciesAndDisconnect(n);
 }
 
-inline UndoCommand* CreateAndRunRemoveCommand(Node* n)
+inline UndoCommand *CreateAndRunRemoveCommand(Node *n)
 {
-  UndoCommand* command = CreateRemoveCommand(n);
-  command->redo_now();
-  return command;
+	UndoCommand *command = CreateRemoveCommand(n);
+	command->redo_now();
+	return command;
 }
 
 }

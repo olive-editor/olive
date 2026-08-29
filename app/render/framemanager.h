@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,28 +26,28 @@
 #include <QObject>
 #include <QTimer>
 
-namespace olive {
-
-class FrameManager : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class FrameManager : public QObject {
+	Q_OBJECT
 public:
-  static void CreateInstance();
+	static void CreateInstance();
 
-  static void DestroyInstance();
+	static void DestroyInstance();
 
-  static FrameManager* instance();
+	static FrameManager *instance();
 
-  static char* Allocate(int size);
+	static char *Allocate(int size);
 
-  static void Deallocate(int size, char* buffer);
+	static void Deallocate(int size, char *buffer);
 
 private:
-  FrameManager();
+	FrameManager();
 
-  virtual ~FrameManager() override;
+	virtual ~FrameManager() override;
 
-  /**
+	/**
    * @brief Allocate buffer
    *
    * Caller takes ownership of buffer and can delete it if they want. It can also be returned to
@@ -54,9 +55,9 @@ private:
    *
    * Thread-safe.
    */
-  char* AllocateFromPool(int size);
+	char *AllocateFromPool(int size);
 
-  /**
+	/**
    * @brief Deallocate buffer
    *
    * Manager will take ownership and buffer will stay allocated for some time in case it can be
@@ -64,27 +65,25 @@ private:
    *
    * Thread-safe.
    */
-  void DeallocateToPool(int size, char* buffer);
+	void DeallocateToPool(int size, char *buffer);
 
-  static FrameManager* instance_;
+	static FrameManager *instance_;
 
-  static const int kFrameLifetime;
+	static const int kFrameLifetime;
 
-  struct Buffer
-  {
-    qint64 time;
-    char* data;
-  };
+	struct Buffer {
+		qint64 time;
+		char *data;
+	};
 
-  std::map< int, std::list<Buffer> > pool_;
+	std::map<int, std::list<Buffer>> pool_;
 
-  QMutex mutex_;
+	QMutex mutex_;
 
-  QTimer clear_timer_;
+	QTimer clear_timer_;
 
 private slots:
-  void GarbageCollection();
-
+	void GarbageCollection();
 };
 
 }

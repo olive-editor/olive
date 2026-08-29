@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,17 +26,16 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class CollapseButton : public QPushButton
+namespace olive
 {
-  Q_OBJECT
+
+class CollapseButton : public QPushButton {
+	Q_OBJECT
 public:
-  CollapseButton(QWidget* parent = nullptr);
+	CollapseButton(QWidget *parent = nullptr);
 
 private slots:
-  void UpdateIcon(bool e);
-
+	void UpdateIcon(bool e);
 };
 
 }

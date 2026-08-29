@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,52 +26,55 @@
 #include "node/input/multicam/multicamnode.h"
 #include "widget/viewer/viewer.h"
 
-namespace olive {
-
-class MulticamWidget : public TimeBasedWidget
+namespace olive
 {
-  Q_OBJECT
+
+class MulticamWidget : public TimeBasedWidget {
+	Q_OBJECT
 public:
-  explicit MulticamWidget(QWidget *parent = nullptr);
+	explicit MulticamWidget(QWidget *parent = nullptr);
 
-  MulticamDisplay *GetDisplayWidget() const { return display_; }
+	MulticamDisplay *GetDisplayWidget() const
+	{
+		return display_;
+	}
 
-  void SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip, const rational &time);
+	void SetMulticamNode(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip,
+						 const rational &time);
 
 protected:
-  virtual void ConnectNodeEvent(ViewerOutput *n) override;
-  virtual void DisconnectNodeEvent(ViewerOutput *n) override;
-  virtual void TimeChangedEvent(const rational &t) override;
+	virtual void ConnectNodeEvent(ViewerOutput *n) override;
+	virtual void DisconnectNodeEvent(ViewerOutput *n) override;
+	virtual void TimeChangedEvent(const rational &t) override;
 
 signals:
-  void Switched();
+	void Switched();
 
 private:
-  void SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n, ClipBlock *clip);
+	void SetMulticamNodeInternal(ViewerOutput *viewer, MultiCamNode *n,
+								 ClipBlock *clip);
 
-  void Switch(int source, bool split_clip);
+	void Switch(int source, bool split_clip);
 
-  ViewerSizer *sizer_;
+	ViewerSizer *sizer_;
 
-  MulticamDisplay *display_;
+	MulticamDisplay *display_;
 
-  MultiCamNode *node_;
+	MultiCamNode *node_;
 
-  ClipBlock *clip_;
+	ClipBlock *clip_;
 
-  struct MulticamNodeQueue
-  {
-    rational time;
-    ViewerOutput *viewer;
-    MultiCamNode *node;
-    ClipBlock *clip;
-  };
+	struct MulticamNodeQueue {
+		rational time;
+		ViewerOutput *viewer;
+		MultiCamNode *node;
+		ClipBlock *clip;
+	};
 
-  std::list<MulticamNodeQueue> play_queue_;
+	std::list<MulticamNodeQueue> play_queue_;
 
 private slots:
-  void DisplayClicked(const QPoint &p);
-
+	void DisplayClicked(const QPoint &p);
 };
 
 }

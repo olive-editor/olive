@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,30 +27,31 @@
 #include "timeline/timelineworkarea.h"
 #include "widget/timebased/timescaledobject.h"
 
-namespace olive {
-
-class ResizableTimelineScrollBar : public ResizableScrollBar, public TimeScaledObject
+namespace olive
 {
-  Q_OBJECT
+
+class ResizableTimelineScrollBar : public ResizableScrollBar,
+								   public TimeScaledObject {
+	Q_OBJECT
 public:
-  ResizableTimelineScrollBar(QWidget* parent = nullptr);
-  ResizableTimelineScrollBar(Qt::Orientation orientation, QWidget* parent = nullptr);
+	ResizableTimelineScrollBar(QWidget *parent = nullptr);
+	ResizableTimelineScrollBar(Qt::Orientation orientation,
+							   QWidget *parent = nullptr);
 
-  void ConnectMarkers(TimelineMarkerList *markers);
-  void ConnectWorkArea(TimelineWorkArea *workarea);
+	void ConnectMarkers(TimelineMarkerList *markers);
+	void ConnectWorkArea(TimelineWorkArea *workarea);
 
-  void SetScale(double d);
+	void SetScale(double d);
 
 protected:
-  virtual void paintEvent(QPaintEvent* event) override;
+	virtual void paintEvent(QPaintEvent *event) override;
 
 private:
-  TimelineMarkerList* markers_;
+	TimelineMarkerList *markers_;
 
-  TimelineWorkArea* workarea_;
+	TimelineWorkArea *workarea_;
 
-  double scale_;
-
+	double scale_;
 };
 
 }

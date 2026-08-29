@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,9 +26,11 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
-namespace icon {
+namespace icon
+{
 
 // Playback Icons
 extern QIcon GoToStart;
@@ -139,7 +142,7 @@ extern QIcon ColorPicker;
  *
  * A QIcon object containing the various icon sizes loaded from resource
  */
-QIcon Create(const QString &theme, const QString& name);
+QIcon Create(const QString &theme, const QString &name);
 
 /**
  * @brief Methodically load all Olive icons into global variables that can be accessed throughout the application

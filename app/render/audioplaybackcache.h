@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,7 +25,8 @@
 #include "audio/audiovisualwaveform.h"
 #include "render/playbackcache.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A fully integrated system of storing and playing cached audio
@@ -49,34 +51,36 @@ namespace olive {
  * acts identically to a file-based IO device, transparently joining segments together and acting
  * like one contiguous file.
  */
-class AudioPlaybackCache : public PlaybackCache
-{
-  Q_OBJECT
+class AudioPlaybackCache : public PlaybackCache {
+	Q_OBJECT
 public:
-  AudioPlaybackCache(QObject* parent = nullptr);
+	AudioPlaybackCache(QObject *parent = nullptr);
 
-  virtual ~AudioPlaybackCache() override;
+	virtual ~AudioPlaybackCache() override;
 
-  AudioParams GetParameters()
-  {
-    return params_;
-  }
+	AudioParams GetParameters()
+	{
+		return params_;
+	}
 
-  void SetParameters(const AudioParams& params);
+	void SetParameters(const AudioParams &params);
 
-  void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges, const SampleBuffer &samples);
+	void WritePCM(const TimeRange &range, const TimeRangeList &valid_ranges,
+				  const SampleBuffer &samples);
 
-  void WriteSilence(const TimeRange &range);
+	void WriteSilence(const TimeRange &range);
 
 private:
-  bool WritePartOfSampleBuffer(const SampleBuffer &samples, const rational &write_start, const rational &buffer_start, const rational &length);
+	bool WritePartOfSampleBuffer(const SampleBuffer &samples,
+								 const rational &write_start,
+								 const rational &buffer_start,
+								 const rational &length);
 
-  QString GetSegmentFilename(qint64 segment_index, int channel);
+	QString GetSegmentFilename(qint64 segment_index, int channel);
 
-  static const qint64 kDefaultSegmentSizePerChannel;
+	static const qint64 kDefaultSegmentSizePerChannel;
 
-  AudioParams params_;
-
+	AudioParams params_;
 };
 
 }

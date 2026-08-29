@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,26 +24,26 @@
 
 #include "node/output/track/track.h"
 
-namespace olive {
-
-class TimelineCoordinate
+namespace olive
 {
+
+class TimelineCoordinate {
 public:
-  TimelineCoordinate();
-  TimelineCoordinate(const rational& frame, const Track::Reference& track);
-  TimelineCoordinate(const rational& frame, const Track::Type& track_type, const int& track_index);
+	TimelineCoordinate();
+	TimelineCoordinate(const rational &frame, const Track::Reference &track);
+	TimelineCoordinate(const rational &frame, const Track::Type &track_type,
+					   const int &track_index);
 
-  const rational& GetFrame() const;
-  const Track::Reference& GetTrack() const;
+	const rational &GetFrame() const;
+	const Track::Reference &GetTrack() const;
 
-  void SetFrame(const rational& frame);
-  void SetTrack(const Track::Reference& track);
+	void SetFrame(const rational &frame);
+	void SetTrack(const Track::Reference &track);
 
 private:
-  rational frame_;
+	rational frame_;
 
-  Track::Reference track_;
-
+	Track::Reference track_;
 };
 
 }

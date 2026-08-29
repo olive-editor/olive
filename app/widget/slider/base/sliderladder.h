@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,79 +28,78 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class SliderLadderElement : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class SliderLadderElement : public QWidget {
+	Q_OBJECT
 public:
-  SliderLadderElement(const double& multiplier, QString width_hint, QWidget* parent = nullptr);
+	SliderLadderElement(const double &multiplier, QString width_hint,
+						QWidget *parent = nullptr);
 
-  void SetHighlighted(bool e);
+	void SetHighlighted(bool e);
 
-  void SetValue(const QString& value);
+	void SetValue(const QString &value);
 
-  void SetMultiplierVisible(bool e);
+	void SetMultiplierVisible(bool e);
 
-  double GetMultiplier() const
-  {
-    return multiplier_;
-  }
+	double GetMultiplier() const
+	{
+		return multiplier_;
+	}
 
 private:
-  void UpdateLabel();
+	void UpdateLabel();
 
-  QLabel* label_;
+	QLabel *label_;
 
-  double multiplier_;
-  QString value_;
+	double multiplier_;
+	QString value_;
 
-  bool highlighted_;
+	bool highlighted_;
 
-  bool multiplier_visible_;
-
+	bool multiplier_visible_;
 };
 
-class SliderLadder : public QFrame
-{
-  Q_OBJECT
+class SliderLadder : public QFrame {
+	Q_OBJECT
 public:
-  SliderLadder(double drag_multiplier, int nb_outer_values, QString width_hint, QWidget* parent = nullptr);
+	SliderLadder(double drag_multiplier, int nb_outer_values,
+				 QString width_hint, QWidget *parent = nullptr);
 
-  virtual ~SliderLadder() override;
+	virtual ~SliderLadder() override;
 
-  void SetValue(const QString& s);
+	void SetValue(const QString &s);
 
-  void StartListeningToMouseInput();
+	void StartListeningToMouseInput();
 
 protected:
-  virtual void mouseReleaseEvent(QMouseEvent *event) override;
+	virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
-  virtual void closeEvent(QCloseEvent* event) override;
+	virtual void closeEvent(QCloseEvent *event) override;
 
 signals:
-  void DraggedByValue(int value, double multiplier);
+	void DraggedByValue(int value, double multiplier);
 
-  void Released();
+	void Released();
 
 private:
-  bool UsingLadders() const;
+	bool UsingLadders() const;
 
-  int drag_start_x_;
-  int drag_start_y_;
-  int wrap_count_;
+	int drag_start_x_;
+	int drag_start_y_;
+	int wrap_count_;
 
-  QList<SliderLadderElement*> elements_;
+	QList<SliderLadderElement *> elements_;
 
-  int active_element_;
+	int active_element_;
 
-  QTimer drag_timer_;
+	QTimer drag_timer_;
 
-  QScreen *screen_;
+	QScreen *screen_;
 
 private slots:
-  void TimerUpdate();
-
+	void TimerUpdate();
 };
 
 }

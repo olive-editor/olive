@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,31 +22,53 @@
 #ifndef PREFERENCESBEHAVIORTAB_H
 #define PREFERENCESBEHAVIORTAB_H
 
-#include <QTreeWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QCoreApplication>
+#include <QVBoxLayout>
 
 #include "dialog/configbase/configdialogbase.h"
 
-namespace olive {
-
-class PreferencesBehaviorTab : public ConfigDialogBaseTab
+namespace olive
 {
-  Q_OBJECT
-public:
-  PreferencesBehaviorTab();
 
-  virtual void Accept(MultiUndoCommand* command) override;
+class PreferencesBehaviorTab : public ConfigDialogBaseTab {
+	Q_OBJECT
+public:
+	enum Category {
+		kCategoryTimeline,
+		kCategoryPlayback,
+		kCategoryProject,
+		kCategoryNodes,
+		kCategoryRendering
+	};
+
+	PreferencesBehaviorTab(Category category);
+
+	virtual void Accept(MultiUndoCommand *command) override;
+
+	static QString BehaviorPrefTr(const char *text)
+	{
+		return QCoreApplication::translate("olive::PreferencesBehaviorTab",
+										   text);
+	}
 
 private:
-  QTreeWidgetItem *AddParent(const QString& text, const QString &tooltip, QTreeWidgetItem *parent = nullptr);
-  QTreeWidgetItem *AddParent(const QString& text, QTreeWidgetItem *parent = nullptr);
+	struct Item {
+		QString text;
+		QString config_key;
+		QString tooltip = QString();
+	};
 
-  QTreeWidgetItem *AddItem(const QString& text, const QString& config_key, const QString &tooltip, QTreeWidgetItem *parent );
-  QTreeWidgetItem *AddItem(const QString& text, const QString& config_key, QTreeWidgetItem *parent);
+	void AddItems(const QVector<Item> &items);
+	QCheckBox *AddItem(const QString &text, const QString &config_key,
+					   const QString &tooltip = QString());
 
-  QMap<QTreeWidgetItem*, QString> config_map_;
+	QMap<QCheckBox *, QString> config_map_;
 
-  QTreeWidget* behavior_tree_;
+	Category category_;
 
+	QComboBox *graphics_backend_combobox_;
 };
 
 }

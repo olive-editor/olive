@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,31 +29,31 @@
 #include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
 
-namespace olive {
-
-class DiskCacheDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
-public:
-  DiskCacheDialog(DiskCacheFolder* folder, QWidget* parent = nullptr);
 
-  static void ClearDiskCache(const QString &path, QWidget *parent, QPushButton *clear_btn = nullptr);
+class DiskCacheDialog : public QDialog {
+	Q_OBJECT
+public:
+	DiskCacheDialog(DiskCacheFolder *folder, QWidget *parent = nullptr);
+
+	static void ClearDiskCache(const QString &path, QWidget *parent,
+							   QPushButton *clear_btn = nullptr);
 
 public slots:
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  DiskCacheFolder* folder_;
+	DiskCacheFolder *folder_;
 
-  FloatSlider* maximum_cache_slider_;
+	FloatSlider *maximum_cache_slider_;
 
-  QCheckBox* clear_disk_cache_;
+	QCheckBox *clear_disk_cache_;
 
-  QPushButton* clear_cache_btn_;
+	QPushButton *clear_cache_btn_;
 
 private slots:
-  void ClearDiskCache();
-
+	void ClearDiskCache();
 };
 
 }

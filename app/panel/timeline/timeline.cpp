@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,161 +24,169 @@
 #include "panel/panelmanager.h"
 #include "panel/project/footagemanagementpanel.h"
 
-namespace olive {
-
-TimelinePanel::TimelinePanel(const QString &name) :
-  TimeBasedPanel(name)
+namespace olive
 {
-  TimelineWidget* tw = new TimelineWidget(this);
-  SetTimeBasedWidget(tw);
 
-  Retranslate();
+TimelinePanel::TimelinePanel(const QString &name)
+	: TimeBasedPanel(name)
+{
+	TimelineWidget *tw = new TimelineWidget(this);
+	SetTimeBasedWidget(tw);
 
-  connect(tw, &TimelineWidget::BlockSelectionChanged, this, &TimelinePanel::BlockSelectionChanged);
-  connect(tw, &TimelineWidget::RequestCaptureStart, this, &TimelinePanel::RequestCaptureStart);
-  connect(tw, &TimelineWidget::RevealViewerInProject, this, &TimelinePanel::RevealViewerInProject);
-  connect(tw, &TimelineWidget::RevealViewerInFootageViewer, this, &TimelinePanel::RevealViewerInFootageViewer);
+	Retranslate();
+
+	connect(tw, &TimelineWidget::BlockSelectionChanged, this,
+			&TimelinePanel::BlockSelectionChanged);
+	connect(tw, &TimelineWidget::RequestCaptureStart, this,
+			&TimelinePanel::RequestCaptureStart);
+	connect(tw, &TimelineWidget::RevealViewerInProject, this,
+			&TimelinePanel::RevealViewerInProject);
+	connect(tw, &TimelineWidget::RevealViewerInFootageViewer, this,
+			&TimelinePanel::RevealViewerInFootageViewer);
 }
 
 void TimelinePanel::SplitAtPlayhead()
 {
-  timeline_widget()->SplitAtPlayhead();
+	timeline_widget()->SplitAtPlayhead();
 }
 
 void TimelinePanel::LoadData(const Info &info)
 {
-  timeline_widget()->RestoreSplitterState(QByteArray::fromBase64(info.at("splitter").toUtf8()));
+	timeline_widget()->RestoreSplitterState(
+		QByteArray::fromBase64(info.at("splitter").toUtf8()));
 }
 
 PanelWidget::Info TimelinePanel::SaveData() const
 {
-  Info i;
+	Info i;
 
-  i["splitter"] = timeline_widget()->SaveSplitterState().toBase64();
+	i["splitter"] = timeline_widget()->SaveSplitterState().toBase64();
 
-  return i;
+	return i;
 }
 
 void TimelinePanel::SelectAll()
 {
-  timeline_widget()->SelectAll();
+	timeline_widget()->SelectAll();
 }
 
 void TimelinePanel::DeselectAll()
 {
-  timeline_widget()->DeselectAll();
+	timeline_widget()->DeselectAll();
 }
 
 void TimelinePanel::RippleToIn()
 {
-  timeline_widget()->RippleToIn();
+	timeline_widget()->RippleToIn();
 }
 
 void TimelinePanel::RippleToOut()
 {
-  timeline_widget()->RippleToOut();
+	timeline_widget()->RippleToOut();
 }
 
 void TimelinePanel::EditToIn()
 {
-  timeline_widget()->EditToIn();
+	timeline_widget()->EditToIn();
 }
 
 void TimelinePanel::EditToOut()
 {
-  timeline_widget()->EditToOut();
+	timeline_widget()->EditToOut();
 }
 
 void TimelinePanel::DeleteSelected()
 {
-  timeline_widget()->DeleteSelected(false);
+	timeline_widget()->DeleteSelected(false);
 }
 
 void TimelinePanel::RippleDelete()
 {
-  timeline_widget()->DeleteSelected(true);
+	timeline_widget()->DeleteSelected(true);
 }
 
 void TimelinePanel::IncreaseTrackHeight()
 {
-  timeline_widget()->IncreaseTrackHeight();
+	timeline_widget()->IncreaseTrackHeight();
 }
 
 void TimelinePanel::DecreaseTrackHeight()
 {
-  timeline_widget()->DecreaseTrackHeight();
+	timeline_widget()->DecreaseTrackHeight();
 }
 
 void TimelinePanel::ToggleLinks()
 {
-  timeline_widget()->ToggleLinksOnSelected();
+	timeline_widget()->ToggleLinksOnSelected();
 }
 
 void TimelinePanel::PasteInsert()
 {
-  timeline_widget()->PasteInsert();
+	timeline_widget()->PasteInsert();
 }
 
 void TimelinePanel::DeleteInToOut()
 {
-  timeline_widget()->DeleteInToOut(false);
+	timeline_widget()->DeleteInToOut(false);
 }
 
 void TimelinePanel::RippleDeleteInToOut()
 {
-  timeline_widget()->DeleteInToOut(true);
+	timeline_widget()->DeleteInToOut(true);
 }
 
 void TimelinePanel::ToggleSelectedEnabled()
 {
-  timeline_widget()->ToggleSelectedEnabled();
+	timeline_widget()->ToggleSelectedEnabled();
 }
 
 void TimelinePanel::SetColorLabel(int index)
 {
-  timeline_widget()->SetColorLabel(index);
+	timeline_widget()->SetColorLabel(index);
 }
 
 void TimelinePanel::NudgeLeft()
 {
-  timeline_widget()->NudgeLeft();
+	timeline_widget()->NudgeLeft();
 }
 
 void TimelinePanel::NudgeRight()
 {
-  timeline_widget()->NudgeRight();
+	timeline_widget()->NudgeRight();
 }
 
 void TimelinePanel::MoveInToPlayhead()
 {
-  timeline_widget()->MoveInToPlayhead();
+	timeline_widget()->MoveInToPlayhead();
 }
 
 void TimelinePanel::MoveOutToPlayhead()
 {
-  timeline_widget()->MoveOutToPlayhead();
+	timeline_widget()->MoveOutToPlayhead();
 }
 
 void TimelinePanel::RenameSelected()
 {
-  timeline_widget()->RenameSelectedBlocks();
+	timeline_widget()->RenameSelectedBlocks();
 }
 
-void TimelinePanel::InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
+void TimelinePanel::InsertFootageAtPlayhead(
+	const QVector<ViewerOutput *> &footage)
 {
-  timeline_widget()->InsertFootageAtPlayhead(footage);
+	timeline_widget()->InsertFootageAtPlayhead(footage);
 }
 
-void TimelinePanel::OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage)
+void TimelinePanel::OverwriteFootageAtPlayhead(
+	const QVector<ViewerOutput *> &footage)
 {
-  timeline_widget()->OverwriteFootageAtPlayhead(footage);
+	timeline_widget()->OverwriteFootageAtPlayhead(footage);
 }
 
 void TimelinePanel::Retranslate()
 {
-  TimeBasedPanel::Retranslate();
+	TimeBasedPanel::Retranslate();
 
-  SetTitle(tr("Timeline"));
+	SetTitle(tr("Timeline"));
 }
 
 }

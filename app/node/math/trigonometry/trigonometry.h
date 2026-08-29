@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,41 +24,41 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class TrigonometryNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class TrigonometryNode : public Node {
+	Q_OBJECT
 public:
-  TrigonometryNode();
+	TrigonometryNode();
 
-  NODE_DEFAULT_FUNCTIONS(TrigonometryNode)
+	NODE_DEFAULT_FUNCTIONS(TrigonometryNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kMethodIn;
-  static const QString kXIn;
+	static const QString kMethodIn;
+	static const QString kXIn;
 
 private:
-  enum Operation {
-    kOpSine,
-    kOpCosine,
-    kOpTangent,
-    kOpArcSine,
-    kOpArcCosine,
-    kOpArcTangent,
-    kOpHypSine,
-    kOpHypCosine,
-    kOpHypTangent
-  };
-
+	enum Operation {
+		kOpSine,
+		kOpCosine,
+		kOpTangent,
+		kOpArcSine,
+		kOpArcCosine,
+		kOpArcTangent,
+		kOpHypSine,
+		kOpHypCosine,
+		kOpHypTangent
+	};
 };
 
 }

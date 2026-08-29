@@ -1,0 +1,225 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		3DF51C6C1CB741110070CA48 /* CudaKernel.cu */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CudaKernel.cu; sourceTree = "<group>"; };
+		3DF51C6D1CB741110070CA48 /* GPUGain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GPUGain.cpp; sourceTree = "<group>"; };
+		3DF51C6E1CB741110070CA48 /* GPUGain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GPUGain.h; sourceTree = "<group>"; };
+		3DF51C701CB741110070CA48 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		3DF51C711CB741110070CA48 /* OpenCLKernel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenCLKernel.cpp; sourceTree = "<group>"; };
+		3DF51C721CB7413B0070CA48 /* ofxsCore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsCore.cpp; path = ../../Support/Library/ofxsCore.cpp; sourceTree = "<group>"; };
+		3DF51C731CB7413B0070CA48 /* ofxsImageEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsImageEffect.cpp; path = ../../Support/Library/ofxsImageEffect.cpp; sourceTree = "<group>"; };
+		3DF51C741CB7413B0070CA48 /* ofxsInteract.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsInteract.cpp; path = ../../Support/Library/ofxsInteract.cpp; sourceTree = "<group>"; };
+		3DF51C751CB7413B0070CA48 /* ofxsLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsLog.cpp; path = ../../Support/Library/ofxsLog.cpp; sourceTree = "<group>"; };
+		3DF51C761CB7413B0070CA48 /* ofxsMultiThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsMultiThread.cpp; path = ../../Support/Library/ofxsMultiThread.cpp; sourceTree = "<group>"; };
+		3DF51C771CB7413B0070CA48 /* ofxsParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsParams.cpp; path = ../../Support/Library/ofxsParams.cpp; sourceTree = "<group>"; };
+		3DF51C781CB7413B0070CA48 /* ofxsProperty.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsProperty.cpp; path = ../../Support/Library/ofxsProperty.cpp; sourceTree = "<group>"; };
+		3DF51C791CB7413B0070CA48 /* ofxsPropertyValidation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxsPropertyValidation.cpp; path = ../../Support/Library/ofxsPropertyValidation.cpp; sourceTree = "<group>"; };
+		4F799E1E1EC4662F00E46226 /* MetalKernel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MetalKernel.mm; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3D2F26961CBB8F6B00FC8803 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				3DF51C721CB7413B0070CA48 /* ofxsCore.cpp */,
+				3DF51C731CB7413B0070CA48 /* ofxsImageEffect.cpp */,
+				3DF51C741CB7413B0070CA48 /* ofxsInteract.cpp */,
+				3DF51C751CB7413B0070CA48 /* ofxsLog.cpp */,
+				3DF51C761CB7413B0070CA48 /* ofxsMultiThread.cpp */,
+				3DF51C771CB7413B0070CA48 /* ofxsParams.cpp */,
+				3DF51C781CB7413B0070CA48 /* ofxsProperty.cpp */,
+				3DF51C791CB7413B0070CA48 /* ofxsPropertyValidation.cpp */,
+			);
+			name = Support;
+			sourceTree = "<group>";
+		};
+		3DF51C611CB740BF0070CA48 = {
+			isa = PBXGroup;
+			children = (
+				3D2F26961CBB8F6B00FC8803 /* Support */,
+				3DF51C6C1CB741110070CA48 /* CudaKernel.cu */,
+				3DF51C6D1CB741110070CA48 /* GPUGain.cpp */,
+				3DF51C6E1CB741110070CA48 /* GPUGain.h */,
+				3DF51C701CB741110070CA48 /* Makefile */,
+				3DF51C711CB741110070CA48 /* OpenCLKernel.cpp */,
+				4F799E1E1EC4662F00E46226 /* MetalKernel.mm */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		3DF51C661CB740BF0070CA48 /* GPUGain */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 3DF51C691CB740BF0070CA48 /* Build configuration list for PBXLegacyTarget "GPUGain" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = GPUGain;
+			passBuildSettingsInEnvironment = 1;
+			productName = GPUGain;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		3DF51C621CB740BF0070CA48 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0640;
+				ORGANIZATIONNAME = blackmagicdesign;
+				TargetAttributes = {
+					3DF51C661CB740BF0070CA48 = {
+						CreatedOnToolsVersion = 6.4;
+					};
+				};
+			};
+			buildConfigurationList = 3DF51C651CB740BF0070CA48 /* Build configuration list for PBXProject "GPUGain" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				English,
+				en,
+			);
+			mainGroup = 3DF51C611CB740BF0070CA48;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3DF51C661CB740BF0070CA48 /* GPUGain */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		3DF51C671CB740BF0070CA48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		3DF51C681CB740BF0070CA48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		3DF51C6A1CB740BF0070CA48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		3DF51C6B1CB740BF0070CA48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3DF51C651CB740BF0070CA48 /* Build configuration list for PBXProject "GPUGain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3DF51C671CB740BF0070CA48 /* Debug */,
+				3DF51C681CB740BF0070CA48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3DF51C691CB740BF0070CA48 /* Build configuration list for PBXLegacyTarget "GPUGain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3DF51C6A1CB740BF0070CA48 /* Debug */,
+				3DF51C6B1CB740BF0070CA48 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3DF51C621CB740BF0070CA48 /* Project object */;
+}

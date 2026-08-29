@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,16 +24,16 @@
 
 #include "pointer.h"
 
-namespace olive {
-
-class SlipTool : public PointerTool
+namespace olive
 {
+
+class SlipTool : public PointerTool {
 public:
-  SlipTool(TimelineWidget* parent);
+	SlipTool(TimelineWidget *parent);
 
 protected:
-  virtual void ProcessDrag(const TimelineCoordinate &mouse_pos) override;
-  virtual void FinishDrag(TimelineViewMouseEvent *event) override;
+	virtual void ProcessDrag(const TimelineCoordinate &mouse_pos) override;
+	virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 };
 
 }

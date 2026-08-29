@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,62 +25,61 @@
 #include "node/gizmo/point.h"
 #include "node/node.h"
 
-namespace olive {
-
-class BlurFilterNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class BlurFilterNode : public Node {
+	Q_OBJECT
 public:
-  BlurFilterNode();
+	BlurFilterNode();
 
-  enum Method {
-    kBox,
-    kGaussian,
-    kDirectional,
-    kRadial
-  };
+	enum Method { kBox, kGaussian, kDirectional, kRadial };
 
-  NODE_DEFAULT_FUNCTIONS(BlurFilterNode)
+	NODE_DEFAULT_FUNCTIONS(BlurFilterNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  Method GetMethod() const
-  {
-    return static_cast<Method>(GetStandardValue(kMethodInput).toInt());
-  }
+	Method GetMethod() const
+	{
+		return static_cast<Method>(GetStandardValue(kMethodInput).toInt());
+	}
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals) override;
 
-  static const QString kTextureInput;
-  static const QString kMethodInput;
-  static const QString kRadiusInput;
-  static const QString kHorizInput;
-  static const QString kVertInput;
-  static const QString kRepeatEdgePixelsInput;
+	static const QString kTextureInput;
+	static const QString kMethodInput;
+	static const QString kRadiusInput;
+	static const QString kHorizInput;
+	static const QString kVertInput;
+	static const QString kRepeatEdgePixelsInput;
 
-  static const QString kDirectionalDegreesInput;
+	static const QString kDirectionalDegreesInput;
 
-  static const QString kRadialCenterInput;
+	static const QString kRadialCenterInput;
 
 protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+	virtual void GizmoDragMove(double x, double y,
+							   const Qt::KeyboardModifiers &modifiers) override;
 
 protected:
-  virtual void InputValueChangedEvent(const QString& input, int element) override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
 private:
-  void UpdateInputs(Method method);
+	void UpdateInputs(Method method);
 
-  PointGizmo *radial_center_gizmo_;
-
+	PointGizmo *radial_center_gizmo_;
 };
 
 }

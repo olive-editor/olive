@@ -22,6 +22,6 @@ add_subdirectory(solid)
 add_subdirectory(text)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

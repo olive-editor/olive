@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,21 +24,20 @@
 
 #include <QStackedWidget>
 
-namespace olive {
-
-class CodecStack : public QStackedWidget
+namespace olive
 {
-  Q_OBJECT
-public:
-  explicit CodecStack(QWidget *parent = nullptr);
 
-  void addWidget(QWidget *widget);
+class CodecStack : public QStackedWidget {
+	Q_OBJECT
+public:
+	explicit CodecStack(QWidget *parent = nullptr);
+
+	void addWidget(QWidget *widget);
 
 signals:
 
 private slots:
-  void OnChange(int index);
-
+	void OnChange(int index);
 };
 
 }

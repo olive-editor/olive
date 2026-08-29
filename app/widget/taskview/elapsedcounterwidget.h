@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,37 +28,36 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class ElapsedCounterWidget : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ElapsedCounterWidget : public QWidget {
+	Q_OBJECT
 public:
-  ElapsedCounterWidget(QWidget* parent = nullptr);
+	ElapsedCounterWidget(QWidget *parent = nullptr);
 
-  void SetProgress(double d);
-
-public slots:
-  void Start(qint64 start_time);
-  void Start();
+	void SetProgress(double d);
 
 public slots:
-  void Stop();
+	void Start(qint64 start_time);
+	void Start();
+
+public slots:
+	void Stop();
 
 private:
-  QLabel* elapsed_lbl_;
+	QLabel *elapsed_lbl_;
 
-  QLabel* remaining_lbl_;
+	QLabel *remaining_lbl_;
 
-  double last_progress_;
+	double last_progress_;
 
-  QTimer elapsed_timer_;
+	QTimer elapsed_timer_;
 
-  qint64 start_time_;
+	qint64 start_time_;
 
 private slots:
-  void UpdateTimers();
-
+	void UpdateTimers();
 };
 
 }

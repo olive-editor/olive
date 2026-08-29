@@ -33,10 +33,10 @@ add_subdirectory(tool)
 add_subdirectory(viewer)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  panel/panel.h
-  panel/panel.cpp
-  panel/panelmanager.h
-  panel/panelmanager.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        panel/panel.h
+        panel/panel.cpp
+        panel/panelmanager.h
+        panel/panelmanager.cpp
+        PARENT_SCOPE
 )

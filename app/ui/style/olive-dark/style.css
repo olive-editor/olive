@@ -20,10 +20,37 @@
 
 /* Hack that forces checked QPushButtons to use dark color */
 QPushButton:checked {
-  background: #191919;
+    background: #191919;
 }
 
 /* Make tab bar a little less chunky */
 QTabBar {
-  font-size: 9pt;
+    font-size: 9pt;
+}
+
+/* Force KDDockWidgets / QTabBar tabs to use dark palette colors.
+   On macOS the native tab style can otherwise render light backgrounds
+   with light text, making inactive tabs unreadable. */
+QTabBar::tab {
+    background: #353535;
+    color: #FFFFFF;
+    border: 1px solid #2a2a2a;
+    padding: 4px 10px;
+}
+
+QTabBar::tab:selected {
+    background: #2A82DA;
+    color: #FFFFFF;
+}
+
+QTabBar::tab:hover {
+    background: #404040;
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px;
+}
+
+QTabBar::close-button {
+    image: none;
 }

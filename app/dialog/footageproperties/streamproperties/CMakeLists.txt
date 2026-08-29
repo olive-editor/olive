@@ -15,12 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/footageproperties/streamproperties/streamproperties.h
-  dialog/footageproperties/streamproperties/streamproperties.cpp
-  dialog/footageproperties/streamproperties/audiostreamproperties.h
-  dialog/footageproperties/streamproperties/audiostreamproperties.cpp
-  dialog/footageproperties/streamproperties/videostreamproperties.h
-  dialog/footageproperties/streamproperties/videostreamproperties.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/footageproperties/streamproperties/streamproperties.h
+        dialog/footageproperties/streamproperties/streamproperties.cpp
+        dialog/footageproperties/streamproperties/audiostreamproperties.h
+        dialog/footageproperties/streamproperties/audiostreamproperties.cpp
+        dialog/footageproperties/streamproperties/videostreamproperties.h
+        dialog/footageproperties/streamproperties/videostreamproperties.cpp
+        PARENT_SCOPE
 )

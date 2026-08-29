@@ -16,10 +16,10 @@
 
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/project/footage/footage.cpp
-  node/project/footage/footage.h
-  node/project/footage/footagedescription.cpp
-  node/project/footage/footagedescription.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/project/footage/footage.cpp
+        node/project/footage/footage.h
+        node/project/footage/footagedescription.cpp
+        node/project/footage/footagedescription.h
+        PARENT_SCOPE
 )

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,73 +24,81 @@
 
 #include "serializer.h"
 
-namespace olive {
-
-class ProjectSerializer211228 : public ProjectSerializer
+namespace olive
 {
+
+class ProjectSerializer211228 : public ProjectSerializer {
 public:
-  ProjectSerializer211228() = default;
+	ProjectSerializer211228() = default;
 
 protected:
-  virtual LoadData Load(Project *project, QXmlStreamReader *reader, LoadType load_type, void *reserved) const override;
+	virtual LoadData Load(Project *project, QXmlStreamReader *reader,
+						  LoadType load_type, void *reserved) const override;
 
-  virtual uint Version() const override
-  {
-    return 211228;
-  }
+	virtual uint Version() const override
+	{
+		return 211228;
+	}
 
 private:
-  struct XMLNodeData {
-    struct SerializedConnection {
-      NodeInput input;
-      quintptr output_node;
-    };
+	struct XMLNodeData {
+		struct SerializedConnection {
+			NodeInput input;
+			quintptr output_node;
+		};
 
-    struct BlockLink {
-      Node* block;
-      quintptr link;
-    };
+		struct BlockLink {
+			Node *block;
+			quintptr link;
+		};
 
-    struct GroupLink {
-      NodeGroup *group;
-      quintptr input_node;
-      QString input_id;
-      int input_element;
-    };
+		struct GroupLink {
+			NodeGroup *group;
+			quintptr input_node;
+			QString input_id;
+			int input_element;
+		};
 
-    QHash<quintptr, Node*> node_ptrs;
-    QList<SerializedConnection> desired_connections;
-    QList<BlockLink> block_links;
-    QVector<GroupLink> group_input_links;
-    QHash<NodeGroup*, quintptr> group_output_links;
-    QHash<Node*, QUuid> node_uuids;
+		QHash<quintptr, Node *> node_ptrs;
+		QList<SerializedConnection> desired_connections;
+		QList<BlockLink> block_links;
+		QVector<GroupLink> group_input_links;
+		QHash<NodeGroup *, quintptr> group_output_links;
+		QHash<Node *, QUuid> node_uuids;
+	};
 
-  };
+	void LoadNode(Node *node, XMLNodeData &xml_node_data,
+				  QXmlStreamReader *reader) const;
 
-  void LoadNode(Node *node, XMLNodeData &xml_node_data, QXmlStreamReader *reader) const;
+	void LoadColorManager(QXmlStreamReader *reader, Project *project) const;
 
-  void LoadColorManager(QXmlStreamReader* reader, Project *project) const;
+	void LoadProjectSettings(QXmlStreamReader *reader, Project *project) const;
 
-  void LoadProjectSettings(QXmlStreamReader* reader, Project *project) const;
+	void LoadInput(Node *node, QXmlStreamReader *reader,
+				   XMLNodeData &xml_node_data) const;
 
-  void LoadInput(Node *node, QXmlStreamReader* reader, XMLNodeData &xml_node_data) const;
+	void LoadImmediate(QXmlStreamReader *reader, Node *node,
+					   const QString &input, int element,
+					   XMLNodeData &xml_node_data) const;
 
-  void LoadImmediate(QXmlStreamReader *reader, Node *node, const QString& input, int element, XMLNodeData& xml_node_data) const;
+	bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr,
+					  Node::Position *pos) const;
 
-  bool LoadPosition(QXmlStreamReader *reader, quintptr *node_ptr, Node::Position *pos) const;
+	void PostConnect(const XMLNodeData &xml_node_data) const;
 
-  void PostConnect(const XMLNodeData &xml_node_data) const;
+	void LoadNodeCustom(QXmlStreamReader *reader, Node *node,
+						XMLNodeData &xml_node_data) const;
 
-  void LoadNodeCustom(QXmlStreamReader *reader, Node *node, XMLNodeData &xml_node_data) const;
+	void LoadTimelinePoints(QXmlStreamReader *reader,
+							ViewerOutput *points) const;
 
-  void LoadTimelinePoints(QXmlStreamReader *reader, ViewerOutput *points) const;
+	void LoadWorkArea(QXmlStreamReader *reader,
+					  TimelineWorkArea *workarea) const;
 
-  void LoadWorkArea(QXmlStreamReader *reader, TimelineWorkArea *workarea) const;
+	void LoadMarkerList(QXmlStreamReader *reader,
+						TimelineMarkerList *markers) const;
 
-  void LoadMarkerList(QXmlStreamReader *reader, TimelineMarkerList *markers) const;
-
-  void LoadValueHint(Node::ValueHint *hint, QXmlStreamReader *reader) const;
-
+	void LoadValueHint(Node::ValueHint *hint, QXmlStreamReader *reader) const;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,54 +21,59 @@
 
 #include "timetarget.h"
 
-namespace olive {
+namespace olive
+{
 
-TimeTargetObject::TimeTargetObject() :
-  time_target_(nullptr),
-  path_index_(0)
+TimeTargetObject::TimeTargetObject()
+	: time_target_(nullptr)
+	, path_index_(0)
 {
 }
 
 ViewerOutput *TimeTargetObject::GetTimeTarget() const
 {
-  return time_target_;
+	return time_target_;
 }
 
 void TimeTargetObject::SetTimeTarget(ViewerOutput *target)
 {
-  if (time_target_) {
-    TimeTargetDisconnectEvent(time_target_);
-  }
+	if (time_target_) {
+		TimeTargetDisconnectEvent(time_target_);
+	}
 
-  time_target_ = target;
-  TimeTargetChangedEvent(time_target_);
+	time_target_ = target;
+	TimeTargetChangedEvent(time_target_);
 
-  if (time_target_) {
-    TimeTargetConnectEvent(time_target_);
-  }
+	if (time_target_) {
+		TimeTargetConnectEvent(time_target_);
+	}
 }
 
 void TimeTargetObject::SetPathIndex(int index)
 {
-  path_index_ = index;
+	path_index_ = index;
 }
 
-rational TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const rational &r, Node::TransformTimeDirection dir) const
+rational
+TimeTargetObject::GetAdjustedTime(Node *from, Node *to, const rational &r,
+								  Node::TransformTimeDirection dir) const
 {
-  if (!from || !to) {
-    return r;
-  }
+	if (!from || !to) {
+		return r;
+	}
 
-  return GetAdjustedTime(from, to, TimeRange(r, r), dir).in();
+	return GetAdjustedTime(from, to, TimeRange(r, r), dir).in();
 }
 
-TimeRange TimeTargetObject::GetAdjustedTime(Node* from, Node* to, const TimeRange &r, Node::TransformTimeDirection dir) const
+TimeRange
+TimeTargetObject::GetAdjustedTime(Node *from, Node *to, const TimeRange &r,
+								  Node::TransformTimeDirection dir) const
 {
-  if (!from || !to) {
-    return r;
-  }
+	if (!from || !to) {
+		return r;
+	}
 
-  return from->TransformTimeTo(r, to, dir, path_index_);
+	return from->TransformTimeTo(r, to, dir, path_index_);
 }
 
 /*int TimeTargetObject::GetNumberOfPathAdjustments(Node* from, NodeParam::Type direction) const

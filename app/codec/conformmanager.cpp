@@ -1,126 +1,158 @@
+/*
+ * Oak Video Editor - Non-Linear Video Editor
+ * Copyright (C) 2025 Olive CE Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "conformmanager.h"
 
 #include <QDir>
 
 #include "task/taskmanager.h"
 
-namespace olive {
+namespace olive
+{
 
 ConformManager *ConformManager::instance_ = nullptr;
 
-ConformManager::Conform ConformManager::GetConformState(const QString &decoder_id, const QString &cache_path, const Decoder::CodecStream &stream, const AudioParams &params, bool wait)
+ConformManager::Conform ConformManager::GetConformState(
+	const QString &decoder_id, const QString &cache_path,
+	const Decoder::CodecStream &stream, const AudioParams &params, bool wait)
 {
-  // Mutex because we'll need to check the status of a conform task
-  QMutexLocker locker(&mutex_);
+	// Mutex because we'll need to check the status of a conform task
+	QMutexLocker locker(&mutex_);
 
-  // Return existing conform if exists
-  QVector<QString> filenames = GetConformedFilename(cache_path, stream, params);
-  if (AllConformsExist(filenames)) {
-    return {kConformExists, filenames, nullptr};
-  }
+	// Return existing conform if exists
+	QVector<QString> filenames =
+		GetConformedFilename(cache_path, stream, params);
+	if (AllConformsExist(filenames)) {
+		return { kConformExists, filenames, nullptr };
+	}
 
-  ConformTask *conforming_task = nullptr;
+	ConformTask *conforming_task = nullptr;
 
-  foreach (const ConformData &data, conforming_) {
-    if (data.stream == stream && data.params == params) {
-      // Already creating conform in a task
-      conforming_task = data.task;
-      break;
-    }
-  }
+	foreach (const ConformData &data, conforming_) {
+		if (data.stream == stream && data.params == params) {
+			// Already creating conform in a task
+			conforming_task = data.task;
+			break;
+		}
+	}
 
-  if (!conforming_task) {
-    // Not conforming yet, create a task to do so
+	if (!conforming_task) {
+		// Not conforming yet, create a task to do so
 
-    // We conform to a different filename until it's done to make it clear even across sessions
-    // whether this conform is ready or not
-    QVector<QString> working_filenames = filenames;
-    for (int i=0; i<working_filenames.size(); i++) {
-      working_filenames[i].append(QStringLiteral(".working"));
-    }
+		// We conform to a different filename until it's done to make it clear even across sessions
+		// whether this conform is ready or not
+		QVector<QString> working_filenames = filenames;
+		for (int i = 0; i < working_filenames.size(); i++) {
+			working_filenames[i].append(QStringLiteral(".working"));
+		}
 
-    conforming_task = new ConformTask(decoder_id, stream, params, working_filenames);
-    connect(conforming_task, &ConformTask::Finished, this, &ConformManager::ConformTaskFinished);
-    conforming_task->moveToThread(TaskManager::instance()->thread());
-    QMetaObject::invokeMethod(TaskManager::instance(), "AddTask", Qt::QueuedConnection, Q_ARG(Task *, conforming_task));
+		conforming_task =
+			new ConformTask(decoder_id, stream, params, working_filenames);
+		connect(conforming_task, &ConformTask::Finished, this,
+				&ConformManager::ConformTaskFinished);
+		conforming_task->moveToThread(TaskManager::instance()->thread());
+		QMetaObject::invokeMethod(TaskManager::instance(), "AddTask",
+								  Qt::QueuedConnection,
+								  Q_ARG(Task *, conforming_task));
 
-    conforming_.append({stream, params, conforming_task, working_filenames, filenames});
-  }
+		conforming_.append(
+			{ stream, params, conforming_task, working_filenames, filenames });
+	}
 
-  if (wait) {
-    do {
-      conform_done_condition_.wait(&mutex_);
-    } while (!AllConformsExist(filenames));
-    return {kConformExists, filenames, nullptr};
-  }
+	if (wait) {
+		do {
+			conform_done_condition_.wait(&mutex_);
+		} while (!AllConformsExist(filenames));
+		return { kConformExists, filenames, nullptr };
+	}
 
-  return {kConformGenerating, QVector<QString>(), conforming_task};
+	return { kConformGenerating, QVector<QString>(), conforming_task };
 }
 
-QVector<QString> ConformManager::GetConformedFilename(const QString &cache_path, const Decoder::CodecStream &stream, const AudioParams &params)
+QVector<QString>
+ConformManager::GetConformedFilename(const QString &cache_path,
+									 const Decoder::CodecStream &stream,
+									 const AudioParams &params)
 {
-  QVector<QString> filenames(params.channel_count());
+	QVector<QString> filenames(params.channel_count());
 
-  for (int i=0; i<filenames.size(); i++) {
-    QString index_fn = QStringLiteral("%1-%2.%3.%4.%5.%6.pcm").arg(FileFunctions::GetUniqueFileIdentifier(stream.filename()),
-                                                                   QString::number(stream.stream()),
-                                                                   QString::number(params.sample_rate()),
-                                                                   QString::number(params.format()),
-                                                                   QString::number(params.channel_layout()),
-                                                                   QString::number(i));
+	for (int i = 0; i < filenames.size(); i++) {
+		QString index_fn =
+			QStringLiteral("%1-%2.%3.%4.%5.%6.pcm")
+				.arg(FileFunctions::GetUniqueFileIdentifier(stream.filename()),
+					 QString::number(stream.stream()),
+					 QString::number(params.sample_rate()),
+					 QString::number(params.format()),
+					 QString::number(params.channel_layout()),
+					 QString::number(i));
 
-    filenames[i] = QDir(cache_path).filePath(index_fn);
-  }
+		filenames[i] = QDir(cache_path).filePath(index_fn);
+	}
 
-  return filenames;
+	return filenames;
 }
 
 bool ConformManager::AllConformsExist(const QVector<QString> &filenames)
 {
-  foreach (const QString &fn, filenames) {
-    if (!QFileInfo::exists(fn)) {
-      return false;
-    }
-  }
+	foreach (const QString &fn, filenames) {
+		if (!QFileInfo::exists(fn)) {
+			return false;
+		}
+	}
 
-  return true;
+	return true;
 }
 
 void ConformManager::ConformTaskFinished(Task *task, bool succeeded)
 {
-  QMutexLocker locker(&mutex_);
+	QMutexLocker locker(&mutex_);
 
-  ConformData data;
+	ConformData data;
 
-  // Remove conform data from list
-  for (int i=0; i<conforming_.size(); i++) {
-    const ConformData &c = conforming_.at(i);
-    if (c.task == task) {
-      data = c;
-      conforming_.removeAt(i);
-      break;
-    }
-  }
+	// Remove conform data from list
+	for (int i = 0; i < conforming_.size(); i++) {
+		const ConformData &c = conforming_.at(i);
+		if (c.task == task) {
+			data = c;
+			conforming_.removeAt(i);
+			break;
+		}
+	}
 
-  if (succeeded) {
-    // Move file to standard conform name, making it clear this conform is ready for use
-    for (int i=0; i<data.finished_filename.size(); i++) {
-      const QString &finished = data.finished_filename.at(i);
-      const QString &working = data.working_filename.at(i);
+	if (succeeded) {
+		// Move file to standard conform name, making it clear this conform is ready for use
+		for (int i = 0; i < data.finished_filename.size(); i++) {
+			const QString &finished = data.finished_filename.at(i);
+			const QString &working = data.working_filename.at(i);
 
-      QFile::remove(finished);
-      QFile::rename(working, finished);
-    }
+			QFile::remove(finished);
+			QFile::rename(working, finished);
+		}
 
-    conform_done_condition_.wakeAll();
-    locker.unlock();
-    emit ConformReady();
-  } else {
-    // Failed, just delete the working filename if exists
-    for (int i=0; i<data.working_filename.size(); i++) {
-      QFile::remove(data.working_filename.at(i));
-    }
-  }
+		conform_done_condition_.wakeAll();
+		locker.unlock();
+		emit ConformReady();
+	} else {
+		// Failed, just delete the working filename if exists
+		for (int i = 0; i < data.working_filename.size(); i++) {
+			QFile::remove(data.working_filename.at(i));
+		}
+	}
 }
 
 }

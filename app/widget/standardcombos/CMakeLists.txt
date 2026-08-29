@@ -15,15 +15,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/standardcombos/channellayoutcombobox.h
-  widget/standardcombos/frameratecombobox.h
-  widget/standardcombos/interlacedcombobox.h
-  widget/standardcombos/pixelaspectratiocombobox.h
-  widget/standardcombos/pixelformatcombobox.h
-  widget/standardcombos/sampleformatcombobox.h
-  widget/standardcombos/sampleratecombobox.h
-  widget/standardcombos/standardcombos.h
-  widget/standardcombos/videodividercombobox.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/standardcombos/channellayoutcombobox.h
+        widget/standardcombos/frameratecombobox.h
+        widget/standardcombos/interlacedcombobox.h
+        widget/standardcombos/pixelaspectratiocombobox.h
+        widget/standardcombos/pixelformatcombobox.h
+        widget/standardcombos/sampleformatcombobox.h
+        widget/standardcombos/sampleratecombobox.h
+        widget/standardcombos/standardcombos.h
+        widget/standardcombos/videodividercombobox.h
+        PARENT_SCOPE
 )

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A navigation bar widget for ProjectExplorer's Icon and List views
@@ -49,29 +51,28 @@ namespace olive {
  * By default, the directory up button is disabled (assuming root folder), the text is empty, and the icon size slider
  * is set to kProjectIconSizeDefault.
  */
-class ProjectExplorerNavigation : public QWidget
-{
-  Q_OBJECT
+class ProjectExplorerNavigation : public QWidget {
+	Q_OBJECT
 public:
-  ProjectExplorerNavigation(QWidget* parent);
+	ProjectExplorerNavigation(QWidget *parent);
 
-  /**
+	/**
    * @brief Sets the text string
    *
    * This text is intended to be set to the current Folder's name
    *
    * @param s
    */
-  void set_text(const QString& s);
+	void set_text(const QString &s);
 
-  /**
+	/**
    * @brief Set whether the "directory up" button is enabled or not
    *
    * @param e
    */
-  void set_dir_up_enabled(bool e);
+	void set_dir_up_enabled(bool e);
 
-  /**
+	/**
    * @brief Set the current value of the size slider
    *
    * NOTE: Does NOT emit SizeChanged().
@@ -80,36 +81,36 @@ public:
    *
    * New size value to set to
    */
-  void set_size_value(int s);
+	void set_size_value(int s);
 
 signals:
-  /**
+	/**
    * @brief Signal emitted when the directory up button is clicked
    */
-  void DirectoryUpClicked();
+	void DirectoryUpClicked();
 
-  /**
+	/**
    * @brief Signal emitted when the icon size slider changes value
    *
    * @param size
    *
    * New size set in the slider
    */
-  void SizeChanged(int size);
+	void SizeChanged(int size);
 
 protected:
-  virtual void changeEvent(QEvent *) override;
+	virtual void changeEvent(QEvent *) override;
 
 private:
-  void Retranslate();
+	void Retranslate();
 
-  void UpdateIcons();
+	void UpdateIcons();
 
-  QPushButton* dir_up_btn_;
+	QPushButton *dir_up_btn_;
 
-  QLabel* dir_lbl_;
+	QLabel *dir_lbl_;
 
-  QSlider* size_slider_;
+	QSlider *size_slider_;
 };
 
 }

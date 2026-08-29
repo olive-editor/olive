@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 #include "timelineundogeneral.h"
 #include "timelineundoripple.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief Performs a trim in the timeline that only affects the block and the block adjacent
@@ -42,124 +44,126 @@ namespace olive {
  */
 class BlockTrimCommand : public UndoCommand {
 public:
-  BlockTrimCommand(Track *track, Block* block, rational new_length, Timeline::MovementMode mode) :
-    track_(track),
-    block_(block),
-    new_length_(new_length),
-    mode_(mode),
-    deleted_adjacent_command_(nullptr),
-    trim_is_a_roll_edit_(false)
-  {
-  }
+	BlockTrimCommand(Track *track, Block *block, rational new_length,
+					 Timeline::MovementMode mode)
+		: track_(track)
+		, block_(block)
+		, new_length_(new_length)
+		, mode_(mode)
+		, deleted_adjacent_command_(nullptr)
+		, trim_is_a_roll_edit_(false)
+		, remove_block_from_graph_(true)
+	{
+	}
 
-  virtual ~BlockTrimCommand() override
-  {
-    delete deleted_adjacent_command_;
-  }
+	virtual ~BlockTrimCommand() override
+	{
+		delete deleted_adjacent_command_;
+	}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return track_->project();
+	}
 
-  /**
+	/**
    * @brief Set this if the trim should always affect the adjacent clip and not create a gap
    */
-  void SetTrimIsARollEdit(bool e)
-  {
-    trim_is_a_roll_edit_ = e;
-  }
+	void SetTrimIsARollEdit(bool e)
+	{
+		trim_is_a_roll_edit_ = e;
+	}
 
-  /**
+	/**
    * @brief Set whether adjacent blocks set to zero length should be removed from the whole graph
    *
    * If an adjacent block's length is set to 0, it's automatically removed from the track. By
    * default it also gets removed from the whole graph. Set this to FALSE to disable that
    * functionality.
    */
-  void SetRemoveZeroLengthFromGraph(bool e)
-  {
-    remove_block_from_graph_ = e;
-  }
+	void SetRemoveZeroLengthFromGraph(bool e)
+	{
+		remove_block_from_graph_ = e;
+	}
 
 protected:
-  virtual void prepare() override;
-  virtual void redo() override;
-  virtual void undo() override;
+	virtual void prepare() override;
+	virtual void redo() override;
+	virtual void undo() override;
 
 private:
-  bool doing_nothing_;
-  rational trim_diff_;
+	bool doing_nothing_;
+	rational trim_diff_;
 
-  Track* track_;
-  Block* block_;
-  rational old_length_;
-  rational new_length_;
-  Timeline::MovementMode mode_;
+	Track *track_;
+	Block *block_;
+	rational old_length_;
+	rational new_length_;
+	Timeline::MovementMode mode_;
 
-  Block* adjacent_;
-  bool needs_adjacent_;
-  bool we_created_adjacent_;
-  bool we_removed_adjacent_;
-  UndoCommand* deleted_adjacent_command_;
+	Block *adjacent_;
+	bool needs_adjacent_;
+	bool we_created_adjacent_;
+	bool we_removed_adjacent_;
+	UndoCommand *deleted_adjacent_command_;
 
-  bool trim_is_a_roll_edit_;
-  bool remove_block_from_graph_;
+	bool trim_is_a_roll_edit_;
+	bool remove_block_from_graph_;
 
-  QObject memory_manager_;
-
+	QObject memory_manager_;
 };
 
 class TrackSlideCommand : public UndoCommand {
 public:
-  TrackSlideCommand(Track* track, const QList<Block*>& moving_blocks, Block* in_adjacent, Block* out_adjacent, const rational& movement) :
-    track_(track),
-    blocks_(moving_blocks),
-    movement_(movement),
-    we_removed_in_adjacent_(false),
-    in_adjacent_(in_adjacent),
-    in_adjacent_remove_command_(nullptr),
-    we_removed_out_adjacent_(false),
-    out_adjacent_(out_adjacent),
-    out_adjacent_remove_command_(nullptr)
-  {
-    Q_ASSERT(!movement_.isNull());
-  }
+	TrackSlideCommand(Track *track, const QList<Block *> &moving_blocks,
+					  Block *in_adjacent, Block *out_adjacent,
+					  const rational &movement)
+		: track_(track)
+		, blocks_(moving_blocks)
+		, movement_(movement)
+		, we_removed_in_adjacent_(false)
+		, in_adjacent_(in_adjacent)
+		, in_adjacent_remove_command_(nullptr)
+		, we_removed_out_adjacent_(false)
+		, out_adjacent_(out_adjacent)
+		, out_adjacent_remove_command_(nullptr)
+	{
+		Q_ASSERT(!movement_.isNull());
+	}
 
-  virtual ~TrackSlideCommand() override
-  {
-    delete in_adjacent_remove_command_;
-    delete out_adjacent_remove_command_;
-  }
+	virtual ~TrackSlideCommand() override
+	{
+		delete in_adjacent_remove_command_;
+		delete out_adjacent_remove_command_;
+	}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return track_->project();
+	}
 
 protected:
-  virtual void prepare() override;
+	virtual void prepare() override;
 
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  Track* track_;
-  QList<Block*> blocks_;
-  rational movement_;
+	Track *track_;
+	QList<Block *> blocks_;
+	rational movement_;
 
-  bool we_created_in_adjacent_;
-  bool we_removed_in_adjacent_;
-  Block* in_adjacent_;
-  UndoCommand* in_adjacent_remove_command_;
-  bool we_created_out_adjacent_;
-  bool we_removed_out_adjacent_;
-  Block* out_adjacent_;
-  UndoCommand* out_adjacent_remove_command_;
+	bool we_created_in_adjacent_;
+	bool we_removed_in_adjacent_;
+	Block *in_adjacent_;
+	UndoCommand *in_adjacent_remove_command_;
+	bool we_created_out_adjacent_;
+	bool we_removed_out_adjacent_;
+	Block *out_adjacent_;
+	UndoCommand *out_adjacent_remove_command_;
 
-  QObject memory_manager_;
-
+	QObject memory_manager_;
 };
 
 /**
@@ -171,38 +175,38 @@ private:
  */
 class TrackPlaceBlockCommand : public UndoCommand {
 public:
-  TrackPlaceBlockCommand(TrackList *timeline, int track, Block* block, rational in) :
-    timeline_(timeline),
-    track_index_(track),
-    in_(in),
-    gap_(nullptr),
-    insert_(block),
-    ripple_remove_command_(nullptr)
-  {
-  }
+	TrackPlaceBlockCommand(TrackList *timeline, int track, Block *block,
+						   rational in)
+		: timeline_(timeline)
+		, track_index_(track)
+		, in_(in)
+		, gap_(nullptr)
+		, insert_(block)
+		, ripple_remove_command_(nullptr)
+	{
+	}
 
-  virtual ~TrackPlaceBlockCommand() override;
+	virtual ~TrackPlaceBlockCommand() override;
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return timeline_->parent()->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return timeline_->parent()->project();
+	}
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  TrackList* timeline_;
-  int track_index_;
-  rational in_;
-  GapBlock* gap_;
-  Block* insert_;
-  QVector<TimelineAddTrackCommand*> add_track_commands_;
-  QObject memory_manager_;
-  TrackRippleRemoveAreaCommand* ripple_remove_command_;
-
+	TrackList *timeline_;
+	int track_index_;
+	rational in_;
+	GapBlock *gap_;
+	Block *insert_;
+	QVector<TimelineAddTrackCommand *> add_track_commands_;
+	QObject memory_manager_;
+	TrackRippleRemoveAreaCommand *ripple_remove_command_;
 };
 
 }

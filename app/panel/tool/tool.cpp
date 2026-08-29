@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,32 +24,34 @@
 #include "core.h"
 #include "widget/toolbar/toolbar.h"
 
-namespace olive {
-
-ToolPanel::ToolPanel() :
-  PanelWidget(QStringLiteral("ToolPanel"))
+namespace olive
 {
-  Toolbar* t = new Toolbar(this);
 
-  t->SetTool(Core::instance()->tool());
-  t->SetSnapping(Core::instance()->snapping());
+ToolPanel::ToolPanel()
+	: PanelWidget(QStringLiteral("ToolPanel"))
+{
+	Toolbar *t = new Toolbar(this);
 
-  SetWidgetWithPadding(t);
+	t->SetTool(Core::instance()->tool());
+	t->SetSnapping(Core::instance()->snapping());
 
-  connect(t, &Toolbar::ToolChanged, Core::instance(), &Core::SetTool);
-  connect(Core::instance(), &Core::ToolChanged, t, &Toolbar::SetTool);
+	SetWidgetWithPadding(t);
 
-  connect(t, &Toolbar::SnappingChanged, Core::instance(), &Core::SetSnapping);
-  connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
+	connect(t, &Toolbar::ToolChanged, Core::instance(), &Core::SetTool);
+	connect(Core::instance(), &Core::ToolChanged, t, &Toolbar::SetTool);
 
-  connect(t, &Toolbar::SelectedTransitionChanged, Core::instance(), &Core::SetSelectedTransitionObject);
+	connect(t, &Toolbar::SnappingChanged, Core::instance(), &Core::SetSnapping);
+	connect(Core::instance(), &Core::SnappingChanged, t, &Toolbar::SetSnapping);
 
-  Retranslate();
+	connect(t, &Toolbar::SelectedTransitionChanged, Core::instance(),
+			&Core::SetSelectedTransitionObject);
+
+	Retranslate();
 }
 
 void ToolPanel::Retranslate()
 {
-  SetTitle(tr("Tools"));
+	SetTitle(tr("Tools"));
 }
 
 }

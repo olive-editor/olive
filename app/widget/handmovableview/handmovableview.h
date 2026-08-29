@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,49 +27,57 @@
 
 #include "tool/tool.h"
 
-namespace olive {
-
-class HandMovableView : public QGraphicsView
+namespace olive
 {
-  Q_OBJECT
+
+class HandMovableView : public QGraphicsView {
+	Q_OBJECT
 public:
-  HandMovableView(QWidget* parent = nullptr);
+	HandMovableView(QWidget *parent = nullptr);
 
-  static bool WheelEventIsAZoomEvent(QWheelEvent* event);
+	static bool WheelEventIsAZoomEvent(QWheelEvent *event);
 
-  static qreal GetScrollZoomMultiplier(QWheelEvent* event);
+	static qreal GetScrollZoomMultiplier(QWheelEvent *event);
 
-  virtual void CatchUpScrollEvent(){}
+	virtual void CatchUpScrollEvent()
+	{
+	}
 
 protected:
-  virtual void ToolChangedEvent(Tool::Item tool){Q_UNUSED(tool)}
+	virtual void ToolChangedEvent(Tool::Item tool)
+	{
+		Q_UNUSED(tool)
+	}
 
-  bool HandPress(QMouseEvent* event);
-  bool HandMove(QMouseEvent* event);
-  bool HandRelease(QMouseEvent* event);
+	bool HandPress(QMouseEvent *event);
+	bool HandMove(QMouseEvent *event);
+	bool HandRelease(QMouseEvent *event);
 
-  void SetDefaultDragMode(DragMode mode);
-  const DragMode& GetDefaultDragMode() const;
+	void SetDefaultDragMode(DragMode mode);
+	const DragMode &GetDefaultDragMode() const;
 
-  virtual void wheelEvent(QWheelEvent* event) override;
+	virtual void wheelEvent(QWheelEvent *event) override;
 
-  virtual void ZoomIntoCursorPosition(QWheelEvent* event, double multiplier, const QPointF &cursor_pos);
+	virtual void ZoomIntoCursorPosition(QWheelEvent *event, double multiplier,
+										const QPointF &cursor_pos);
 
-  void SetIsTimelineAxes(bool e) { is_timeline_axes_ = e; }
+	void SetIsTimelineAxes(bool e)
+	{
+		is_timeline_axes_ = e;
+	}
 
 private:
-  bool dragging_hand_;
-  DragMode pre_hand_drag_mode_;
+	bool dragging_hand_;
+	DragMode pre_hand_drag_mode_;
 
-  DragMode default_drag_mode_;
+	DragMode default_drag_mode_;
 
-  QPointF transformed_pos_;
+	QPointF transformed_pos_;
 
-  bool is_timeline_axes_;
+	bool is_timeline_axes_;
 
 private slots:
-  void ApplicationToolChanged(Tool::Item tool);
-
+	void ApplicationToolChanged(Tool::Item tool);
 };
 
 }

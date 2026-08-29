@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +23,8 @@
 
 #include "widget/slider/rationalslider.h"
 
-namespace olive {
+namespace olive
+{
 
 const QString TimeOffsetNode::kTimeInput = QStringLiteral("time_in");
 const QString TimeOffsetNode::kInputInput = QStringLiteral("input_in");
@@ -31,50 +33,64 @@ const QString TimeOffsetNode::kInputInput = QStringLiteral("input_in");
 
 TimeOffsetNode::TimeOffsetNode()
 {
-  AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)), InputFlags(kInputFlagNotConnectable));
-  SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
-  SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
+	AddInput(kTimeInput, NodeValue::kRational, QVariant::fromValue(rational(0)),
+			 InputFlags(kInputFlagNotConnectable));
+	SetInputProperty(kTimeInput, QStringLiteral("view"), RationalSlider::kTime);
+	SetInputProperty(kTimeInput, QStringLiteral("viewlock"), true);
 
-  AddInput(kInputInput, NodeValue::kNone, InputFlags(kInputFlagNotKeyframable));
+	AddInput(kInputInput, NodeValue::kNone,
+			 InputFlags(kInputFlagNotKeyframable));
 }
 
 void TimeOffsetNode::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kTimeInput, QStringLiteral("Time"));
-  SetInputName(kInputInput, QStringLiteral("Input"));
+	SetInputName(kTimeInput, QStringLiteral("Time"));
+	SetInputName(kInputInput, QStringLiteral("Input"));
 }
 
-TimeRange TimeOffsetNode::InputTimeAdjustment(const QString &input, int element, const TimeRange &input_time, bool clamp) const
+TimeRange TimeOffsetNode::InputTimeAdjustment(const QString &input, int element,
+											  const TimeRange &input_time,
+											  bool clamp) const
 {
-  if (input == kInputInput) {
-    return TimeRange(GetRemappedTime(input_time.in()), GetRemappedTime(input_time.out()));
-  } else {
-    return super::InputTimeAdjustment(input, element, input_time, clamp);
-  }
+	if (input == kInputInput) {
+		return TimeRange(GetRemappedTime(input_time.in()),
+						 GetRemappedTime(input_time.out()));
+	} else {
+		return super::InputTimeAdjustment(input, element, input_time, clamp);
+	}
 }
 
-TimeRange TimeOffsetNode::OutputTimeAdjustment(const QString &input, int element, const TimeRange &input_time) const
+TimeRange
+TimeOffsetNode::OutputTimeAdjustment(const QString &input, int element,
+									 const TimeRange &input_time) const
 {
-  /*if (input == kInputInput) {
-    rational target_time = GetValueAtTime(kTimeInput, input_time.in()).value<rational>();
-
-    return TimeRange(target_time, target_time + input_time.length());
-  } else {
-    return super::OutputTimeAdjustment(input, element, input_time);
-  }*/
-  return super::OutputTimeAdjustment(input, element, input_time);
+	if (input == kInputInput) {
+		// The inverse of InputTimeAdjustment(): times at the input are mapped
+		// back to the output by subtracting the offset again
+		return TimeRange(GetRemappedOutputTime(input_time.in()),
+						 GetRemappedOutputTime(input_time.out()));
+	} else {
+		return super::OutputTimeAdjustment(input, element, input_time);
+	}
 }
 
-void TimeOffsetNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TimeOffsetNode::Value(const NodeValueRow &value,
+						   const NodeGlobals &globals,
+						   NodeValueTable *table) const
 {
-  table->Push(value[kInputInput]);
+	table->Push(value[kInputInput]);
 }
 
 rational TimeOffsetNode::GetRemappedTime(const rational &input) const
 {
-  return input + GetValueAtTime(kTimeInput, input).value<rational>();
+	return input + GetValueAtTime(kTimeInput, input).value<rational>();
+}
+
+rational TimeOffsetNode::GetRemappedOutputTime(const rational &input) const
+{
+	return input - GetValueAtTime(kTimeInput, input).value<rational>();
 }
 
 }

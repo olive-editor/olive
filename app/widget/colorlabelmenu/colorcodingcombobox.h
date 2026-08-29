@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,26 +26,25 @@
 
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 
-namespace olive {
-
-class ColorCodingComboBox : public QComboBox
+namespace olive
 {
-  Q_OBJECT
+
+class ColorCodingComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  ColorCodingComboBox(QWidget* parent = nullptr);
+	ColorCodingComboBox(QWidget *parent = nullptr);
 
-  virtual void showPopup() override;
+	virtual void showPopup() override;
 
-  void SetColor(int index);
+	void SetColor(int index);
 
-  int GetSelectedColor() const
-  {
-    return index_;
-  }
+	int GetSelectedColor() const
+	{
+		return index_;
+	}
 
 private:
-  int index_;
-
+	int index_;
 };
 
 }

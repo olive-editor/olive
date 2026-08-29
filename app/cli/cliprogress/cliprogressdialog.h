@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,25 +27,24 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class CLIProgressDialog : public QObject
+namespace olive
 {
+
+class CLIProgressDialog : public QObject {
 public:
-  CLIProgressDialog(const QString &title, QObject* parent = nullptr);
+	CLIProgressDialog(const QString &title, QObject *parent = nullptr);
 
 public slots:
-  void SetProgress(double p);
+	void SetProgress(double p);
 
 private:
-  void Update();
+	void Update();
 
-  QString title_;
+	QString title_;
 
-  double progress_;
+	double progress_;
 
-  bool drawn_;
-
+	bool drawn_;
 };
 
 }

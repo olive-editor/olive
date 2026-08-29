@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,8 +23,15 @@
 
 #define OLIVE_TEST_SUCCESS -1
 
-#define OLIVE_ASSERT(x) if (!(x)) return __LINE__
-#define OLIVE_ASSERT_EQUAL(x, y) if (x != y) {std::cout << " - Equal assert failed: " << x << " != " << y; return __LINE__;}void()
+#define OLIVE_ASSERT(x) \
+	if (!(x))           \
+	return __LINE__
+#define OLIVE_ASSERT_EQUAL(x, y)                                     \
+	if (x != y) {                                                    \
+		std::cout << " - Equal assert failed: " << x << " != " << y; \
+		return __LINE__;                                             \
+	}                                                                \
+	void()
 #define OLIVE_TEST_END return OLIVE_TEST_SUCCESS
 
 #define OLIVE_ADD_TEST(x) int Test##x()

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,46 +26,60 @@
 
 #include "draggable.h"
 
-namespace olive {
-
-class PointGizmo : public DraggableGizmo
+namespace olive
 {
-  Q_OBJECT
+
+class PointGizmo : public DraggableGizmo {
+	Q_OBJECT
 public:
-  enum Shape {
-    kSquare,
-    kCircle,
-    kAnchorPoint
-  };
+	enum Shape { kSquare, kCircle, kAnchorPoint };
 
-  explicit PointGizmo(const Shape &shape, bool smaller, QObject *parent = nullptr);
-  explicit PointGizmo(const Shape &shape, QObject *parent = nullptr);
-  explicit PointGizmo(QObject *parent = nullptr);
+	explicit PointGizmo(const Shape &shape, bool smaller,
+						QObject *parent = nullptr);
+	explicit PointGizmo(const Shape &shape, QObject *parent = nullptr);
+	explicit PointGizmo(QObject *parent = nullptr);
 
-  const Shape &GetShape() const { return shape_; }
-  void SetShape(const Shape &s) { shape_ = s; }
+	const Shape &GetShape() const
+	{
+		return shape_;
+	}
+	void SetShape(const Shape &s)
+	{
+		shape_ = s;
+	}
 
-  const QPointF &GetPoint() const { return point_; }
-  void SetPoint(const QPointF &pt) { point_ = pt; }
+	const QPointF &GetPoint() const
+	{
+		return point_;
+	}
+	void SetPoint(const QPointF &pt)
+	{
+		point_ = pt;
+	}
 
-  bool GetSmaller() const { return smaller_; }
-  void SetSmaller(bool e) { smaller_ = e; }
+	bool GetSmaller() const
+	{
+		return smaller_;
+	}
+	void SetSmaller(bool e)
+	{
+		smaller_ = e;
+	}
 
-  virtual void Draw(QPainter *p) const override;
+	virtual void Draw(QPainter *p) const override;
 
-  QRectF GetClickingRect(const QTransform &t) const;
+	QRectF GetClickingRect(const QTransform &t) const;
 
 private:
-  static double GetStandardRadius();
+	static double GetStandardRadius();
 
-  QRectF GetDrawingRect(const QTransform &transform, double radius) const;
+	QRectF GetDrawingRect(const QTransform &transform, double radius) const;
 
-  Shape shape_;
+	Shape shape_;
 
-  QPointF point_;
+	QPointF point_;
 
-  bool smaller_;
-
+	bool smaller_;
 };
 
 }

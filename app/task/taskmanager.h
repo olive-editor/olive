@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +28,8 @@
 
 #include "task/task.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief An object that manages background Task objects, handling their start and end
@@ -37,36 +39,35 @@ namespace olive {
  * for it to run. Currently, TaskManager will run no more Tasks than there are threads on the system (one task per
  * thread). As Tasks finished, TaskManager will start the next in the queue.
  */
-class TaskManager : public QObject
-{
-  Q_OBJECT
+class TaskManager : public QObject {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief TaskManager Constructor
    */
-  TaskManager();
+	TaskManager();
 
-  /**
+	/**
    * @brief TaskManager Destructor
    *
    * Ensures all Tasks are deleted
    */
-  virtual ~TaskManager();
+	virtual ~TaskManager();
 
-  static void CreateInstance();
+	static void CreateInstance();
 
-  static void DestroyInstance();
+	static void DestroyInstance();
 
-  static TaskManager* instance();
+	static TaskManager *instance();
 
-  int GetTaskCount() const;
+	int GetTaskCount() const;
 
-  Task* GetFirstTask() const;
+	Task *GetFirstTask() const;
 
-  void CancelTaskAndWait(Task* t);
+	void CancelTaskAndWait(Task *t);
 
 public slots:
-  /**
+	/**
    * @brief Add a new Task
    *
    * Adds a new Task to the queue. If there are available threads to run it, it'll also run immediately. Otherwise,
@@ -81,59 +82,58 @@ public slots:
    *
    * The task to add and run. TaskManager takes ownership of this Task and will be responsible for freeing it.
    */
-  void AddTask(Task *t);
+	void AddTask(Task *t);
 
-  void CancelTask(Task* t);
+	void CancelTask(Task *t);
 
 signals:
-  /**
+	/**
    * @brief Signal emitted when a Task is added by AddTask()
    *
    * @param t
    *
    * Task that was added
    */
-  void TaskAdded(Task* t);
+	void TaskAdded(Task *t);
 
-  /**
+	/**
    * @brief Signal emitted when any change to the running task list has been made
    */
-  void TaskListChanged();
+	void TaskListChanged();
 
-  /**
+	/**
    * @brief Signal emitted when a task is deleted
    */
-  void TaskRemoved(Task* t);
+	void TaskRemoved(Task *t);
 
-  /**
+	/**
    * @brief Signal emitted when a task fails
    */
-  void TaskFailed(Task* t);
+	void TaskFailed(Task *t);
 
 private:
-  /**
+	/**
    * @brief Internal task array
    */
-  QHash<QFutureWatcher<bool>*, Task*> tasks_;
+	QHash<QFutureWatcher<bool> *, Task *> tasks_;
 
-  /**
+	/**
    * @brief Internal list of failed tasks
    */
-  std::list<Task*> failed_tasks_;
+	std::list<Task *> failed_tasks_;
 
-  /**
+	/**
    * @brief Task thread pool
    */
-  QThreadPool thread_pool_;
+	QThreadPool thread_pool_;
 
-  /**
+	/**
    * @brief TaskManager singleton instance
    */
-  static TaskManager* instance_;
+	static TaskManager *instance_;
 
 private slots:
-  void TaskFinished();
-
+	void TaskFinished();
 };
 
 }

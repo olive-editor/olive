@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 #include "shapenode.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super ShapeNodeBase
 
@@ -29,70 +31,81 @@ QString ShapeNode::kRadiusInput = QStringLiteral("radius_in");
 
 ShapeNode::ShapeNode()
 {
-  PrependInput(kTypeInput, NodeValue::kCombo);
+	PrependInput(kTypeInput, NodeValue::kCombo);
 
-  AddInput(kRadiusInput, NodeValue::kFloat, 20.0);
-  SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
+	AddInput(kRadiusInput, NodeValue::kFloat, 20.0);
+	SetInputProperty(kRadiusInput, QStringLiteral("min"), 0.0);
 }
 
 QString ShapeNode::Name() const
 {
-  return tr("Shape");
+	return tr("Shape");
 }
 
 QString ShapeNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.shape");
+	return QStringLiteral("org.olivevideoeditor.Olive.shape");
 }
 
 QVector<Node::CategoryID> ShapeNode::Category() const
 {
-  return {kCategoryGenerator};
+	return { kCategoryGenerator };
 }
 
 QString ShapeNode::Description() const
 {
-  return tr("Generate a 2D primitive shape.");
+	return tr("Generate a 2D primitive shape.");
 }
 
 void ShapeNode::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kTypeInput, tr("Type"));
-  SetInputName(kRadiusInput, tr("Radius"));
+	SetInputName(kTypeInput, tr("Type"));
+	SetInputName(kRadiusInput, tr("Radius"));
 
-  // Coordinate with Type enum
-  SetComboBoxStrings(kTypeInput, {tr("Rectangle"), tr("Ellipse"), tr("Rounded Rectangle")});
+	// Coordinate with Type enum
+	SetComboBoxStrings(kTypeInput, { tr("Rectangle"), tr("Ellipse"),
+									 tr("Rounded Rectangle") });
 }
 
 ShaderCode ShapeNode::GetShaderCode(const ShaderRequest &request) const
 {
-  if (request.id == QStringLiteral("shape")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(QStringLiteral(":/shaders/shape.frag")));
-  } else {
-    return super::GetShaderCode(request);
-  }
+	if (request.id == QStringLiteral("shape")) {
+		return ShaderCode(FileFunctions::ReadFileAsString(
+			QStringLiteral(":/shaders/shape.frag")));
+	} else {
+		return super::GetShaderCode(request);
+	}
 }
 
-void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void ShapeNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
+					  NodeValueTable *table) const
 {
-  TexturePtr base = value[kBaseInput].toTexture();
+	TexturePtr base = value[kBaseInput].toTexture();
 
-  ShaderJob job(value);
+	ShaderJob job(value);
 
-  job.Insert(QStringLiteral("resolution_in"), NodeValue(NodeValue::kVec2, base ? base->virtual_resolution() : globals.square_resolution(), this));
-  job.SetShaderID(QStringLiteral("shape"));
+	job.Insert(QStringLiteral("resolution_in"),
+			   NodeValue(NodeValue::kVec2,
+						 base ? base->virtual_resolution() :
+								globals.square_resolution(),
+						 this));
+	job.SetShaderID(QStringLiteral("shape"));
 
-  PushMergableJob(value, Texture::Job(base ? base->params() : globals.vparams(), job), table);
+	PushMergableJob(
+		value, Texture::Job(base ? base->params() : globals.vparams(), job),
+		table);
 }
 
 void ShapeNode::InputValueChangedEvent(const QString &input, int element)
 {
-  if (input == kTypeInput) {
-    SetInputFlag(kRadiusInput, kInputFlagHidden, (GetStandardValue(kTypeInput).toInt() != kRoundedRectangle));
-  }
-  super::InputValueChangedEvent(input, element);
+	if (input == kTypeInput) {
+		SetInputFlag(kRadiusInput, kInputFlagHidden,
+					 (GetStandardValue(kTypeInput).toInt() !=
+					  kRoundedRectangle));
+	}
+	super::InputValueChangedEvent(input, element);
 }
 
 }

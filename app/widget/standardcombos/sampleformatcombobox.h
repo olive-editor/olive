@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,81 +27,85 @@
 
 #include "ui/humanstrings.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class SampleFormatComboBox : public QComboBox
-{
-  Q_OBJECT
+class SampleFormatComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  SampleFormatComboBox(QWidget* parent = nullptr) :
-    QComboBox(parent),
-    attempt_to_restore_format_(true)
-  {
-  }
+	SampleFormatComboBox(QWidget *parent = nullptr)
+		: QComboBox(parent)
+		, attempt_to_restore_format_(true)
+	{
+	}
 
-  void SetAttemptToRestoreFormat(bool e) { attempt_to_restore_format_ = e; }
+	void SetAttemptToRestoreFormat(bool e)
+	{
+		attempt_to_restore_format_ = e;
+	}
 
-  void SetAvailableFormats(const std::vector<SampleFormat> &formats)
-  {
-    SampleFormat tmp = SampleFormat::INVALID;
+	void SetAvailableFormats(const std::vector<SampleFormat> &formats)
+	{
+		SampleFormat tmp = SampleFormat::INVALID;
 
-    if (attempt_to_restore_format_) {
-      tmp = GetSampleFormat();
-    }
+		if (attempt_to_restore_format_) {
+			tmp = GetSampleFormat();
+		}
 
-    clear();
-    foreach (const SampleFormat &of, formats) {
-      AddFormatItem(of);
-    }
+		clear();
+		foreach (const SampleFormat &of, formats) {
+			AddFormatItem(of);
+		}
 
-    if (attempt_to_restore_format_) {
-      SetSampleFormat(tmp);
-    }
-  }
+		if (attempt_to_restore_format_) {
+			SetSampleFormat(tmp);
+		}
+	}
 
-  void SetPackedFormats()
-  {
-    SampleFormat tmp = SampleFormat::INVALID;
+	void SetPackedFormats()
+	{
+		SampleFormat tmp = SampleFormat::INVALID;
 
-    if (attempt_to_restore_format_) {
-      tmp = GetSampleFormat();
-    }
+		if (attempt_to_restore_format_) {
+			tmp = GetSampleFormat();
+		}
 
-    clear();
-    for (int i=SampleFormat::PACKED_START; i<SampleFormat::PACKED_END; i++) {
-      AddFormatItem(static_cast<SampleFormat::Format>(i));
-    }
+		clear();
+		for (int i = SampleFormat::PACKED_START; i < SampleFormat::PACKED_END;
+			 i++) {
+			AddFormatItem(static_cast<SampleFormat::Format>(i));
+		}
 
-    if (attempt_to_restore_format_) {
-      SetSampleFormat(tmp);
-    }
-  }
+		if (attempt_to_restore_format_) {
+			SetSampleFormat(tmp);
+		}
+	}
 
-  SampleFormat GetSampleFormat() const
-  {
-    return static_cast<SampleFormat::Format>(this->currentData().toInt());
-  }
+	SampleFormat GetSampleFormat() const
+	{
+		return static_cast<SampleFormat::Format>(this->currentData().toInt());
+	}
 
-  void SetSampleFormat(SampleFormat fmt)
-  {
-    for (int i=0; i<this->count(); i++) {
-      if (this->itemData(i).toInt() == fmt) {
-        this->setCurrentIndex(i);
-        break;
-      }
-    }
-  }
+	void SetSampleFormat(SampleFormat fmt)
+	{
+		for (int i = 0; i < this->count(); i++) {
+			if (this->itemData(i).toInt() == fmt) {
+				this->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
 
 private:
-  void AddFormatItem(SampleFormat f)
-  {
-    this->addItem(HumanStrings::FormatToString(f), static_cast<SampleFormat::Format>(f));
-  }
+	void AddFormatItem(SampleFormat f)
+	{
+		this->addItem(HumanStrings::FormatToString(f),
+					  static_cast<SampleFormat::Format>(f));
+	}
 
-  bool attempt_to_restore_format_;
-
+	bool attempt_to_restore_format_;
 };
 
 }

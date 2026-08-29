@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,141 +26,140 @@
 #include "widget/colorlabelmenu/colorlabelmenu.h"
 #include "widget/menu/menu.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
 /**
  * @brief A static object that provides various "stock" menus for use throughout the application
  */
-class MenuShared : public QObject
-{
-  Q_OBJECT
+class MenuShared : public QObject {
+	Q_OBJECT
 public:
-  MenuShared();
-  virtual ~MenuShared() override;
+	MenuShared();
+	virtual ~MenuShared() override;
 
-  static void CreateInstance();
-  static void DestroyInstance();
+	static void CreateInstance();
+	static void DestroyInstance();
 
-  void Retranslate();
+	void Retranslate();
 
-  void AddItemsForNewMenu(Menu* m);
-  void AddItemsForEditMenu(Menu* m, bool for_clips);
-  void AddItemsForAddableObjectsMenu(Menu* m);
-  void AddItemsForInOutMenu(Menu* m);
-  void AddColorCodingMenu(Menu* m);
-  void AddItemsForClipEditMenu(Menu* m);
-  void AddItemsForTimeRulerMenu(Menu* m);
+	void AddItemsForNewMenu(Menu *m);
+	void AddItemsForEditMenu(Menu *m, bool for_clips);
+	void AddItemsForAddableObjectsMenu(Menu *m);
+	void AddItemsForInOutMenu(Menu *m);
+	void AddColorCodingMenu(Menu *m);
+	void AddItemsForClipEditMenu(Menu *m);
+	void AddItemsForTimeRulerMenu(Menu *m);
 
-  void AboutToShowTimeRulerActions(const rational& timebase);
+	void AboutToShowTimeRulerActions(const rational &timebase);
 
-  static MenuShared* instance();
+	static MenuShared *instance();
 
-  QAction* edit_delete_item()
-  {
-    return edit_delete_item_;
-  }
+	QAction *edit_delete_item()
+	{
+		return edit_delete_item_;
+	}
 
 public slots:
-  void DeleteSelectedTriggered();
+	void DeleteSelectedTriggered();
 
 private:
-  // "New" menu shared items
-  QAction* new_project_item_;
-  QAction* new_sequence_item_;
-  QAction* new_folder_item_;
+	// "New" menu shared items
+	QAction *new_project_item_;
+	QAction *new_sequence_item_;
+	QAction *new_folder_item_;
 
-  // "Edit" menu shared items
-  QAction* edit_cut_item_;
-  QAction* edit_copy_item_;
-  QAction* edit_paste_item_;
-  QAction* edit_paste_insert_item_;
-  QAction* edit_duplicate_item_;
-  QAction* edit_rename_item_;
-  QAction* edit_delete_item_;
-  QAction* edit_ripple_delete_item_;
-  QAction* edit_split_item_;
-  QAction* edit_speedduration_item_;
+	// "Edit" menu shared items
+	QAction *edit_cut_item_;
+	QAction *edit_copy_item_;
+	QAction *edit_paste_item_;
+	QAction *edit_paste_insert_item_;
+	QAction *edit_duplicate_item_;
+	QAction *edit_rename_item_;
+	QAction *edit_delete_item_;
+	QAction *edit_ripple_delete_item_;
+	QAction *edit_split_item_;
+	QAction *edit_speedduration_item_;
 
-  // List of addable items
-  QVector<QAction*> addable_items_;
+	// List of addable items
+	QVector<QAction *> addable_items_;
 
-  // "In/Out" menu shared items
-  QAction* inout_set_in_item_;
-  QAction* inout_set_out_item_;
-  QAction* inout_reset_in_item_;
-  QAction* inout_reset_out_item_;
-  QAction* inout_clear_inout_item_;
+	// "In/Out" menu shared items
+	QAction *inout_set_in_item_;
+	QAction *inout_set_out_item_;
+	QAction *inout_reset_in_item_;
+	QAction *inout_reset_out_item_;
+	QAction *inout_clear_inout_item_;
 
-  // "Clip Edit" menu shared items
-  QAction* clip_add_default_transition_item_;
-  QAction* clip_link_unlink_item_;
-  QAction* clip_enable_disable_item_;
-  QAction* clip_nest_item_;
+	// "Clip Edit" menu shared items
+	QAction *clip_add_default_transition_item_;
+	QAction *clip_link_unlink_item_;
+	QAction *clip_enable_disable_item_;
+	QAction *clip_nest_item_;
 
-  // TimeRuler menu shared items
-  QActionGroup* frame_view_mode_group_;
-  QAction* view_timecode_view_dropframe_item_;
-  QAction* view_timecode_view_nondropframe_item_;
-  QAction* view_timecode_view_seconds_item_;
-  QAction* view_timecode_view_frames_item_;
-  QAction* view_timecode_view_milliseconds_item_;
+	// TimeRuler menu shared items
+	QActionGroup *frame_view_mode_group_;
+	QAction *view_timecode_view_dropframe_item_;
+	QAction *view_timecode_view_nondropframe_item_;
+	QAction *view_timecode_view_seconds_item_;
+	QAction *view_timecode_view_frames_item_;
+	QAction *view_timecode_view_milliseconds_item_;
 
-  // Color coding menu items
-  ColorLabelMenu* color_coding_menu_;
+	// Color coding menu items
+	ColorLabelMenu *color_coding_menu_;
 
-  static MenuShared* instance_;
+	static MenuShared *instance_;
 
 private slots:
-  void SplitAtPlayheadTriggered();
+	void SplitAtPlayheadTriggered();
 
-  void RippleDeleteTriggered();
+	void RippleDeleteTriggered();
 
-  void SetInTriggered();
+	void SetInTriggered();
 
-  void SetOutTriggered();
+	void SetOutTriggered();
 
-  void ResetInTriggered();
+	void ResetInTriggered();
 
-  void ResetOutTriggered();
+	void ResetOutTriggered();
 
-  void ClearInOutTriggered();
+	void ClearInOutTriggered();
 
-  void ToggleLinksTriggered();
+	void ToggleLinksTriggered();
 
-  void CutTriggered();
+	void CutTriggered();
 
-  void CopyTriggered();
+	void CopyTriggered();
 
-  void PasteTriggered();
+	void PasteTriggered();
 
-  void PasteInsertTriggered();
+	void PasteInsertTriggered();
 
-  void DuplicateTriggered();
+	void DuplicateTriggered();
 
-  void RenameSelectedTriggered();
+	void RenameSelectedTriggered();
 
-  void EnableDisableTriggered();
+	void EnableDisableTriggered();
 
-  void NestTriggered();
+	void NestTriggered();
 
-  void DefaultTransitionTriggered();
+	void DefaultTransitionTriggered();
 
-  /**
+	/**
    * @brief A slot for the timecode display menu items
    *
    * Assumes a QAction* sender() and its data() is a member of enum Timecode::Display. Uses the data() to signal a
    * timecode change throughout the rest of the application.
    */
-  void TimecodeDisplayTriggered();
+	void TimecodeDisplayTriggered();
 
-  void ColorLabelTriggered(int color_index);
+	void ColorLabelTriggered(int color_index);
 
-  void SpeedDurationTriggered();
+	void SpeedDurationTriggered();
 
-  void AddableItemTriggered();
-
+	void AddableItemTriggered();
 };
 
 }

@@ -19,6 +19,6 @@ add_subdirectory(timeoffset)
 add_subdirectory(timeremap)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

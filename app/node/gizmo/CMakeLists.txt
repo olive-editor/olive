@@ -15,22 +15,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/gizmo/draggable.cpp
-  node/gizmo/draggable.h
-  node/gizmo/gizmo.cpp
-  node/gizmo/gizmo.h
-  node/gizmo/line.cpp
-  node/gizmo/line.h
-  node/gizmo/path.cpp
-  node/gizmo/path.h
-  node/gizmo/point.cpp
-  node/gizmo/point.h
-  node/gizmo/polygon.cpp
-  node/gizmo/polygon.h
-  node/gizmo/screen.cpp
-  node/gizmo/screen.h
-  node/gizmo/text.cpp
-  node/gizmo/text.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/gizmo/draggable.cpp
+        node/gizmo/draggable.h
+        node/gizmo/gizmo.cpp
+        node/gizmo/gizmo.h
+        node/gizmo/line.cpp
+        node/gizmo/line.h
+        node/gizmo/path.cpp
+        node/gizmo/path.h
+        node/gizmo/point.cpp
+        node/gizmo/point.h
+        node/gizmo/polygon.cpp
+        node/gizmo/polygon.h
+        node/gizmo/screen.cpp
+        node/gizmo/screen.h
+        node/gizmo/text.cpp
+        node/gizmo/text.h
+        PARENT_SCOPE
 )

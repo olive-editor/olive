@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,55 +24,62 @@
 #include <QAction>
 #include <QKeyEvent>
 
-namespace olive {
+namespace olive
+{
 
 #define super QKeySequenceEdit
 
-KeySequenceEditor::KeySequenceEditor(QWidget* parent, QAction* a)
-  : super(parent), action(a) {
-  setKeySequence(action->shortcut());
+KeySequenceEditor::KeySequenceEditor(QWidget *parent, QAction *a)
+	: super(parent)
+	, action(a)
+{
+	setKeySequence(action->shortcut());
 }
 
-void KeySequenceEditor::set_action_shortcut() {
-  action->setShortcut(keySequence());
+void KeySequenceEditor::set_action_shortcut()
+{
+	action->setShortcut(keySequence());
 }
 
-void KeySequenceEditor::reset_to_default() {
-  setKeySequence(action->property("keydefault").toString());
+void KeySequenceEditor::reset_to_default()
+{
+	setKeySequence(action->property("keydefault").toString());
 }
 
-QString KeySequenceEditor::action_name() {
-  return action->property("id").toString();
+QString KeySequenceEditor::action_name()
+{
+	return action->property("id").toString();
 }
 
-QString KeySequenceEditor::export_shortcut() {
-  QKeySequence ks = keySequence();
-  if (ks != action->property("keydefault").value<QKeySequence>()) {
-    return action->property("id").toString() + "\t" + ks.toString();
-  }
-  return nullptr;
+QString KeySequenceEditor::export_shortcut()
+{
+	QKeySequence ks = keySequence();
+	if (ks != action->property("keydefault").value<QKeySequence>()) {
+		return action->property("id").toString() + "\t" + ks.toString();
+	}
+	return nullptr;
 }
 
 void KeySequenceEditor::keyPressEvent(QKeyEvent *e)
 {
-  if (e->key() == Qt::Key_Backspace) {
-    clear();
-  } else if (e->key() == Qt::Key_Escape) {
-    e->ignore();
-  } else{
-    super::keyPressEvent(e);
-  }
+	if (e->key() == Qt::Key_Backspace) {
+		clear();
+	} else if (e->key() == Qt::Key_Escape) {
+		e->ignore();
+	} else {
+		super::keyPressEvent(e);
+	}
 }
 
 void KeySequenceEditor::keyReleaseEvent(QKeyEvent *e)
 {
-  if (e->key() == Qt::Key_Backspace) {
-    // Do nothing
-  } else if (e->key() == Qt::Key_Escape) {
-    e->ignore();
-  } else {
-    super::keyReleaseEvent(e);
-  }
+	if (e->key() == Qt::Key_Backspace) {
+		// Do nothing
+	} else if (e->key() == Qt::Key_Escape) {
+		e->ignore();
+	} else {
+		super::keyReleaseEvent(e);
+	}
 }
 
 }

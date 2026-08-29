@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,65 +21,68 @@
 
 #include "timelinewidgetselections.h"
 
-namespace olive {
+namespace olive
+{
 
 void TimelineWidgetSelections::ShiftTime(const rational &diff)
 {
-  for (auto it=this->begin(); it!=this->end(); it++) {
-    it.value().shift(diff);
-  }
+	for (auto it = this->begin(); it != this->end(); it++) {
+		it.value().shift(diff);
+	}
 }
 
 void TimelineWidgetSelections::ShiftTracks(Track::Type type, int diff)
 {
-  TimelineWidgetSelections cached_selections;
+	TimelineWidgetSelections cached_selections;
 
-  {
-    // Take all selections of this track type
-    auto it = this->begin();
-    while (it != this->end()) {
-      if (it.key().type() == type) {
-        cached_selections.insert(it.key(), it.value());
-        it = this->erase(it);
-      } else {
-        it++;
-      }
-    }
-  }
+	{
+		// Take all selections of this track type
+		auto it = this->begin();
+		while (it != this->end()) {
+			if (it.key().type() == type) {
+				cached_selections.insert(it.key(), it.value());
+				it = this->erase(it);
+			} else {
+				it++;
+			}
+		}
+	}
 
-  // Then re-insert them with the diff applied
-  for (auto it=cached_selections.cbegin(); it!=cached_selections.cend(); it++) {
-    Track::Reference ref(it.key().type(), it.key().index() + diff);
+	// Then re-insert them with the diff applied
+	for (auto it = cached_selections.cbegin(); it != cached_selections.cend();
+		 it++) {
+		Track::Reference ref(it.key().type(), it.key().index() + diff);
 
-    this->insert(ref, it.value());
-  }
+		this->insert(ref, it.value());
+	}
 }
 
 void TimelineWidgetSelections::TrimIn(const rational &diff)
 {
-  for (auto it=this->begin(); it!=this->end(); it++) {
-    it.value().trim_in(diff);
-  }
+	for (auto it = this->begin(); it != this->end(); it++) {
+		it.value().trim_in(diff);
+	}
 }
 
 void TimelineWidgetSelections::TrimOut(const rational &diff)
 {
-  for (auto it=this->begin(); it!=this->end(); it++) {
-    it.value().trim_out(diff);
-  }
+	for (auto it = this->begin(); it != this->end(); it++) {
+		it.value().trim_out(diff);
+	}
 }
 
-void TimelineWidgetSelections::Subtract(const TimelineWidgetSelections &selections)
+void TimelineWidgetSelections::Subtract(
+	const TimelineWidgetSelections &selections)
 {
-  for (auto it=selections.cbegin(); it!=selections.cend(); it++) {
-    const Track::Reference &track = it.key();
-    const TimeRangeList &their_list = it.value();
+	for (auto it = selections.cbegin(); it != selections.cend(); it++) {
+		const Track::Reference &track = it.key();
+		const TimeRangeList &their_list = it.value();
 
-    if (this->contains(track)) {
-      TimeRangeList &our_list = (*this)[it.key()];
-      our_list.remove(their_list);
-    }
-  }
+		if (this->contains(track)) {
+			TimeRangeList &our_list = (*this)[it.key()];
+			our_list.remove(their_list);
+		}
+	}
 }
 
 }

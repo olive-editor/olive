@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,13 +32,13 @@
 #include "widget/colorwheel/colorvalueswidget.h"
 #include "widget/colorwheel/colorwheelwidget.h"
 
-namespace olive {
-
-class ColorDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class ColorDialog : public QDialog {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief ColorDialog Constructor
    *
    * @param color_manager
@@ -56,40 +57,41 @@ public:
    *
    * QWidget parent.
    */
-  ColorDialog(ColorManager* color_manager, const ManagedColor &start = Color(1.0f, 1.0f, 1.0f), QWidget* parent = nullptr);
+	ColorDialog(ColorManager *color_manager,
+				const ManagedColor &start = Color(1.0f, 1.0f, 1.0f),
+				QWidget *parent = nullptr);
 
-  /**
+	/**
    * @brief Retrieves the color selected by the user
    *
    * The color is always returned in the ColorManager's reference space (usually scene linear).
    */
-  ManagedColor GetSelectedColor() const;
+	ManagedColor GetSelectedColor() const;
 
-  QString GetColorSpaceInput() const;
+	QString GetColorSpaceInput() const;
 
-  ColorTransform GetColorSpaceOutput() const;
+	ColorTransform GetColorSpaceOutput() const;
 
 public slots:
-  void SetColor(const ManagedColor &c);
+	void SetColor(const ManagedColor &c);
 
 private:
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  ColorWheelWidget* color_wheel_;
+	ColorWheelWidget *color_wheel_;
 
-  ColorValuesWidget* color_values_widget_;
+	ColorValuesWidget *color_values_widget_;
 
-  ColorGradientWidget* hsv_value_gradient_;
+	ColorGradientWidget *hsv_value_gradient_;
 
-  ColorProcessorPtr input_to_ref_processor_;
+	ColorProcessorPtr input_to_ref_processor_;
 
-  ColorSpaceChooser* chooser_;
+	ColorSpaceChooser *chooser_;
 
-  ColorSwatchChooser *swatch_;
+	ColorSwatchChooser *swatch_;
 
 private slots:
-  void ColorSpaceChanged(const QString& input, const ColorTransform &output);
-
+	void ColorSpaceChanged(const QString &input, const ColorTransform &output);
 };
 
 }

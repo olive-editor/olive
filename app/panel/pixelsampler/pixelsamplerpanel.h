@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,22 +25,21 @@
 #include "panel/panel.h"
 #include "widget/pixelsampler/pixelsampler.h"
 
-namespace olive {
-
-class PixelSamplerPanel : public PanelWidget
+namespace olive
 {
-  Q_OBJECT
+
+class PixelSamplerPanel : public PanelWidget {
+	Q_OBJECT
 public:
-  PixelSamplerPanel();
+	PixelSamplerPanel();
 
 public slots:
-  void SetValues(const Color& reference, const Color& display);
+	void SetValues(const Color &reference, const Color &display);
 
 private:
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  ManagedPixelSamplerWidget* sampler_widget_;
-
+	ManagedPixelSamplerWidget *sampler_widget_;
 };
 
 }

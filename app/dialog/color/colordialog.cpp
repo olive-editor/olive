@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,167 +27,186 @@
 
 #include "common/qtutils.h"
 
-namespace olive {
-
-ColorDialog::ColorDialog(ColorManager* color_manager, const ManagedColor& start, QWidget *parent) :
-  QDialog(parent),
-  color_manager_(color_manager)
+namespace olive
 {
-  setWindowTitle(tr("Select Color"));
 
-  QVBoxLayout* layout = new QVBoxLayout(this);
+ColorDialog::ColorDialog(ColorManager *color_manager, const ManagedColor &start,
+						 QWidget *parent)
+	: QDialog(parent)
+	, color_manager_(color_manager)
+{
+	setWindowTitle(tr("Select Color"));
 
-  QSplitter* splitter = new QSplitter(Qt::Horizontal);
-  splitter->setChildrenCollapsible(false);
-  layout->addWidget(splitter);
+	QVBoxLayout *layout = new QVBoxLayout(this);
 
-  QWidget* graphics_area = new QWidget();
-  splitter->addWidget(graphics_area);
+	QSplitter *splitter = new QSplitter(Qt::Horizontal);
+	splitter->setChildrenCollapsible(false);
+	layout->addWidget(splitter);
 
-  QVBoxLayout *graphics_layout = new QVBoxLayout(graphics_area);
+	QWidget *graphics_area = new QWidget();
+	splitter->addWidget(graphics_area);
 
-  QHBoxLayout* wheel_layout = new QHBoxLayout();
-  graphics_layout->addLayout(wheel_layout);
+	QVBoxLayout *graphics_layout = new QVBoxLayout(graphics_area);
 
-  color_wheel_ = new ColorWheelWidget();
-  wheel_layout->addWidget(color_wheel_);
+	QHBoxLayout *wheel_layout = new QHBoxLayout();
+	graphics_layout->addLayout(wheel_layout);
 
-  hsv_value_gradient_ = new ColorGradientWidget(Qt::Vertical);
-  hsv_value_gradient_->setFixedWidth(QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("HHH")));
-  wheel_layout->addWidget(hsv_value_gradient_);
+	color_wheel_ = new ColorWheelWidget();
+	wheel_layout->addWidget(color_wheel_);
 
-  QHBoxLayout *swatch_layout = new QHBoxLayout();
-  graphics_layout->addLayout(swatch_layout);
+	hsv_value_gradient_ = new ColorGradientWidget(Qt::Vertical);
+	hsv_value_gradient_->setFixedWidth(
+		QtUtils::QFontMetricsWidth(fontMetrics(), QStringLiteral("HHH")));
+	wheel_layout->addWidget(hsv_value_gradient_);
 
-  swatch_layout->addStretch();
+	QHBoxLayout *swatch_layout = new QHBoxLayout();
+	graphics_layout->addLayout(swatch_layout);
 
-  swatch_ = new ColorSwatchChooser(color_manager_);
-  swatch_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-  swatch_layout->addWidget(swatch_);
+	swatch_layout->addStretch();
 
-  swatch_layout->addStretch();
+	swatch_ = new ColorSwatchChooser(color_manager_);
+	swatch_->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	swatch_layout->addWidget(swatch_);
 
-  QWidget* value_area = new QWidget();
-  QVBoxLayout* value_layout = new QVBoxLayout(value_area);
-  value_layout->setSpacing(0);
-  splitter->addWidget(value_area);
+	swatch_layout->addStretch();
 
-  color_values_widget_ = new ColorValuesWidget(color_manager_);
-  color_values_widget_->IgnorePickFrom(this);
-  value_layout->addWidget(color_values_widget_);
+	QWidget *value_area = new QWidget();
+	QVBoxLayout *value_layout = new QVBoxLayout(value_area);
+	value_layout->setSpacing(0);
+	splitter->addWidget(value_area);
 
-  chooser_ = new ColorSpaceChooser(color_manager_);
+	color_values_widget_ = new ColorValuesWidget(color_manager_);
+	color_values_widget_->IgnorePickFrom(this);
+	value_layout->addWidget(color_values_widget_);
 
-  value_layout->addWidget(chooser_);
+	chooser_ = new ColorSpaceChooser(color_manager_);
 
-  // Split window 50/50
-  splitter->setSizes({INT_MAX, INT_MAX});
+	value_layout->addWidget(chooser_);
 
-  connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, color_values_widget_, &ColorValuesWidget::SetColor);
-  connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
-  connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
-  connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, color_values_widget_, &ColorValuesWidget::SetColor);
-  connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, color_wheel_, &ColorWheelWidget::SetSelectedColor);
-  connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
-  connect(color_values_widget_, &ColorValuesWidget::ColorChanged, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
-  connect(color_values_widget_, &ColorValuesWidget::ColorChanged, color_wheel_, &ColorWheelWidget::SetSelectedColor);
-  connect(color_values_widget_, &ColorValuesWidget::ColorChanged, swatch_, &ColorSwatchChooser::SetCurrentColor);
-  connect(swatch_, &ColorSwatchChooser::ColorClicked, hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
-  connect(swatch_, &ColorSwatchChooser::ColorClicked, color_wheel_, &ColorWheelWidget::SetSelectedColor);
-  connect(swatch_, &ColorSwatchChooser::ColorClicked, color_values_widget_, &ColorValuesWidget::SetColor);
+	// Split window 50/50
+	splitter->setSizes({ INT_MAX, INT_MAX });
 
-  connect(color_wheel_, &ColorWheelWidget::DiameterChanged, hsv_value_gradient_, &ColorGradientWidget::setFixedHeight);
+	connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged,
+			color_values_widget_, &ColorValuesWidget::SetColor);
+	connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged,
+			hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
+	connect(color_wheel_, &ColorWheelWidget::SelectedColorChanged, swatch_,
+			&ColorSwatchChooser::SetCurrentColor);
+	connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged,
+			color_values_widget_, &ColorValuesWidget::SetColor);
+	connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged,
+			color_wheel_, &ColorWheelWidget::SetSelectedColor);
+	connect(hsv_value_gradient_, &ColorGradientWidget::SelectedColorChanged,
+			swatch_, &ColorSwatchChooser::SetCurrentColor);
+	connect(color_values_widget_, &ColorValuesWidget::ColorChanged,
+			hsv_value_gradient_, &ColorGradientWidget::SetSelectedColor);
+	connect(color_values_widget_, &ColorValuesWidget::ColorChanged,
+			color_wheel_, &ColorWheelWidget::SetSelectedColor);
+	connect(color_values_widget_, &ColorValuesWidget::ColorChanged, swatch_,
+			&ColorSwatchChooser::SetCurrentColor);
+	connect(swatch_, &ColorSwatchChooser::ColorClicked, hsv_value_gradient_,
+			&ColorGradientWidget::SetSelectedColor);
+	connect(swatch_, &ColorSwatchChooser::ColorClicked, color_wheel_,
+			&ColorWheelWidget::SetSelectedColor);
+	connect(swatch_, &ColorSwatchChooser::ColorClicked, color_values_widget_,
+			&ColorValuesWidget::SetColor);
 
-  QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-  connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-  layout->addWidget(buttons);
+	connect(color_wheel_, &ColorWheelWidget::DiameterChanged,
+			hsv_value_gradient_, &ColorGradientWidget::setFixedHeight);
 
-  SetColor(start);
+	QDialogButtonBox *buttons =
+		new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+	layout->addWidget(buttons);
 
-  connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this, &ColorDialog::ColorSpaceChanged);
-  ColorSpaceChanged(chooser_->input(), chooser_->output());
+	SetColor(start);
 
-  // Set default size ratio to 2:1
-  resize(sizeHint().height() * 2, sizeHint().height());
+	connect(chooser_, &ColorSpaceChooser::ColorSpaceChanged, this,
+			&ColorDialog::ColorSpaceChanged);
+	ColorSpaceChanged(chooser_->input(), chooser_->output());
+
+	// Set default size ratio to 2:1
+	resize(sizeHint().height() * 2, sizeHint().height());
 }
 
 void ColorDialog::SetColor(const ManagedColor &start)
 {
-  chooser_->set_input(start.color_input());
-  chooser_->set_output(start.color_output());
+	chooser_->set_input(start.color_input());
+	chooser_->set_output(start.color_output());
 
-  Color managed_start;
+	Color managed_start;
 
-  if (start.color_input().isEmpty()) {
+	if (start.color_input().isEmpty()) {
+		managed_start = start;
 
-    managed_start = start;
+	} else {
+		// Convert reference color to the input space
+		ColorProcessorPtr linear_to_input = ColorProcessor::Create(
+			color_manager_, color_manager_->GetReferenceColorSpace(),
+			start.color_input());
 
-  } else {
+		managed_start = linear_to_input->ConvertColor(start);
+	}
 
-    // Convert reference color to the input space
-    ColorProcessorPtr linear_to_input = ColorProcessor::Create(color_manager_,
-                                                               color_manager_->GetReferenceColorSpace(),
-                                                               start.color_input());
-
-    managed_start = linear_to_input->ConvertColor(start);
-
-  }
-
-  color_wheel_->SetSelectedColor(managed_start);
-  hsv_value_gradient_->SetSelectedColor(managed_start);
-  color_values_widget_->SetColor(managed_start);
-  swatch_->SetCurrentColor(managed_start);
+	color_wheel_->SetSelectedColor(managed_start);
+	hsv_value_gradient_->SetSelectedColor(managed_start);
+	color_values_widget_->SetColor(managed_start);
+	swatch_->SetCurrentColor(managed_start);
 }
 
 ManagedColor ColorDialog::GetSelectedColor() const
 {
-  ManagedColor selected = color_wheel_->GetSelectedColor();
+	ManagedColor selected = color_wheel_->GetSelectedColor();
 
-  // Convert to linear and return a linear color
-  if (input_to_ref_processor_) {
-    selected = input_to_ref_processor_->ConvertColor(selected);
-  }
+	// Convert to linear and return a linear color
+	if (input_to_ref_processor_) {
+		selected = input_to_ref_processor_->ConvertColor(selected);
+	}
 
-  selected.set_color_input(GetColorSpaceInput());
-  selected.set_color_output(GetColorSpaceOutput());
+	selected.set_color_input(GetColorSpaceInput());
+	selected.set_color_output(GetColorSpaceOutput());
 
-  return selected;
+	return selected;
 }
 
 QString ColorDialog::GetColorSpaceInput() const
 {
-  return chooser_->input();
+	return chooser_->input();
 }
 
 ColorTransform ColorDialog::GetColorSpaceOutput() const
 {
-  return chooser_->output();
+	return chooser_->output();
 }
 
-void ColorDialog::ColorSpaceChanged(const QString &input, const ColorTransform &output)
+void ColorDialog::ColorSpaceChanged(const QString &input,
+									const ColorTransform &output)
 {
-  input_to_ref_processor_ = ColorProcessor::Create(color_manager_, input, color_manager_->GetReferenceColorSpace());
+	input_to_ref_processor_ = ColorProcessor::Create(
+		color_manager_, input, color_manager_->GetReferenceColorSpace());
 
-  ColorProcessorPtr ref_to_display = ColorProcessor::Create(color_manager_,
-                                                            color_manager_->GetReferenceColorSpace(),
-                                                            output);
+	ColorProcessorPtr ref_to_display = ColorProcessor::Create(
+		color_manager_, color_manager_->GetReferenceColorSpace(), output);
 
-  ColorProcessorPtr ref_to_input = ColorProcessor::Create(color_manager_, color_manager_->GetReferenceColorSpace(), input);
+	ColorProcessorPtr ref_to_input = ColorProcessor::Create(
+		color_manager_, color_manager_->GetReferenceColorSpace(), input);
 
-  // FIXME: For some reason, using OCIO::TRANSFORM_DIR_INVERSE (wrapped by ColorProcessor::kInverse) causes OCIO to
-  //        crash. We've disabled that functionality for now (also disabling display_tab_ in ColorValuesWidget)
+	// Display -> reference is the inverse of the display transform. Older OCIO
+	// versions crashed on TRANSFORM_DIR_INVERSE; guard by requiring a valid
+	// processor and fall back to disabling the display tab if creation fails.
+	ColorProcessorPtr display_to_ref = ColorProcessor::Create(
+		color_manager_, color_manager_->GetReferenceColorSpace(), output,
+		ColorProcessor::kInverse);
+	if (display_to_ref && !display_to_ref->GetProcessor()) {
+		display_to_ref = nullptr;
+	}
 
-  /*ColorProcessorPtr display_to_ref = ColorProcessor::Create(color_manager_->GetConfig(),
-                                                            color_manager_->GetReferenceColorSpace(),
-                                                            display,
-                                                            view,
-                                                            look,
-                                                            ColorProcessor::kInverse);*/
-
-  color_wheel_->SetColorProcessor(input_to_ref_processor_, ref_to_display);
-  hsv_value_gradient_->SetColorProcessor(input_to_ref_processor_, ref_to_display);
-  color_values_widget_->SetColorProcessor(input_to_ref_processor_, ref_to_display, nullptr, ref_to_input);
+	color_wheel_->SetColorProcessor(input_to_ref_processor_, ref_to_display);
+	hsv_value_gradient_->SetColorProcessor(input_to_ref_processor_,
+										   ref_to_display);
+	color_values_widget_->SetColorProcessor(
+		input_to_ref_processor_, ref_to_display, display_to_ref, ref_to_input);
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,18 +26,23 @@
 
 #include "codec/encoder.h"
 
-namespace olive {
-
-class CodecSection : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class CodecSection : public QWidget {
+	Q_OBJECT
 public:
-  CodecSection(QWidget* parent = nullptr);
+	CodecSection(QWidget *parent = nullptr);
 
-  virtual void AddOpts(EncodingParams* params){Q_UNUSED(params)}
+	virtual void AddOpts(EncodingParams *params)
+	{
+		Q_UNUSED(params)
+	}
 
-  virtual void SetOpts(const EncodingParams *p){Q_UNUSED(p)}
-
+	virtual void SetOpts(const EncodingParams *p)
+	{
+		Q_UNUSED(p)
+	}
 };
 
 }

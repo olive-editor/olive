@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,16 +21,17 @@
 
 #include "valuedatabase.h"
 
-namespace olive {
+namespace olive
+{
 
 NodeValueTable NodeValueDatabase::Merge() const
 {
-  QHash<QString, NodeValueTable> copy = tables_;
+	QHash<QString, NodeValueTable> copy = tables_;
 
-  // Kinda hacky, but we don't need this table to slipstream
-  copy.remove(QStringLiteral("global"));
+	// Kinda hacky, but we don't need this table to slipstream
+	copy.remove(QStringLiteral("global"));
 
-  return NodeValueTable::Merge(copy.values());
+	return NodeValueTable::Merge(copy.values());
 }
 
 }

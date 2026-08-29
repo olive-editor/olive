@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,52 +41,63 @@ crashpad::CrashpadClient *client;
 
 bool InitializeCrashpad()
 {
-  QString report_path = QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("reports"));
+	QString report_path = QDir(olive::FileFunctions::GetTempFilePath())
+							  .filePath(QStringLiteral("reports"));
 
-  QString handler_fn = olive::FileFunctions::GetFormattedExecutableForPlatform(QStringLiteral("crashpad_handler"));
+	QString handler_fn =
+		olive::FileFunctions::GetFormattedExecutableForPlatform(
+			QStringLiteral("crashpad_handler"));
 
-  // Generate absolute path
-  QString handler_abs_path = QDir(QCoreApplication::applicationDirPath()).filePath(handler_fn);
+	// Generate absolute path
+	QString handler_abs_path =
+		QDir(QCoreApplication::applicationDirPath()).filePath(handler_fn);
 
-  bool status = false;
+	bool status = false;
 
-  if (QFileInfo::exists(handler_abs_path)) {
-    base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
+	if (QFileInfo::exists(handler_abs_path)) {
+		base::FilePath handler(QSTRING_TO_BASE_STRING(handler_abs_path));
 
-    base::FilePath reports_dir(QSTRING_TO_BASE_STRING(report_path));
+		base::FilePath reports_dir(QSTRING_TO_BASE_STRING(report_path));
 
-    base::FilePath metrics_dir(QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath()).filePath(QStringLiteral("metrics"))));
+		base::FilePath metrics_dir(
+			QSTRING_TO_BASE_STRING(QDir(olive::FileFunctions::GetTempFilePath())
+									   .filePath(QStringLiteral("metrics"))));
 
-    // Metadata that will be posted to the server with the crash report map
-    std::map<std::string, std::string> annotations;
+		// Metadata that will be posted to the server with the crash report map
+		std::map<std::string, std::string> annotations;
 
-    // Disable crashpad rate limiting so that all crashes have dmp files
-    std::vector<std::string> arguments;
-    arguments.push_back("--no-rate-limit");
-    arguments.push_back("--no-upload-gzip");
+		// Disable crashpad rate limiting so that all crashes have dmp files
+		std::vector<std::string> arguments;
+		arguments.push_back("--no-rate-limit");
+		arguments.push_back("--no-upload-gzip");
 
-    // Initialize Crashpad database
-    std::unique_ptr<crashpad::CrashReportDatabase> database = crashpad::CrashReportDatabase::Initialize(reports_dir);
-    if (database == NULL) return false;
+		// Initialize Crashpad database
+		std::unique_ptr<crashpad::CrashReportDatabase> database =
+			crashpad::CrashReportDatabase::Initialize(reports_dir);
+		if (database == NULL)
+			return false;
 
-    // Disable automated crash uploads
-    crashpad::Settings *settings = database->GetSettings();
-    if (settings == NULL) return false;
-    settings->SetUploadsEnabled(false);
+		// Disable automated crash uploads
+		crashpad::Settings *settings = database->GetSettings();
+		if (settings == NULL)
+			return false;
+		settings->SetUploadsEnabled(false);
 
-    // Start crash handler
-    client = new crashpad::CrashpadClient();
-    status = client->StartHandler(handler, reports_dir, metrics_dir,
-                                  "https://olivevideoeditor.org/crashpad/report.php",
-                                  annotations, arguments, true, true);
-  }
+		// Start crash handler
+		client = new crashpad::CrashpadClient();
+		status = client->StartHandler(
+			handler, reports_dir, metrics_dir,
+			"https://olivevideoeditor.org/crashpad/report.php", annotations,
+			arguments, true, true);
+	}
 
-  // Override Crashpad exception filter with our own
-  if (!status) {
-    qWarning() << "Failed to start Crashpad, automatic crash reporting will be disabled";
-  }
+	// Override Crashpad exception filter with our own
+	if (!status) {
+		qWarning()
+			<< "Failed to start Crashpad, automatic crash reporting will be disabled";
+	}
 
-  return status;
+	return status;
 }
 
 #endif // USE_CRASHPAD

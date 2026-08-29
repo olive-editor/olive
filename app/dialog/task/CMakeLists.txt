@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/task/task.h
-  dialog/task/task.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/task/task.h
+        dialog/task/task.cpp
+        PARENT_SCOPE
 )

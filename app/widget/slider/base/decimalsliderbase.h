@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,26 +24,32 @@
 
 #include "numericsliderbase.h"
 
-namespace olive {
-
-class DecimalSliderBase : public NumericSliderBase
+namespace olive
 {
+
+class DecimalSliderBase : public NumericSliderBase {
 public:
-  DecimalSliderBase(QWidget* parent = nullptr);
+	DecimalSliderBase(QWidget *parent = nullptr);
 
-  int GetDecimalPlaces() const { return decimal_places_; }
-  void SetDecimalPlaces(int i);
+	int GetDecimalPlaces() const
+	{
+		return decimal_places_;
+	}
+	void SetDecimalPlaces(int i);
 
-  bool GetAutoTrimDecimalPlaces() const { return autotrim_decimal_places_; };
-  void SetAutoTrimDecimalPlaces(bool e);
+	bool GetAutoTrimDecimalPlaces() const
+	{
+		return autotrim_decimal_places_;
+	};
+	void SetAutoTrimDecimalPlaces(bool e);
 
-  static QString FloatToString(double val, int decimal_places, bool autotrim_decimal_places);
+	static QString FloatToString(double val, int decimal_places,
+								 bool autotrim_decimal_places);
 
 private:
-  int decimal_places_;
+	int decimal_places_;
 
-  bool autotrim_decimal_places_;
-
+	bool autotrim_decimal_places_;
 };
 
 }

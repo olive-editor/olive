@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,22 +24,22 @@
 
 #include "node/block/block.h"
 
-namespace olive {
+namespace olive
+{
 
 class ClipBlock;
 
-class TransitionBlock : public Block
-{
-  Q_OBJECT
+class TransitionBlock : public Block {
+	Q_OBJECT
 public:
-  TransitionBlock();
+	TransitionBlock();
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  rational in_offset() const;
-  rational out_offset() const;
+	rational in_offset() const;
+	rational out_offset() const;
 
-  /**
+	/**
    * @brief Return the "middle point" of the transition, relative to the transition
    *
    * Used to calculate in/out offsets.
@@ -46,62 +47,73 @@ public:
    * 0 means the center of the transition is right in the middle and the in and out offsets will
    * be equal.
    */
-  rational offset_center() const;
-  void set_offset_center(const rational &r);
+	rational offset_center() const;
+	void set_offset_center(const rational &r);
 
-  void set_offsets_and_length(const rational &in_offset, const rational &out_offset);
+	void set_offsets_and_length(const rational &in_offset,
+								const rational &out_offset);
 
-  bool is_dual_transition() const
-  {
-    return connected_out_block() && connected_in_block();
-  }
+	bool is_dual_transition() const
+	{
+		return connected_out_block() && connected_in_block();
+	}
 
-  Block* connected_out_block() const;
-  Block* connected_in_block() const;
+	Block *connected_out_block() const;
+	Block *connected_in_block() const;
 
-  double GetTotalProgress(const double &time) const;
-  double GetOutProgress(const double &time) const;
-  double GetInProgress(const double &time) const;
+	double GetTotalProgress(const double &time) const;
+	double GetOutProgress(const double &time) const;
+	double GetInProgress(const double &time) const;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions()) override;
+	virtual void InvalidateCache(
+		const TimeRange &range, const QString &from, int element = -1,
+		InvalidateCacheOptions options = InvalidateCacheOptions()) override;
 
-  static const QString kOutBlockInput;
-  static const QString kInBlockInput;
-  static const QString kCurveInput;
-  static const QString kCenterInput;
+	static const QString kOutBlockInput;
+	static const QString kInBlockInput;
+	static const QString kCurveInput;
+	static const QString kCenterInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const {}
+	virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const
+	{
+	}
 
-  virtual void SampleJobEvent(const SampleBuffer &from_samples, const SampleBuffer &to_samples, SampleBuffer &out_samples, double time_in) const {}
+	virtual void SampleJobEvent(const SampleBuffer &from_samples,
+								const SampleBuffer &to_samples,
+								SampleBuffer &out_samples, double time_in) const
+	{
+	}
 
-  double TransformCurve(double linear) const;
+	double TransformCurve(double linear) const;
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+	virtual void InputConnectedEvent(const QString &input, int element,
+									 Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+	virtual void InputDisconnectedEvent(const QString &input, int element,
+										Node *output) override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
+	virtual TimeRange InputTimeAdjustment(const QString &input, int element,
+										  const TimeRange &input_time,
+										  bool clamp) const override;
 
-  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+	virtual TimeRange
+	OutputTimeAdjustment(const QString &input, int element,
+						 const TimeRange &input_time) const override;
 
 private:
-  enum CurveType {
-    kLinear,
-    kExponential,
-    kLogarithmic
-  };
+	enum CurveType { kLinear, kExponential, kLogarithmic };
 
-  double GetInternalTransitionTime(const double &time) const;
+	double GetInternalTransitionTime(const double &time) const;
 
-  void InsertTransitionTimes(AcceleratedJob* job, const double& time) const;
+	void InsertTransitionTimes(AcceleratedJob *job, const double &time) const;
 
-  ClipBlock* connected_out_block_;
+	ClipBlock *connected_out_block_;
 
-  ClipBlock* connected_in_block_;
-
+	ClipBlock *connected_in_block_;
 };
 
 }

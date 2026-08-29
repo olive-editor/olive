@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,104 +24,108 @@
 #include <QEvent>
 #include <QPainter>
 
-namespace olive {
+namespace olive
+{
 
 #define super QDockWidget
 
-NodeParamViewItemBase::NodeParamViewItemBase(QWidget *parent) :
-  super(parent),
-  highlighted_(false)
+NodeParamViewItemBase::NodeParamViewItemBase(QWidget *parent)
+	: super(parent)
+	, highlighted_(false)
 {
-  // Create title bar widget
-  title_bar_ = new NodeParamViewItemTitleBar(this);
+	// Create title bar widget
+	title_bar_ = new NodeParamViewItemTitleBar(this);
 
-  // Add title bar to widget
-  this->setTitleBarWidget(title_bar_);
+	// Add title bar to widget
+	this->setTitleBarWidget(title_bar_);
 
-  // Connect title bar to this
-  connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this, &NodeParamViewItemBase::SetExpanded);
-  connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this, &NodeParamViewItemBase::PinToggled);
-  connect(title_bar_, &NodeParamViewItemTitleBar::Clicked, this, &NodeParamViewItemBase::Clicked);
+	// Connect title bar to this
+	connect(title_bar_, &NodeParamViewItemTitleBar::ExpandedStateChanged, this,
+			&NodeParamViewItemBase::SetExpanded);
+	connect(title_bar_, &NodeParamViewItemTitleBar::PinToggled, this,
+			&NodeParamViewItemBase::PinToggled);
+	connect(title_bar_, &NodeParamViewItemTitleBar::Clicked, this,
+			&NodeParamViewItemBase::Clicked);
 
-  // Use dummy QWidget to retain width when not expanded (QDockWidget seems to ignore the titlebar
-  // size hints and will shrink as small as possible if the body is hidden)
-  hidden_body_ = new QWidget(this);
+	// Use dummy QWidget to retain width when not expanded (QDockWidget seems to ignore the titlebar
+	// size hints and will shrink as small as possible if the body is hidden)
+	hidden_body_ = new QWidget(this);
 
-  // Default to hidden body, this also seems to fix an issue with clicks being intermittent
-  // on the titlebar
-  setWidget(hidden_body_);
+	// Default to hidden body, this also seems to fix an issue with clicks being intermittent
+	// on the titlebar
+	setWidget(hidden_body_);
 
-  setAutoFillBackground(true);
+	setAutoFillBackground(true);
 
-  setFocusPolicy(Qt::ClickFocus);
+	setFocusPolicy(Qt::ClickFocus);
 }
 
 bool NodeParamViewItemBase::IsExpanded() const
 {
-  return title_bar_->IsExpanded();
+	return title_bar_->IsExpanded();
 }
 
 QString NodeParamViewItemBase::GetTitleBarTextFromNode(Node *n)
 {
-  if (n->GetLabel().isEmpty()) {
-    return n->Name();
-  } else {
-    return tr("%1 (%2)").arg(n->GetLabel(), n->Name());
-  }
+	if (n->GetLabel().isEmpty()) {
+		return n->Name();
+	} else {
+		return tr("%1 (%2)").arg(n->GetLabel(), n->Name());
+	}
 }
 
 void NodeParamViewItemBase::SetBody(QWidget *body)
 {
-  body_ = body;
-  body_->setParent(this);
+	body_ = body;
+	body_->setParent(this);
 
-  if (title_bar_->IsExpanded()) {
-    setWidget(body_);
-  }
+	if (title_bar_->IsExpanded()) {
+		setWidget(body_);
+	}
 }
 
 void NodeParamViewItemBase::paintEvent(QPaintEvent *event)
 {
-  super::paintEvent(event);
+	super::paintEvent(event);
 
-  // Draw border if focused
-  if (highlighted_) {
-    QPainter p(this);
-    p.setBrush(Qt::NoBrush);
-    p.setPen(palette().highlight().color());
-    p.drawRect(rect().adjusted(0, 0, -1, -1));
-  }
+	// Draw border if focused
+	if (highlighted_) {
+		QPainter p(this);
+		p.setBrush(Qt::NoBrush);
+		p.setPen(palette().highlight().color());
+		p.drawRect(rect().adjusted(0, 0, -1, -1));
+	}
 }
 
 void NodeParamViewItemBase::SetExpanded(bool e)
 {
-  setWidget(e ? body_ : hidden_body_);
-  title_bar_->SetExpanded(e);
+	setWidget(e ? body_ : hidden_body_);
+	title_bar_->SetExpanded(e);
 
-  emit ExpandedChanged(e);
+	emit ExpandedChanged(e);
 }
 
 void NodeParamViewItemBase::changeEvent(QEvent *e)
 {
-  if (e->type() == QEvent::LanguageChange) {
-    Retranslate();
-  }
+	if (e->type() == QEvent::LanguageChange) {
+		Retranslate();
+	}
 
-  super::changeEvent(e);
+	super::changeEvent(e);
 }
 
 void NodeParamViewItemBase::moveEvent(QMoveEvent *event)
 {
-  super::moveEvent(event);
+	super::moveEvent(event);
 
-  emit Moved();
+	emit Moved();
 }
 
 void NodeParamViewItemBase::mousePressEvent(QMouseEvent *e)
 {
-  super::mousePressEvent(e);
+	super::mousePressEvent(e);
 
-  emit Clicked();
+	emit Clicked();
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,24 +24,26 @@
 
 #include "add.h"
 
-namespace olive {
-
-class TransitionTool : public AddTool
+namespace olive
 {
+
+class TransitionTool : public AddTool {
 public:
-  TransitionTool(TimelineWidget* parent);
+	TransitionTool(TimelineWidget *parent);
 
-  virtual void HoverMove(TimelineViewMouseEvent *event) override;
+	virtual void HoverMove(TimelineViewMouseEvent *event) override;
 
-  virtual void MousePress(TimelineViewMouseEvent *event) override;
-  virtual void MouseMove(TimelineViewMouseEvent *event) override;
-  virtual void MouseRelease(TimelineViewMouseEvent *event) override;
+	virtual void MousePress(TimelineViewMouseEvent *event) override;
+	virtual void MouseMove(TimelineViewMouseEvent *event) override;
+	virtual void MouseRelease(TimelineViewMouseEvent *event) override;
 
 private:
-  bool GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock **primary, ClipBlock **secondary, Timeline::MovementMode *trim_mode, rational *start_point);
+	bool GetBlocksAtCoord(const TimelineCoordinate &coord, ClipBlock **primary,
+						  ClipBlock **secondary,
+						  Timeline::MovementMode *trim_mode,
+						  rational *start_point);
 
-  bool dual_transition_;
-
+	bool dual_transition_;
 };
 
 }

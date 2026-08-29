@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,24 +28,23 @@
 #include "render/audioplaybackcache.h"
 #include "widget/timeruler/seekablewidget.h"
 
-namespace olive {
-
-class AudioWaveformView : public SeekableWidget
+namespace olive
 {
-  Q_OBJECT
-public:
-  AudioWaveformView(QWidget* parent = nullptr);
 
-  void SetViewer(ViewerOutput *playback);
+class AudioWaveformView : public SeekableWidget {
+	Q_OBJECT
+public:
+	AudioWaveformView(QWidget *parent = nullptr);
+
+	void SetViewer(ViewerOutput *playback);
 
 protected:
-  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+	virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
 private:
-  QThreadPool pool_;
+	QThreadPool pool_;
 
-  ViewerOutput *playback_;
-
+	ViewerOutput *playback_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,36 +25,38 @@
 #include "common/define.h"
 #include "render/cancelatom.h"
 
-namespace olive {
+namespace olive
+{
 
 class CancelableObject {
 public:
-  CancelableObject()
-  {
-  }
+	CancelableObject()
+	{
+	}
 
-  void Cancel()
-  {
-    cancel_.Cancel();
-    CancelEvent();
-  }
+	void Cancel()
+	{
+		cancel_.Cancel();
+		CancelEvent();
+	}
 
-  CancelAtom *GetCancelAtom()
-  {
-    return &cancel_;
-  }
+	CancelAtom *GetCancelAtom()
+	{
+		return &cancel_;
+	}
 
-  bool IsCancelled()
-  {
-    return cancel_.IsCancelled();
-  }
+	bool IsCancelled()
+	{
+		return cancel_.IsCancelled();
+	}
 
 protected:
-  virtual void CancelEvent(){}
+	virtual void CancelEvent()
+	{
+	}
 
 private:
-  CancelAtom cancel_;
-
+	CancelAtom cancel_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,73 +25,77 @@
 #include "node/output/track/track.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-namespace olive {
+namespace olive
+{
 
-TrackSelectTool::TrackSelectTool(TimelineWidget *parent) :
-  PointerTool(parent)
+TrackSelectTool::TrackSelectTool(TimelineWidget *parent)
+	: PointerTool(parent)
 {
 }
 
 void TrackSelectTool::MousePress(TimelineViewMouseEvent *event)
 {
-  QVector<Block*> blocks;
-  bool forward = !(event->GetModifiers() & Qt::ControlModifier);
+	QVector<Block *> blocks;
+	bool forward = !(event->GetModifiers() & Qt::ControlModifier);
 
-  parent()->DeselectAll();
+	parent()->DeselectAll();
 
-  if (event->GetModifiers() & Qt::ShiftModifier) {
-    // Track only
-    Track *track = parent()->GetTrackFromReference(event->GetTrack());
-    if (track) {
-      SelectBlocksOnTrack(track, event, &blocks, forward);
-    }
-  } else {
-    // All tracks
-    foreach (Track *track, parent()->sequence()->GetTracks()) {
-      SelectBlocksOnTrack(track, event, &blocks, forward);
-    }
-  }
+	if (event->GetModifiers() & Qt::ShiftModifier) {
+		// Track only
+		Track *track = parent()->GetTrackFromReference(event->GetTrack());
+		if (track) {
+			SelectBlocksOnTrack(track, event, &blocks, forward);
+		}
+	} else {
+		// All tracks
+		foreach (Track *track, parent()->sequence()->GetTracks()) {
+			SelectBlocksOnTrack(track, event, &blocks, forward);
+		}
+	}
 
-  if (!blocks.isEmpty()) {
-    parent()->SignalSelectedBlocks(blocks);
-    set_drag_movement_mode(Timeline::kMove);
-    SetClickedItem(blocks.first());
-    drag_start_ = event->GetCoordinates();
-  } else {
-    set_drag_movement_mode(Timeline::kNone);
-  }
+	if (!blocks.isEmpty()) {
+		parent()->SignalSelectedBlocks(blocks);
+		set_drag_movement_mode(Timeline::kMove);
+		SetClickedItem(blocks.first());
+		drag_start_ = event->GetCoordinates();
+	} else {
+		set_drag_movement_mode(Timeline::kNone);
+	}
 }
 
-void TrackSelectTool::SelectBlocksOnTrack(Track *track, TimelineViewMouseEvent *event, QVector<Block*> *blocks, bool forward)
+void TrackSelectTool::SelectBlocksOnTrack(Track *track,
+										  TimelineViewMouseEvent *event,
+										  QVector<Block *> *blocks,
+										  bool forward)
 {
-  Block *b = track->NearestBlockBeforeOrAt(event->GetFrame());
+	Block *b = track->NearestBlockBeforeOrAt(event->GetFrame());
 
-  if (!b && !track->Blocks().isEmpty() && !forward) {
-    // Fallback to first or last block in track
-    b = track->Blocks().last();
-  }
+	if (!b && !track->Blocks().isEmpty() && !forward) {
+		// Fallback to first or last block in track
+		b = track->Blocks().last();
+	}
 
-  while (b) {
-    if (!dynamic_cast<GapBlock*>(b)) {
-      if (!blocks->contains(b)) {
-        parent()->AddSelection(b);
-        blocks->append(b);
-      }
+	while (b) {
+		if (!dynamic_cast<GapBlock *>(b)) {
+			if (!blocks->contains(b)) {
+				parent()->AddSelection(b);
+				blocks->append(b);
+			}
 
-      if (!(event->GetModifiers() & Qt::AltModifier)) {
-        if (ClipBlock *clip = dynamic_cast<ClipBlock*>(b)) {
-          foreach (Block *link, clip->block_links()) {
-            if (!blocks->contains(link)) {
-              parent()->AddSelection(link);
-              blocks->append(link);
-            }
-          }
-        }
-      }
-    }
+			if (!(event->GetModifiers() & Qt::AltModifier)) {
+				if (ClipBlock *clip = dynamic_cast<ClipBlock *>(b)) {
+					foreach (Block *link, clip->block_links()) {
+						if (!blocks->contains(link)) {
+							parent()->AddSelection(link);
+							blocks->append(link);
+						}
+					}
+				}
+			}
+		}
 
-    b = forward ? b->next() : b->previous();
-  }
+		b = forward ? b->next() : b->previous();
+	}
 }
 
 }

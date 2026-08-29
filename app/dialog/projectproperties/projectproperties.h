@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2020 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -31,44 +32,43 @@
 #include "node/project.h"
 #include "widget/path/pathwidget.h"
 
-namespace olive {
-
-class ProjectPropertiesDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class ProjectPropertiesDialog : public QDialog {
+	Q_OBJECT
 public:
-  ProjectPropertiesDialog(Project *p, QWidget* parent);
+	ProjectPropertiesDialog(Project *p, QWidget *parent);
 
 public slots:
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  bool VerifyPathAndWarnIfBad(const QString &path);
+	bool VerifyPathAndWarnIfBad(const QString &path);
 
-  Project* working_project_;
+	Project *working_project_;
 
-  QLineEdit* ocio_filename_;
+	QLineEdit *ocio_filename_;
 
-  QComboBox* default_input_colorspace_;
+	QComboBox *default_input_colorspace_;
 
-  QComboBox *reference_space_;
+	QComboBox *reference_space_;
 
-  bool ocio_config_is_valid_;
+	bool ocio_config_is_valid_;
 
-  QString ocio_config_error_;
+	QString ocio_config_error_;
 
-  PathWidget* custom_cache_path_;
+	PathWidget *custom_cache_path_;
 
-  static const int kDiskCacheRadioCount = 3;
-  QRadioButton *disk_cache_radios_[kDiskCacheRadioCount];
+	static const int kDiskCacheRadioCount = 3;
+	QRadioButton *disk_cache_radios_[kDiskCacheRadioCount];
 
 private slots:
-  void BrowseForOCIOConfig();
+	void BrowseForOCIOConfig();
 
-  void OCIOFilenameUpdated();
+	void OCIOFilenameUpdated();
 
-  void OpenDiskCacheSettings();
-
+	void OpenDiskCacheSettings();
 };
 
 }

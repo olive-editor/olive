@@ -1,0 +1,8 @@
+ - Skin message suite.
+ - Skin the parameter custom interacts.
+ - Return native OFX types from the various param functions, currently tend to return via reference args. 
+ - integrate/differentiate on all the various param instances,
+ - Come up with a set of exception classes that the plugin can throw that will be trapped by the main routine so it can return an appropriate error code.
+ - Exception specs on all functions.
+ - test test test!
+ - examples examples examples!

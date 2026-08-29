@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,49 +26,48 @@
 
 #include "viewerdisplay.h"
 
-namespace olive {
-
-class ViewerWindow : public QWidget
+namespace olive
 {
+
+class ViewerWindow : public QWidget {
 public:
-  ViewerWindow(QWidget* parent = nullptr);
+	ViewerWindow(QWidget *parent = nullptr);
 
-  ViewerDisplayWidget* display_widget() const;
+	ViewerDisplayWidget *display_widget() const;
 
-  /**
+	/**
    * @brief Used to adjust resulting picture to be the right aspect ratio
    *
    * Equivalent to calling SetResolution and SetPixelAspectRatio, just slightly faster since we
    * only calculate the matrix once rather than twice.
    */
-  void SetVideoParams(const VideoParams &params);
+	void SetVideoParams(const VideoParams &params);
 
-  /**
+	/**
    * @brief Used to adjust resulting picture to be the right aspect ratio
    */
-  void SetResolution(int width, int height);
+	void SetResolution(int width, int height);
 
-  /**
+	/**
    * @brief Used to adjust resulting picture to be the right aspect ratio
    */
-  void SetPixelAspectRatio(const rational& pixel_aspect);
+	void SetPixelAspectRatio(const rational &pixel_aspect);
 
 protected:
-  virtual void keyPressEvent(QKeyEvent* e) override;
+	virtual void keyPressEvent(QKeyEvent *e) override;
 
-  virtual void closeEvent(QCloseEvent* e) override;
+	virtual void closeEvent(QCloseEvent *e) override;
 
 private:
-  void UpdateMatrix();
+	void UpdateMatrix();
 
-  int width_;
+	int width_;
 
-  int height_;
+	int height_;
 
-  ViewerDisplayWidget* display_widget_;
+	ViewerDisplayWidget *display_widget_;
 
-  rational pixel_aspect_;
-
+	rational pixel_aspect_;
 };
 
 }

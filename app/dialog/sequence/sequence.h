@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +31,8 @@
 #include "sequencedialogpresettab.h"
 #include "undo/undocommand.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A dialog for editing Sequence parameters
@@ -46,19 +48,15 @@ namespace olive {
  * latter will be the main undoable action, the parameter editing doesn't have to be undoable since to the user they'll
  * be viewed as one single action (see SetUndoable()).
  */
-class SequenceDialog : public QDialog
-{
-  Q_OBJECT
+class SequenceDialog : public QDialog {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief Used to set the dialog mode of operation (see SequenceDialog())
    */
-  enum Type {
-    kNew,
-    kExisting
-  };
+	enum Type { kNew, kExisting };
 
-  /**
+	/**
    * @brief SequenceDialog Constructor
    *
    * @param s
@@ -70,73 +68,70 @@ public:
    * @param parent
    * QWidget parent
    */
-  SequenceDialog(Sequence* s, Type t = kExisting, QWidget* parent = nullptr);
+	SequenceDialog(Sequence *s, Type t = kExisting, QWidget *parent = nullptr);
 
-  /**
+	/**
    * @brief Set whether the parameter changes should be made into an undo command or not
    *
    * Defaults to true.
    */
-  void SetUndoable(bool u);
+	void SetUndoable(bool u);
 
-  /**
+	/**
    * @brief Set whether the name of this Sequence can be edited with this dialog
    *
    * Defaults to true.
    */
-  void SetNameIsEditable(bool e);
+	void SetNameIsEditable(bool e);
 
 public slots:
-  /**
+	/**
    * @brief Function called when the user presses OK
    */
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  Sequence* sequence_;
+	Sequence *sequence_;
 
-  SequenceDialogPresetTab* preset_tab_;
+	SequenceDialogPresetTab *preset_tab_;
 
-  SequenceDialogParameterTab* parameter_tab_;
+	SequenceDialogParameterTab *parameter_tab_;
 
-  bool make_undoable_;
+	bool make_undoable_;
 
-  QLineEdit* name_field_;
+	QLineEdit *name_field_;
 
-  /**
+	/**
    * @brief An UndoCommand for setting the parameters on a sequence
    */
-  class SequenceParamCommand : public UndoCommand {
-  public:
-    SequenceParamCommand(Sequence* s,
-                         const VideoParams& video_params,
-                         const AudioParams& audio_params,
-                         const QString& name,
-                         bool autocache);
+	class SequenceParamCommand : public UndoCommand {
+	public:
+		SequenceParamCommand(Sequence *s, const VideoParams &video_params,
+							 const AudioParams &audio_params,
+							 const QString &name, bool autocache);
 
-    virtual Project* GetRelevantProject() const override;
+		virtual Project *GetRelevantProject() const override;
 
-  protected:
-    virtual void redo() override;
-    virtual void undo() override;
+	protected:
+		virtual void redo() override;
+		virtual void undo() override;
 
-  private:
-    Sequence* sequence_;
+	private:
+		Sequence *sequence_;
 
-    VideoParams new_video_params_;
-    AudioParams new_audio_params_;
-    QString new_name_;
-    bool new_autocache_;
+		VideoParams new_video_params_;
+		AudioParams new_audio_params_;
+		QString new_name_;
+		bool new_autocache_;
 
-    VideoParams old_video_params_;
-    AudioParams old_audio_params_;
-    QString old_name_;
-    bool old_autocache_;
-  };
+		VideoParams old_video_params_;
+		AudioParams old_audio_params_;
+		QString old_name_;
+		bool old_autocache_;
+	};
 
 private slots:
-  void SetAsDefaultClicked();
-
+	void SetAsDefaultClicked();
 };
 
 }

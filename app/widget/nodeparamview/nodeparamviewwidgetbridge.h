@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,98 +28,99 @@
 #include "widget/slider/base/numericsliderbase.h"
 #include "widget/timetarget/timetarget.h"
 
-namespace olive {
-
-class NodeParamViewScrollBlocker : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class NodeParamViewScrollBlocker : public QObject {
+	Q_OBJECT
 public:
-  virtual bool eventFilter(QObject* watched, QEvent* event) override;
+	virtual bool eventFilter(QObject *watched, QEvent *event) override;
 };
 
-class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject
-{
-  Q_OBJECT
+class NodeParamViewWidgetBridge : public QObject, public TimeTargetObject {
+	Q_OBJECT
 public:
-  NodeParamViewWidgetBridge(NodeInput input, QObject* parent);
+	NodeParamViewWidgetBridge(NodeInput input, QObject *parent);
 
-  const QVector<QWidget*>& widgets() const
-  {
-    return widgets_;
-  }
+	const QVector<QWidget *> &widgets() const
+	{
+		return widgets_;
+	}
 
-  // Set the timebase of certain Timebased widgets
-  void SetTimebase(const rational& timebase);
+	// Set the timebase of certain Timebased widgets
+	void SetTimebase(const rational &timebase);
 
 signals:
-  void ArrayWidgetDoubleClicked();
+	void ArrayWidgetDoubleClicked();
 
-  void WidgetsRecreated(const NodeInput& input);
+	void WidgetsRecreated(const NodeInput &input);
 
-  void RequestEditTextInViewer();
+	void RequestEditTextInViewer();
 
 protected:
-  virtual void TimeTargetDisconnectEvent(ViewerOutput *v) override;
-  virtual void TimeTargetConnectEvent(ViewerOutput *v) override;
+	virtual void TimeTargetDisconnectEvent(ViewerOutput *v) override;
+	virtual void TimeTargetConnectEvent(ViewerOutput *v) override;
 
 private:
-  void CreateWidgets();
+	void CreateWidgets();
 
-  void SetInputValue(const QVariant& value, int track);
+	void SetInputValue(const QVariant &value, int track);
 
-  void SetInputValueInternal(const QVariant& value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+	void SetInputValueInternal(const QVariant &value, int track,
+							   MultiUndoCommand *command,
+							   bool insert_on_all_tracks_if_no_key);
 
-  void ProcessSlider(NumericSliderBase* slider, int slider_track, const QVariant& value);
-  void ProcessSlider(NumericSliderBase* slider, const QVariant& value)
-  {
-    ProcessSlider(slider, widgets_.indexOf(slider), value);
-  }
+	void ProcessSlider(NumericSliderBase *slider, int slider_track,
+					   const QVariant &value);
+	void ProcessSlider(NumericSliderBase *slider, const QVariant &value)
+	{
+		ProcessSlider(slider, widgets_.indexOf(slider), value);
+	}
 
-  void SetProperty(const QString &key, const QVariant &value);
+	void SetProperty(const QString &key, const QVariant &value);
 
-  template <typename T>
-  void CreateSliders(int count, QWidget *parent);
+	template <typename T> void CreateSliders(int count, QWidget *parent);
 
-  void UpdateWidgetValues();
+	void UpdateWidgetValues();
 
-  rational GetCurrentTimeAsNodeTime() const;
+	rational GetCurrentTimeAsNodeTime() const;
 
-  const NodeInput &GetOuterInput() const
-  {
-    return input_hierarchy_.first();
-  }
+	const NodeInput &GetOuterInput() const
+	{
+		return input_hierarchy_.first();
+	}
 
-  const NodeInput &GetInnerInput() const
-  {
-    return input_hierarchy_.last();
-  }
+	const NodeInput &GetInnerInput() const
+	{
+		return input_hierarchy_.last();
+	}
 
-  QString GetCommandName() const;
+	QString GetCommandName() const;
 
-  NodeValue::Type GetDataType() const
-  {
-    return GetOuterInput().GetDataType();
-  }
+	NodeValue::Type GetDataType() const
+	{
+		return GetOuterInput().GetDataType();
+	}
 
-  void UpdateProperties();
+	void UpdateProperties();
 
-  QVector<NodeInput> input_hierarchy_;
+	QVector<NodeInput> input_hierarchy_;
 
-  QVector<QWidget*> widgets_;
+	QVector<QWidget *> widgets_;
 
-  NodeInputDragger dragger_;
+	NodeInputDragger dragger_;
 
-  NodeParamViewScrollBlocker scroll_filter_;
+	NodeParamViewScrollBlocker scroll_filter_;
 
 private slots:
-  void WidgetCallback();
+	void WidgetCallback();
 
-  void InputValueChanged(const NodeInput& input, const TimeRange& range);
+	void InputValueChanged(const NodeInput &input, const TimeRange &range);
 
-  void InputDataTypeChanged(const QString& input, NodeValue::Type type);
+	void InputDataTypeChanged(const QString &input, NodeValue::Type type);
 
-  void PropertyChanged(const QString &input, const QString &key, const QVariant &value);
-
+	void PropertyChanged(const QString &input, const QString &key,
+						 const QVariant &value);
 };
 
 }

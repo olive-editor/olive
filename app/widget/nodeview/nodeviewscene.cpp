@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,94 +26,95 @@
 #include "nodeviewedge.h"
 #include "nodeviewitem.h"
 
-namespace olive {
+namespace olive
+{
 
-NodeViewScene::NodeViewScene(QObject *parent) :
-  QGraphicsScene(parent),
-  direction_(NodeViewCommon::kLeftToRight),
-  curved_edges_(true)
+NodeViewScene::NodeViewScene(QObject *parent)
+	: QGraphicsScene(parent)
+	, direction_(NodeViewCommon::kLeftToRight)
+	, curved_edges_(true)
 {
 }
 
 void NodeViewScene::SetFlowDirection(NodeViewCommon::FlowDirection direction)
 {
-  direction_ = direction;
+	direction_ = direction;
 
-  foreach (NodeViewContext *ctx, context_map_) {
-    ctx->SetFlowDirection(direction_);
-  }
+	foreach (NodeViewContext *ctx, context_map_) {
+		ctx->SetFlowDirection(direction_);
+	}
 }
 
 void NodeViewScene::SelectAll()
 {
-  foreach (QGraphicsItem* i, items()) {
-    i->setSelected(true);
-  }
+	foreach (QGraphicsItem *i, items()) {
+		i->setSelected(true);
+	}
 }
 
 void NodeViewScene::DeselectAll()
 {
-  foreach (QGraphicsItem* i, items()) {
-    i->setSelected(false);
-  }
+	foreach (QGraphicsItem *i, items()) {
+		i->setSelected(false);
+	}
 }
 
 QVector<NodeViewItem *> NodeViewScene::GetSelectedItems() const
 {
-  QVector<NodeViewItem *> items;
+	QVector<NodeViewItem *> items;
 
-  foreach (NodeViewContext *ctx, context_map_) {
-    items.append(ctx->GetSelectedItems());
-  }
+	foreach (NodeViewContext *ctx, context_map_) {
+		items.append(ctx->GetSelectedItems());
+	}
 
-  return items;
+	return items;
 }
 
 NodeViewContext *NodeViewScene::AddContext(Node *node)
 {
-  NodeViewContext *context_item = context_map_.value(node);
+	NodeViewContext *context_item = context_map_.value(node);
 
-  if (!context_item) {
-    context_item = new NodeViewContext(node);
+	if (!context_item) {
+		context_item = new NodeViewContext(node);
 
-    context_item->SetFlowDirection(GetFlowDirection());
-    context_item->SetCurvedEdges(GetEdgesAreCurved());
+		context_item->SetFlowDirection(GetFlowDirection());
+		context_item->SetCurvedEdges(GetEdgesAreCurved());
 
-    QPointF pos(0, 0);
-    QRectF item_rect = context_item->rect();
-    while (!items(item_rect).isEmpty()) {
-      pos.setY(pos.y() + item_rect.height());
-      item_rect = context_item->rect().translated(pos);
-    }
-    context_item->setPos(pos);
+		QPointF pos(0, 0);
+		QRectF item_rect = context_item->rect();
+		while (!items(item_rect).isEmpty()) {
+			pos.setY(pos.y() + item_rect.height());
+			item_rect = context_item->rect().translated(pos);
+		}
+		context_item->setPos(pos);
 
-    addItem(context_item);
+		addItem(context_item);
 
-    context_map_.insert(node, context_item);
-  }
+		context_map_.insert(node, context_item);
+	}
 
-  return context_item;
+	return context_item;
 }
 
 void NodeViewScene::RemoveContext(Node *node)
 {
-  delete context_map_.take(node);
+	delete context_map_.take(node);
 }
 
 Qt::Orientation NodeViewScene::GetFlowOrientation() const
 {
-  return NodeViewCommon::GetFlowOrientation(direction_);
+	return NodeViewCommon::GetFlowOrientation(direction_);
 }
 
 void NodeViewScene::SetEdgesAreCurved(bool curved)
 {
-  if (curved_edges_ != curved) {
-    curved_edges_ = curved;
+	if (curved_edges_ != curved) {
+		curved_edges_ = curved;
 
-    foreach (NodeViewContext *ctx, context_map_) {
-      ctx->SetCurvedEdges(curved_edges_);
-    }
-  }
+		foreach (NodeViewContext *ctx, context_map_) {
+			ctx->SetCurvedEdges(curved_edges_);
+		}
+	}
 }
 
 }

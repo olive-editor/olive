@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,19 +26,19 @@
 
 #include "viewerbase.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief Dockable wrapper around a ViewerWidget
  */
 class ViewerPanel : public ViewerPanelBase {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  ViewerPanel(const QString& object_name);
+	ViewerPanel(const QString &object_name);
 
 protected:
-  virtual void Retranslate() override;
-
+	virtual void Retranslate() override;
 };
 
 }

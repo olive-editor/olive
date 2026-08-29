@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,27 +28,26 @@
 
 #include "codec/encoder.h"
 
-namespace olive {
-
-class ExportSavePresetDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
-public:
-  ExportSavePresetDialog(const EncodingParams &p, QWidget *parent = nullptr);
 
-  QString GetSelectedPresetName() const
-  {
-    return name_edit_->text();
-  }
+class ExportSavePresetDialog : public QDialog {
+	Q_OBJECT
+public:
+	ExportSavePresetDialog(const EncodingParams &p, QWidget *parent = nullptr);
+
+	QString GetSelectedPresetName() const
+	{
+		return name_edit_->text();
+	}
 
 public slots:
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  QLineEdit *name_edit_;
+	QLineEdit *name_edit_;
 
-  EncodingParams params_;
-
+	EncodingParams params_;
 };
 
 }

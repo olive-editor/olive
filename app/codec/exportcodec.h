@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,43 +28,42 @@
 #include "common/define.h"
 #include "render/subtitleparams.h"
 
-namespace olive {
-
-class ExportCodec : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class ExportCodec : public QObject {
+	Q_OBJECT
 public:
-  // Only append to this list (never insert) because indexes are used in serialized files
-  enum Codec {
-    kCodecDNxHD,
-    kCodecH264,
-    kCodecH264rgb,
-    kCodecH265,
-    kCodecOpenEXR,
-    kCodecPNG,
-    kCodecProRes,
-    kCodecCineform,
-    kCodecTIFF,
-    kCodecVP9,
-    kCodecMP2,
-    kCodecMP3,
-    kCodecAAC,
-    kCodecPCM,
-    kCodecOpus,
-    kCodecVorbis,
-    kCodecFLAC,
-    kCodecSRT,
-    kCodecAV1,
+	// Only append to this list (never insert) because indexes are used in serialized files
+	enum Codec {
+		kCodecDNxHD,
+		kCodecH264,
+		kCodecH264rgb,
+		kCodecH265,
+		kCodecOpenEXR,
+		kCodecPNG,
+		kCodecProRes,
+		kCodecCineform,
+		kCodecTIFF,
+		kCodecVP9,
+		kCodecMP2,
+		kCodecMP3,
+		kCodecAAC,
+		kCodecPCM,
+		kCodecOpus,
+		kCodecVorbis,
+		kCodecFLAC,
+		kCodecSRT,
+		kCodecAV1,
 
-    kCodecCount
-  };
+		kCodecCount
+	};
 
-  static QString GetCodecName(Codec c);
+	static QString GetCodecName(Codec c);
 
-  static bool IsCodecAStillImage(Codec c);
+	static bool IsCodecAStillImage(Codec c);
 
-  static bool IsCodecLossless(Codec c);
-
+	static bool IsCodecLossless(Codec c);
 };
 
 }

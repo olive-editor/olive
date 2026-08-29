@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,71 +23,74 @@
 
 #include <QVBoxLayout>
 
-namespace olive {
-
-PixelSamplerWidget::PixelSamplerWidget(QWidget *parent) :
-  QGroupBox(parent)
+namespace olive
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
 
-  box_ = new ColorPreviewBox();
-  QFontMetrics fm = fontMetrics();
-  int box_sz = fm.height() * 2;
-  box_->setFixedSize(box_sz, box_sz);
-  layout->addWidget(box_);
+PixelSamplerWidget::PixelSamplerWidget(QWidget *parent)
+	: QGroupBox(parent)
+{
+	QHBoxLayout *layout = new QHBoxLayout(this);
 
-  label_ = new QLabel();
-  layout->addWidget(label_);
+	box_ = new ColorPreviewBox();
+	QFontMetrics fm = fontMetrics();
+	int box_sz = fm.height() * 2;
+	box_->setFixedSize(box_sz, box_sz);
+	layout->addWidget(box_);
 
-  setTitle(tr("Color"));
+	label_ = new QLabel();
+	layout->addWidget(label_);
 
-  UpdateLabelInternal();
+	setTitle(tr("Color"));
+
+	UpdateLabelInternal();
 }
 
 void PixelSamplerWidget::SetValues(const Color &color)
 {
-  color_ = color;
-  UpdateLabelInternal();
+	color_ = color;
+	UpdateLabelInternal();
 }
 
 void PixelSamplerWidget::UpdateLabelInternal()
 {
-  box_->SetColor(color_);
+	box_->SetColor(color_);
 
-  label_->setText(tr("<html>"
-                     "<font color='#FF8080'>R: %1 (%5)</font><br>"
-                     "<font color='#80FF80'>G: %2 (%6)</font><br>"
-                     "<font color='#8080FF'>B: %3 (%7)</font><br>"
-                     "A: %4 (%8)"
-                     "</html>").arg(QString::number(color_.red()),
-                                    QString::number(color_.green()),
-                                    QString::number(color_.blue()),
-                                    QString::number(color_.alpha()),
-                                    QString::number(int(color_.red()*255.0)),
-                                    QString::number(int(color_.green()*255.0)),
-                                    QString::number(int(color_.blue()*255.0)),
-                                    QString::number(int(color_.alpha()*255.0))));
+	label_->setText(tr("<html>"
+					   "<font color='#FF8080'>R: %1 (%5)</font><br>"
+					   "<font color='#80FF80'>G: %2 (%6)</font><br>"
+					   "<font color='#8080FF'>B: %3 (%7)</font><br>"
+					   "A: %4 (%8)"
+					   "</html>")
+						.arg(QString::number(color_.red()),
+							 QString::number(color_.green()),
+							 QString::number(color_.blue()),
+							 QString::number(color_.alpha()),
+							 QString::number(int(color_.red() * 255.0)),
+							 QString::number(int(color_.green() * 255.0)),
+							 QString::number(int(color_.blue() * 255.0)),
+							 QString::number(int(color_.alpha() * 255.0))));
 }
 
-ManagedPixelSamplerWidget::ManagedPixelSamplerWidget(QWidget *parent) :
-  QWidget(parent)
+ManagedPixelSamplerWidget::ManagedPixelSamplerWidget(QWidget *parent)
+	: QWidget(parent)
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
-  layout->setContentsMargins(0, 0, 0, 0);
+	QVBoxLayout *layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-  display_view_ = new PixelSamplerWidget();
-  display_view_->setTitle(tr("Display"));
-  layout->addWidget(display_view_);
+	display_view_ = new PixelSamplerWidget();
+	display_view_->setTitle(tr("Display"));
+	layout->addWidget(display_view_);
 
-  reference_view_ = new PixelSamplerWidget();
-  reference_view_->setTitle(tr("Reference"));
-  layout->addWidget(reference_view_);
+	reference_view_ = new PixelSamplerWidget();
+	reference_view_->setTitle(tr("Reference"));
+	layout->addWidget(reference_view_);
 }
 
-void ManagedPixelSamplerWidget::SetValues(const Color &reference, const Color &display)
+void ManagedPixelSamplerWidget::SetValues(const Color &reference,
+										  const Color &display)
 {
-  reference_view_->SetValues(reference);
-  display_view_->SetValues(display);
+	reference_view_->SetValues(reference);
+	display_view_->SetValues(display);
 }
 
 }

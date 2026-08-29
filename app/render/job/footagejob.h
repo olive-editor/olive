@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,105 +24,152 @@
 
 #include "node/project/footage/footage.h"
 
-namespace olive {
-
-class FootageJob : public AcceleratedJob
+namespace olive
 {
+
+class FootageJob : public AcceleratedJob {
 public:
-  FootageJob() :
-    type_(Track::kNone)
-  {
-  }
+	FootageJob()
+		: type_(Track::kNone)
+	{
+	}
 
-  FootageJob(const TimeRange &time, const QString& decoder, const QString& filename, Track::Type type, const rational& length, LoopMode loop_mode) :
-    time_(time),
-    decoder_(decoder),
-    filename_(filename),
-    type_(type),
-    length_(length),
-    loop_mode_(loop_mode)
-  {
-  }
+	FootageJob(const TimeRange &time, const QString &decoder,
+			   const QString &filename, Track::Type type,
+			   const rational &length, LoopMode loop_mode)
+		: time_(time)
+		, decoder_(decoder)
+		, filename_(filename)
+		, type_(type)
+		, length_(length)
+		, loop_mode_(loop_mode)
+	{
+	}
 
-  const QString& decoder() const
-  {
-    return decoder_;
-  }
+	const QString &decoder() const
+	{
+		return decoder_;
+	}
 
-  const QString& filename() const
-  {
-    return filename_;
-  }
+	const QString &filename() const
+	{
+		return filename_;
+	}
 
-  Track::Type type() const
-  {
-    return type_;
-  }
+	bool has_proxy() const
+	{
+		return has_proxy_;
+	}
 
-  const VideoParams& video_params() const
-  {
-    return video_params_;
-  }
+	const QString &proxy_filename() const
+	{
+		return proxy_filename_;
+	}
 
-  void set_video_params(const VideoParams& p)
-  {
-    video_params_ = p;
-  }
+	const QString &proxy_decoder() const
+	{
+		return proxy_decoder_;
+	}
 
-  const AudioParams& audio_params() const
-  {
-    return audio_params_;
-  }
+	int proxy_stream_index() const
+	{
+		return proxy_stream_index_;
+	}
 
-  void set_audio_params(const AudioParams& p)
-  {
-    audio_params_ = p;
-  }
+	void set_proxy(const QString &filename, const QString &decoder,
+				   int stream_index)
+	{
+		proxy_filename_ = filename;
+		proxy_decoder_ = decoder;
+		proxy_stream_index_ = stream_index;
+		has_proxy_ = !filename.isEmpty();
+	}
 
-  const QString& cache_path() const
-  {
-    return cache_path_;
-  }
+	Track::Type type() const
+	{
+		return type_;
+	}
 
-  void set_cache_path(const QString& p)
-  {
-    cache_path_ = p;
-  }
+	const VideoParams &video_params() const
+	{
+		return video_params_;
+	}
 
-  const rational& length() const
-  {
-    return length_;
-  }
+	void set_video_params(const VideoParams &p)
+	{
+		video_params_ = p;
+	}
 
-  void set_length(const rational& length)
-  {
-    length_ = length;
-  }
+	const AudioParams &audio_params() const
+	{
+		return audio_params_;
+	}
 
-  const TimeRange &time() const { return time_; }
+	void set_audio_params(const AudioParams &p)
+	{
+		audio_params_ = p;
+	}
 
-  LoopMode loop_mode() const { return loop_mode_; }
-  void set_loop_mode(LoopMode m) { loop_mode_ = m; }
+	const QString &cache_path() const
+	{
+		return cache_path_;
+	}
+
+	void set_cache_path(const QString &p)
+	{
+		cache_path_ = p;
+	}
+
+	const rational &length() const
+	{
+		return length_;
+	}
+
+	void set_length(const rational &length)
+	{
+		length_ = length;
+	}
+
+	const TimeRange &time() const
+	{
+		return time_;
+	}
+
+	LoopMode loop_mode() const
+	{
+		return loop_mode_;
+	}
+	void set_loop_mode(LoopMode m)
+	{
+		loop_mode_ = m;
+	}
 
 private:
-  TimeRange time_;
+	TimeRange time_;
 
-  QString decoder_;
+	QString decoder_;
 
-  QString filename_;
+	QString filename_;
 
-  Track::Type type_;
+	bool has_proxy_ = false;
 
-  VideoParams video_params_;
+	QString proxy_filename_;
 
-  AudioParams audio_params_;
+	QString proxy_decoder_;
 
-  QString cache_path_;
+	int proxy_stream_index_ = -1;
 
-  rational length_;
+	Track::Type type_;
 
-  LoopMode loop_mode_;
+	VideoParams video_params_;
 
+	AudioParams audio_params_;
+
+	QString cache_path_;
+
+	rational length_;
+
+	LoopMode loop_mode_;
 };
 
 }

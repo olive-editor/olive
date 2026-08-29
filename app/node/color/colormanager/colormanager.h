@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,70 +29,70 @@
 #include "node/node.h"
 #include "render/colorprocessor.h"
 
-namespace olive {
-
-class ColorManager : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class ColorManager : public QObject {
+	Q_OBJECT
 public:
-  ColorManager(Project *project);
+	ColorManager(Project *project);
 
-  void Init();
+	void Init();
 
-  OCIO::ConstConfigRcPtr GetConfig() const;
+	OCIO::ConstConfigRcPtr GetConfig() const;
 
-  static OCIO::ConstConfigRcPtr CreateConfigFromFile(const QString& filename);
+	static OCIO::ConstConfigRcPtr CreateConfigFromFile(const QString &filename);
 
-  QString GetConfigFilename() const;
+	QString GetConfigFilename() const;
 
-  static OCIO::ConstConfigRcPtr GetDefaultConfig();
+	static OCIO::ConstConfigRcPtr GetDefaultConfig();
 
-  static void SetUpDefaultConfig();
+	static void SetUpDefaultConfig();
 
-  void SetConfigFilename(const QString& filename);
+	void SetConfigFilename(const QString &filename);
 
-  QStringList ListAvailableDisplays();
+	QStringList ListAvailableDisplays();
 
-  QString GetDefaultDisplay();
+	QString GetDefaultDisplay();
 
-  QStringList ListAvailableViews(QString display);
+	QStringList ListAvailableViews(QString display);
 
-  QString GetDefaultView(const QString& display);
+	QString GetDefaultView(const QString &display);
 
-  QStringList ListAvailableLooks();
+	QStringList ListAvailableLooks();
 
-  QStringList ListAvailableColorspaces() const;
+	QStringList ListAvailableColorspaces() const;
 
-  QString GetDefaultInputColorSpace() const;
+	QString GetDefaultInputColorSpace() const;
 
-  void SetDefaultInputColorSpace(const QString& s);
+	void SetDefaultInputColorSpace(const QString &s);
 
-  QString GetReferenceColorSpace() const;
+	QString GetReferenceColorSpace() const;
 
-  QString GetCompliantColorSpace(const QString& s);
+	QString GetCompliantColorSpace(const QString &s);
 
-  ColorTransform GetCompliantColorSpace(const ColorTransform& transform, bool force_display = false);
+	ColorTransform GetCompliantColorSpace(const ColorTransform &transform,
+										  bool force_display = false);
 
-  static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
+	static QStringList ListAvailableColorspaces(OCIO::ConstConfigRcPtr config);
 
-  void GetDefaultLumaCoefs(double *rgb) const;
+	void GetDefaultLumaCoefs(double *rgb) const;
 
-  Project *project() const;
+	Project *project() const;
 
-  void UpdateConfigFromFilename();
+	void UpdateConfigFromFilename();
 
 signals:
-  void ConfigChanged(const QString &s);
+	void ConfigChanged(const QString &s);
 
-  void ReferenceSpaceChanged(const QString &s);
+	void ReferenceSpaceChanged(const QString &s);
 
-  void DefaultInputChanged(const QString &s);
+	void DefaultInputChanged(const QString &s);
 
 private:
-  OCIO::ConstConfigRcPtr config_;
+	OCIO::ConstConfigRcPtr config_;
 
-  static OCIO::ConstConfigRcPtr default_config_;
-
+	static OCIO::ConstConfigRcPtr default_config_;
 };
 
 }

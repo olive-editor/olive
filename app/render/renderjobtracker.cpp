@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,52 +21,55 @@
 
 #include "renderjobtracker.h"
 
-namespace olive {
+namespace olive
+{
 
 void RenderJobTracker::insert(const TimeRange &range, JobTime job_time)
 {
-  // First remove any ranges with this (code copied
-  TimeRangeList::util_remove(&jobs_, range);
+	// First remove any ranges that overlap this one (code copied from TimeRangeList::remove)
+	TimeRangeList::util_remove(&jobs_, range);
 
-  // Now append the job
-  TimeRangeWithJob job(range, job_time);
-  jobs_.push_back(job);
+	// Now append the job
+	TimeRangeWithJob job(range, job_time);
+	jobs_.push_back(job);
 }
 
 void RenderJobTracker::insert(const TimeRangeList &ranges, JobTime job_time)
 {
-  foreach (const TimeRange &r, ranges) {
-    insert(r, job_time);
-  }
+	foreach (const TimeRange &r, ranges) {
+		insert(r, job_time);
+	}
 }
 
 void RenderJobTracker::clear()
 {
-  jobs_.clear();
+	jobs_.clear();
 }
 
 bool RenderJobTracker::isCurrent(const rational &time, JobTime job_time) const
 {
-  for (auto it=jobs_.crbegin(); it!=jobs_.crend(); it++) {
-    if (it->Contains(time)) {
-      return job_time >= it->GetJobTime();
-    }
-  }
+	for (auto it = jobs_.crbegin(); it != jobs_.crend(); it++) {
+		if (it->Contains(time)) {
+			return job_time >= it->GetJobTime();
+		}
+	}
 
-  return false;
+	return false;
 }
 
-TimeRangeList RenderJobTracker::getCurrentSubRanges(const TimeRange &range, const JobTime &job_time) const
+TimeRangeList
+RenderJobTracker::getCurrentSubRanges(const TimeRange &range,
+									  const JobTime &job_time) const
 {
-  TimeRangeList current_ranges;
+	TimeRangeList current_ranges;
 
-  for (auto it=jobs_.crbegin(); it!=jobs_.crend(); it++) {
-    if (job_time >= it->GetJobTime() && it->OverlapsWith(range)) {
-      current_ranges.insert(it->Intersected(range));
-    }
-  }
+	for (auto it = jobs_.crbegin(); it != jobs_.crend(); it++) {
+		if (job_time >= it->GetJobTime() && it->OverlapsWith(range)) {
+			current_ranges.insert(it->Intersected(range));
+		}
+	}
 
-  return current_ranges;
+	return current_ranges;
 }
 
 }

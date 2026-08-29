@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,27 +26,28 @@
 
 #include "colortransform.h"
 
-namespace olive {
-
-class ManagedColor : public Color
+namespace olive
 {
+
+class ManagedColor : public Color {
 public:
-  ManagedColor();
-  ManagedColor(const double& r, const double& g, const double& b, const double& a = 1.0);
-  ManagedColor(const char *data, const PixelFormat &format, int channel_layout);
-  ManagedColor(const Color& c);
+	ManagedColor();
+	ManagedColor(const double &r, const double &g, const double &b,
+				 const double &a = 1.0);
+	ManagedColor(const char *data, const PixelFormat &format,
+				 int channel_layout);
+	ManagedColor(const Color &c);
 
-  const QString& color_input() const;
-  void set_color_input(const QString &color_input);
+	const QString &color_input() const;
+	void set_color_input(const QString &color_input);
 
-  const ColorTransform& color_output() const;
-  void set_color_output(const ColorTransform &color_output);
+	const ColorTransform &color_output() const;
+	void set_color_output(const ColorTransform &color_output);
 
 private:
-  QString color_input_;
+	QString color_input_;
 
-  ColorTransform color_transform_;
-
+	ColorTransform color_transform_;
 };
 
 }

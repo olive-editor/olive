@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,114 +30,123 @@
 #include "task/task.h"
 #include "render/renderticket.h"
 
-namespace olive {
-
-class RenderTask : public Task
+namespace olive
 {
-  Q_OBJECT
-public:
-  RenderTask();
 
-  virtual ~RenderTask() override;
+class RenderTask : public Task {
+	Q_OBJECT
+public:
+	RenderTask();
+
+	virtual ~RenderTask() override;
 
 protected:
-  bool Render(ColorManager *manager, const TimeRangeList &video_range,
-              const TimeRangeList &audio_range, const TimeRange &subtitle_range,
-              RenderMode::Mode mode,
-              FrameHashCache *cache, const QSize& force_size = QSize(0, 0),
-              const QMatrix4x4& force_matrix = QMatrix4x4(),
-              PixelFormat force_format = PixelFormat::INVALID,
-              int force_channel_count = 0, ColorProcessorPtr force_color_output = nullptr);
+	bool Render(ColorManager *manager, const TimeRangeList &video_range,
+				const TimeRangeList &audio_range,
+				const TimeRange &subtitle_range, RenderMode::Mode mode,
+				FrameHashCache *cache, const QSize &force_size = QSize(0, 0),
+				const QMatrix4x4 &force_matrix = QMatrix4x4(),
+				PixelFormat force_format = PixelFormat::INVALID,
+				int force_channel_count = 0,
+				ColorProcessorPtr force_color_output = nullptr,
+				const ColorTransform &force_color_transform = ColorTransform());
 
-  virtual bool DownloadFrame(QThread* thread, FramePtr frame, const rational &time);
+	virtual bool DownloadFrame(QThread *thread, FramePtr frame,
+							   const rational &time);
 
-  virtual bool FrameDownloaded(FramePtr frame, const rational &time) = 0;
+	virtual bool FrameDownloaded(FramePtr frame, const rational &time) = 0;
 
-  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) = 0;
+	virtual bool AudioDownloaded(const TimeRange &range,
+								 const SampleBuffer &samples) = 0;
 
-  virtual bool EncodeSubtitle(const SubtitleBlock *subtitle);
+	virtual bool EncodeSubtitle(const SubtitleBlock *subtitle);
 
-  ViewerOutput* viewer() const
-  {
-    return viewer_;
-  }
+	ViewerOutput *viewer() const
+	{
+		return viewer_;
+	}
 
-  void set_viewer(ViewerOutput *v)
-  {
-    viewer_ = v;
-  }
+	void set_viewer(ViewerOutput *v)
+	{
+		viewer_ = v;
+	}
 
-  const VideoParams& video_params() const
-  {
-    return video_params_;
-  }
+	const VideoParams &video_params() const
+	{
+		return video_params_;
+	}
 
-  void set_video_params(const VideoParams& video_params)
-  {
-    video_params_ = video_params;
-  }
+	void set_video_params(const VideoParams &video_params)
+	{
+		video_params_ = video_params;
+	}
 
-  const AudioParams& audio_params() const
-  {
-    return audio_params_;
-  }
+	const AudioParams &audio_params() const
+	{
+		return audio_params_;
+	}
 
-  void set_audio_params(const AudioParams& audio_params)
-  {
-    audio_params_ = audio_params;
-  }
+	void set_audio_params(const AudioParams &audio_params)
+	{
+		audio_params_ = audio_params;
+	}
 
-  virtual void CancelEvent() override
-  {
-    finished_watcher_mutex_.lock();
-    finished_watcher_wait_cond_.wakeAll();
-    finished_watcher_mutex_.unlock();
-  }
+	virtual void CancelEvent() override
+	{
+		finished_watcher_mutex_.lock();
+		finished_watcher_wait_cond_.wakeAll();
+		finished_watcher_mutex_.unlock();
+	}
 
-  virtual bool TwoStepFrameRendering() const
-  {
-    return true;
-  }
+	virtual bool TwoStepFrameRendering() const
+	{
+		return true;
+	}
 
-  void SetNativeProgressSignallingEnabled(bool e)
-  {
-    native_progress_signalling_ = e;
-  }
+	void SetNativeProgressSignallingEnabled(bool e)
+	{
+		native_progress_signalling_ = e;
+	}
 
-  /**
+	/**
    * @brief Only valid after Render() is called
    */
-  int64_t GetTotalNumberOfFrames() const
-  {
-    return total_number_of_frames_;
-  }
+	int64_t GetTotalNumberOfFrames() const
+	{
+		return total_number_of_frames_;
+	}
 
 private:
-  void PrepareWatcher(RenderTicketWatcher* watcher, QThread *thread);
+	void PrepareWatcher(RenderTicketWatcher *watcher, QThread *thread);
 
-  void IncrementRunningTickets();
+	void IncrementRunningTickets();
 
-  void StartTicket(QThread *watcher_thread, ColorManager *manager, const rational &time, RenderMode::Mode mode, FrameHashCache *cache, const QSize &force_size, const QMatrix4x4 &force_matrix, PixelFormat force_format, int force_channel_count, ColorProcessorPtr force_color_output);
+	void StartTicket(QThread *watcher_thread, ColorManager *manager,
+					 const rational &time, RenderMode::Mode mode,
+					 FrameHashCache *cache, const QSize &force_size,
+					 const QMatrix4x4 &force_matrix, PixelFormat force_format,
+					 int force_channel_count,
+					 ColorProcessorPtr force_color_output,
+					 const ColorTransform &force_color_transform);
 
-  ViewerOutput* viewer_;
+	ViewerOutput *viewer_;
 
-  VideoParams video_params_;
+	VideoParams video_params_;
 
-  AudioParams audio_params_;
+	AudioParams audio_params_;
 
-  QVector<RenderTicketWatcher*> running_watchers_;
-  std::list<RenderTicketWatcher*> finished_watchers_;
-  int running_tickets_;
-  QMutex finished_watcher_mutex_;
-  QWaitCondition finished_watcher_wait_cond_;
+	QVector<RenderTicketWatcher *> running_watchers_;
+	std::list<RenderTicketWatcher *> finished_watchers_;
+	int running_tickets_;
+	QMutex finished_watcher_mutex_;
+	QWaitCondition finished_watcher_wait_cond_;
 
-  bool native_progress_signalling_;
+	bool native_progress_signalling_;
 
-  int64_t total_number_of_frames_;
+	int64_t total_number_of_frames_;
 
 private slots:
-  void TicketDone(RenderTicketWatcher *watcher);
-
+	void TicketDone(RenderTicketWatcher *watcher);
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,32 +28,31 @@
 #include "view/timelineview.h"
 #include "trackview/trackview.h"
 
-namespace olive {
-
-class TimelineAndTrackView : public QWidget
+namespace olive
 {
+
+class TimelineAndTrackView : public QWidget {
 public:
-  TimelineAndTrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
-                       QWidget* parent = nullptr);
+	TimelineAndTrackView(Qt::Alignment vertical_alignment = Qt::AlignTop,
+						 QWidget *parent = nullptr);
 
-  QSplitter* splitter() const;
+	QSplitter *splitter() const;
 
-  TimelineView* view() const;
+	TimelineView *view() const;
 
-  TrackView* track_view() const;
+	TrackView *track_view() const;
 
 private:
-  QSplitter* splitter_;
+	QSplitter *splitter_;
 
-  TimelineView* view_;
+	TimelineView *view_;
 
-  TrackView* track_view_;
+	TrackView *track_view_;
 
 private slots:
-  void ViewValueChanged(int v);
+	void ViewValueChanged(int v);
 
-  void TracksValueChanged(int v);
-
+	void TracksValueChanged(int v);
 };
 
 }

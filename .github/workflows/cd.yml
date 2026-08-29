@@ -1,0 +1,548 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  # ------------------------------------------------------------------
+  # Windows Installer (MSYS2)
+  # ------------------------------------------------------------------
+  windows:
+    runs-on: warp-windows-latest-x64-32x
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-tools
+            mingw-w64-ucrt-x86_64-ffmpeg
+            mingw-w64-ucrt-x86_64-openimageio
+            mingw-w64-ucrt-x86_64-opencolorio
+            mingw-w64-ucrt-x86_64-openexr
+            mingw-w64-ucrt-x86_64-fmt
+            mingw-w64-ucrt-x86_64-expat
+            mingw-w64-ucrt-x86_64-portaudio
+            mingw-w64-ucrt-x86_64-vulkan-headers
+            mingw-w64-ucrt-x86_64-vulkan-loader
+            mingw-w64-ucrt-x86_64-nsis
+            mingw-w64-ucrt-x86_64-ntldd
+
+      - name: Configure
+        shell: msys2 {0}
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DBUILD_QT6=ON \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        shell: msys2 {0}
+        run: cmake --build build --config Release
+
+      - name: Deploy dependencies
+        shell: msys2 {0}
+        run: |
+          mkdir -p app/packaging/windows/nsis/oak-editor
+          cp build/app/oak-editor.exe app/packaging/windows/nsis/oak-editor/
+          cp build/app/oak-render-worker.exe app/packaging/windows/nsis/oak-editor/
+          cp build/app/oakgl.dll app/packaging/windows/nsis/oak-editor/
+          if [ -f build/app/oakvulkan.dll ]; then
+            cp build/app/oakvulkan.dll app/packaging/windows/nsis/oak-editor/
+          fi
+          # The FFmpeg bridge DLL is built outside app/ and is not reachable
+          # via PATH, so ntldd cannot discover it from the executables alone
+          cp build/ffmpeg_bridge/bin/ffmpeg_bridge.dll app/packaging/windows/nsis/oak-editor/
+          windeployqt6 app/packaging/windows/nsis/oak-editor/oak-editor.exe
+          # Copy all non-Qt MSYS2 DLLs recursively for every binary we ship
+          cd app/packaging/windows/nsis/oak-editor
+          for binary in oak-editor.exe oak-render-worker.exe oakgl.dll oakvulkan.dll ffmpeg_bridge.dll; do
+            [ -f "$binary" ] || continue
+            for l in $(ntldd -R "$binary" | grep -E 'mingw64|ucrt64|clang64' | sed 's/^[ \t]*//' | cut -d' ' -f3); do
+              cp -v "$l" .
+            done
+          done
+
+      - name: Build installer
+        shell: msys2 {0}
+        run: |
+          cd app/packaging/windows/nsis
+          cp "${GITHUB_WORKSPACE}"/LICENSE .
+          makensis oak.nsi
+          mv setup.exe "${GITHUB_WORKSPACE}"/Oak-Video-Editor-Windows-x64.exe
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-windows-installer
+          path: Oak-Video-Editor-Windows-x64.exe
+
+  # ------------------------------------------------------------------
+  # macOS DMG
+  # ------------------------------------------------------------------
+  macos:
+    runs-on: warp-macos-15-arm64-12x
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install cmake ninja pkg-config qt@6 ffmpeg openimageio opencolorio openexr portaudio expat molten-vk vulkan-headers vulkan-loader dylibbundler
+
+      - name: Build OpenTimelineIO
+        run: |
+          git clone --depth 1 --branch v0.16.0 https://github.com/PixarAnimationStudios/OpenTimelineIO.git
+          cmake -S OpenTimelineIO -B OpenTimelineIO/build -G Ninja \
+            -DOTIO_SHARED_LIBS=ON \
+            -DOTIO_PYTHON_BINDINGS=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${PWD}/otio-install"
+          cmake --build OpenTimelineIO/build
+          cmake --install OpenTimelineIO/build
+
+      - name: Configure
+        run: |
+          export PATH="$(brew --prefix qt@6)/bin:$PATH"
+          export CMAKE_PREFIX_PATH="$(brew --prefix qt@6)"
+          # CMake's FindVulkan locates the Homebrew loader via VULKAN_SDK
+          export VULKAN_SDK="$(brew --prefix vulkan-loader)"
+          cmake -S . -B build -G Ninja \
+            -DBUILD_QT6=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DOTIO_LOCATION="${PWD}/otio-install" \
+            -DOCIO_LOCATION="$(brew --prefix opencolorio)"
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Deploy Qt dependencies
+        run: |
+          export PATH="$(brew --prefix qt@6)/bin:$PATH"
+          macdeployqt build/app/Oak.app \
+            -verbose=2 \
+            -executable=build/app/Oak.app/Contents/MacOS/oak-render-worker
+          # Re-sign after macdeployqt (it breaks signatures when modifying libs)
+          codesign --force --deep --sign - build/app/Oak.app
+
+      - name: Verify macOS bundle plugins
+        run: |
+          ls -la build/app/Oak.app/Contents/PlugIns/platforms/ || (echo "Missing platform plugins!" && exit 1)
+          ls -la build/app/Oak.app/Contents/PlugIns/imageformats/ || true
+          echo "=== otool -L main binary ==="
+          otool -L build/app/Oak.app/Contents/MacOS/Oak | head -30
+          echo "=== otool -L worker ==="
+          otool -L build/app/Oak.app/Contents/MacOS/oak-render-worker | head -30
+
+      - name: Bundle non-Qt libraries
+        run: |
+          mkdir -p build/app/Oak.app/Contents/Frameworks
+          python3 << 'PYEOF'
+          import os, shutil, subprocess
+
+          APP = "build/app/Oak.app"
+          MACOS_DIR = f"{APP}/Contents/MacOS"
+          DEST = f"{APP}/Contents/Frameworks"
+          os.makedirs(DEST, exist_ok=True)
+
+          QT_PREFIXES = ("Qt", "libQt")
+
+          def is_qt_lib(name):
+              return name.startswith(QT_PREFIXES)
+
+          def get_rpaths(binary):
+              out = subprocess.run(["otool", "-l", binary], capture_output=True, text=True).stdout
+              rpaths = []
+              for i, line in enumerate(out.splitlines()):
+                  if "cmd LC_RPATH" in line and i + 2 < len(out.splitlines()):
+                      parts = out.splitlines()[i + 2].strip().split()
+                      if len(parts) >= 2:
+                          rpaths.append(parts[1])
+              return rpaths
+
+          def get_deps(binary):
+              out = subprocess.run(["otool", "-L", binary], capture_output=True, text=True).stdout
+              deps = []
+              for line in out.splitlines()[1:]:
+                  line = line.strip()
+                  if not line:
+                      continue
+                  dep = line.split()[0]
+                  if dep.startswith("/usr/lib/") or dep.startswith("/System/"):
+                      continue
+                  deps.append(dep)
+              return deps
+
+          def resolve(ref, rpaths, loader_dir=""):
+              if ref.startswith("/"):
+                  return ref if os.path.isfile(ref) else None
+              if ref.startswith("@rpath/"):
+                  for rp in rpaths:
+                      p = os.path.join(rp, ref[7:])
+                      if os.path.isfile(p):
+                          return p
+              if ref.startswith("@loader_path/") and loader_dir:
+                  p = os.path.join(loader_dir, ref[13:])
+                  if os.path.isfile(p):
+                      return p
+              if ref.startswith("@executable_path/"):
+                  p = os.path.join(APP, "Contents/MacOS", ref[17:])
+                  if os.path.isfile(p):
+                      return p
+              return None
+
+          PROCESSED = set()
+
+          def process(target, exec_rpaths):
+              tdir = os.path.dirname(target)
+              print(f"Processing: {target}")
+              for dep in get_deps(target):
+                  # Skip Qt frameworks and Qt dylibs; macdeployqt already deploys them.
+                  dep_base = os.path.basename(dep)
+                  if is_qt_lib(dep_base):
+                      continue
+                  resolved = resolve(dep, exec_rpaths, tdir)
+                  if not resolved or not os.path.isfile(resolved):
+                      continue
+                  resolved = os.path.realpath(resolved)
+                  if not (resolved.startswith("/opt/homebrew/") or resolved.startswith("/usr/local/") or resolved.startswith(os.path.realpath(os.getcwd()))):
+                      continue
+                  base = os.path.basename(resolved)
+                  if is_qt_lib(base):
+                      continue
+                  if base in PROCESSED:
+                      subprocess.run(["install_name_tool", "-change", dep, f"@rpath/{base}", target], capture_output=True)
+                      continue
+                  PROCESSED.add(base)
+                  dst = os.path.join(DEST, base)
+                  if os.path.abspath(resolved) == os.path.abspath(dst):
+                      subprocess.run(["install_name_tool", "-id", f"@rpath/{base}", dst], capture_output=True)
+                      subprocess.run(["install_name_tool", "-change", dep, f"@rpath/{base}", target], capture_output=True)
+                      process(dst, exec_rpaths)
+                      continue
+                  print(f"  Copying: {resolved} -> {dst}")
+                  shutil.copy2(resolved, dst)
+                  subprocess.run(["install_name_tool", "-id", f"@rpath/{base}", dst], capture_output=True)
+                  subprocess.run(["install_name_tool", "-change", dep, f"@rpath/{base}", target], capture_output=True)
+                  process(dst, exec_rpaths)
+
+          binaries = [os.path.join(MACOS_DIR, f) for f in os.listdir(MACOS_DIR)
+                      if os.path.isfile(os.path.join(MACOS_DIR, f))]
+          if not binaries:
+              raise RuntimeError(f"No binaries found in {MACOS_DIR}")
+
+          main_binary = os.path.join(MACOS_DIR, "Oak")
+          main_rpaths = get_rpaths(main_binary)
+
+          for binary in binaries:
+              process(binary, main_rpaths)
+              # Ensure every binary can find libraries in Frameworks
+              for rp in get_rpaths(binary):
+                  subprocess.run(["install_name_tool", "-delete_rpath", rp, binary], capture_output=True)
+              subprocess.run(["install_name_tool", "-add_rpath", "@executable_path/../Frameworks", binary], capture_output=True)
+
+          subprocess.run(["codesign", "--force", "--deep", "--sign", "-", APP], check=True)
+          print("Done. Frameworks:")
+          for f in sorted(os.listdir(DEST)):
+              print(f"  {f}")
+          PYEOF
+
+      - name: Debug bundle contents
+        run: |
+          echo "=== otool -L ==="
+          otool -L build/app/Oak.app/Contents/MacOS/Oak
+          echo "=== Frameworks dir ==="
+          ls -la build/app/Oak.app/Contents/Frameworks/ || echo "(empty)"
+          echo "=== App bundle size ==="
+          du -sh build/app/Oak.app
+
+      - name: Create DMG
+        run: |
+          mkdir -p build/app/dmg-staging
+          cp -R build/app/Oak.app build/app/dmg-staging/
+          ln -s /Applications build/app/dmg-staging/Applications
+          hdiutil create \
+            -srcfolder build/app/dmg-staging \
+            -volname "Oak Video Editor" \
+            -fs HFS+ \
+            -format UDZO \
+            Oak-Video-Editor-macOS.dmg
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-macos-dmg
+          path: Oak-Video-Editor-macOS.dmg
+
+  # ------------------------------------------------------------------
+  # Linux AppImage (Ubuntu 24.04 — distro FFmpeg 6.x)
+  # ------------------------------------------------------------------
+  appimage:
+    runs-on: warp-ubuntu-latest-x64-16x
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev \
+            libopencolorio-dev libopenimageio-dev libopenexr-dev libexpat1-dev \
+            portaudio19-dev libgl1-mesa-dev libxkbcommon-dev \
+            libvulkan-dev \
+            wget fuse3 desktop-file-utils
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_QT6=ON
+          cmake --build build
+
+      - name: Install to AppDir
+        run: |
+          DESTDIR="${PWD}"/AppDir cmake --install build
+          # Copy custom AppRun
+          cp app/packaging/linux/AppRun AppDir/
+
+      - name: Create AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
+        run: |
+          wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          wget -q "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+          wget -q "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage appimagetool-x86_64.AppImage
+          export PATH="${PWD}:${PATH}"
+          DEPLOY_ARGS=""
+          # The Vulkan backend is dlopen'ed at runtime, so linuxdeploy cannot
+          # discover it (and its dependencies) from the executable alone
+          if [ -f AppDir/usr/lib/liboakvulkan.so ]; then
+            DEPLOY_ARGS="--library AppDir/usr/lib/liboakvulkan.so"
+          fi
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --plugin qt \
+            $DEPLOY_ARGS \
+            --desktop-file AppDir/usr/share/applications/org.oakvideoeditor.Oak.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/512x512/apps/org.oakvideoeditor.Oak.png \
+            --output appimage
+
+      - name: Verify bundled libraries
+        run: |
+          # Ensure FFmpeg shared libraries are present inside the AppDir
+          ls AppDir/usr/lib/libavcodec.so*    || (echo "Missing libavcodec" && exit 1)
+          ls AppDir/usr/lib/libavformat.so*   || (echo "Missing libavformat" && exit 1)
+          ls AppDir/usr/lib/libavutil.so*     || (echo "Missing libavutil" && exit 1)
+          ls AppDir/usr/lib/libswscale.so*    || (echo "Missing libswscale" && exit 1)
+          ls AppDir/usr/lib/libswresample.so* || (echo "Missing libswresample" && exit 1)
+          # Ensure other runtime dependencies are present
+          ls AppDir/usr/lib/libOpenImageIO.so*    || (echo "Missing libOpenImageIO" && exit 1)
+          ls AppDir/usr/lib/libOpenColorIO.so*    || (echo "Missing libOpenColorIO" && exit 1)
+          ls AppDir/usr/lib/libportaudio.so*      || (echo "Missing libportaudio" && exit 1)
+          ls AppDir/usr/lib/libOpenEXR*.so*       || (echo "Missing libOpenEXR" && exit 1)
+          # Ensure Oak's own binaries and shared libraries are present
+          ls AppDir/usr/bin/oak-editor                       || (echo "Missing oak-editor" && exit 1)
+          ls AppDir/usr/bin/oak-render-worker                || (echo "Missing oak-render-worker" && exit 1)
+          ls AppDir/usr/lib/liboakgl.so                      || (echo "Missing liboakgl.so" && exit 1)
+          ls AppDir/usr/lib/liboakvulkan.so                  || (echo "Missing liboakvulkan.so" && exit 1)
+          ls AppDir/usr/lib/libvulkan.so*                    || (echo "Missing libvulkan" && exit 1)
+          ls AppDir/usr/lib/libffmpeg_bridge.so              || (echo "Missing libffmpeg_bridge.so" && exit 1)
+          # Ensure every shipped binary resolves all of its dependencies
+          ! ldd AppDir/usr/bin/oak-editor | grep "not found"
+          ! ldd AppDir/usr/bin/oak-render-worker | grep "not found"
+          ! ldd AppDir/usr/lib/liboakgl.so | grep "not found"
+          ! ldd AppDir/usr/lib/liboakvulkan.so | grep "not found"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-linux-appimage
+          path: Oak_Video_Editor-*.AppImage
+
+  # ------------------------------------------------------------------
+  # Debian package (.deb)
+  # ------------------------------------------------------------------
+  deb:
+    runs-on: warp-ubuntu-latest-x64-16x
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake ninja-build pkg-config \
+            qt6-base-dev qt6-base-dev-tools qt6-base-private-dev qt6-tools-dev qt6-tools-dev-tools \
+            libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev \
+            libopencolorio-dev libopenimageio-dev libopenexr-dev libexpat1-dev \
+            portaudio19-dev libgl1-mesa-dev libxkbcommon-dev \
+            libvulkan-dev
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_QT6=ON
+          cmake --build build
+
+      - name: Create DEB package
+        run: |
+          cd build
+          cpack -G DEB
+          mv *.deb "${GITHUB_WORKSPACE}/"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-deb-package
+          path: oak-video-editor_*.deb
+
+  # ------------------------------------------------------------------
+  # RPM package (.rpm)
+  # ------------------------------------------------------------------
+  rpm:
+    runs-on: warp-ubuntu-latest-x64-16x
+    container:
+      image: fedora:latest
+    steps:
+      - name: Install Git
+        run: dnf install -y git
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install dependencies
+        run: |
+          dnf install -y \
+            cmake ninja-build pkgconf-pkg-config \
+            qt6-qtbase-devel qt6-qtbase-private-devel qt6-qttools-devel \
+            ffmpeg-free-devel \
+            OpenImageIO-devel \
+            OpenColorIO-devel \
+            openexr-devel \
+            expat-devel \
+            portaudio-devel \
+            mesa-libGL-devel \
+            vulkan-headers \
+            vulkan-loader-devel \
+            libxkbcommon-devel \
+            gcc-c++ \
+            bzip2-devel \
+            rpm-build
+
+      - name: Build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/usr \
+            -DBUILD_QT6=ON
+          cmake --build build
+
+      - name: Create RPM package
+        run: |
+          cd build
+          cpack -G RPM
+          mv *.rpm "${GITHUB_WORKSPACE}/"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-rpm-package
+          path: oak-video-editor-*.rpm
+
+  # ------------------------------------------------------------------
+  # Arch Linux package (.pkg.tar.zst)
+  # ------------------------------------------------------------------
+  archlinux:
+    runs-on: warp-ubuntu-latest-x64-16x
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prepare source tarball and PKGBUILD
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Arch pkgver cannot contain hyphens
+          PKGVER="${VERSION//-/_}"
+          TARBALL="oak-video-editor-${PKGVER}.tar.gz"
+          tar czf "/tmp/${TARBALL}" \
+            --transform "s,^,oak-video-editor-${PKGVER}/," \
+            --exclude='.git' \
+            --exclude='build' \
+            --exclude='*.tar.gz' \
+            .
+          mv "/tmp/${TARBALL}" "${TARBALL}"
+          sed "s/@VERSION@/${PKGVER}/g" app/packaging/arch/PKGBUILD.in > PKGBUILD
+
+      - name: Build package in Arch Linux container
+        run: |
+          docker run --rm \
+            -v "${PWD}:/build" \
+            -w /build \
+            archlinux:base-devel \
+            bash -c '
+              set -e
+              pacman-key --init
+              pacman -Syu --noconfirm
+              pacman -S --noconfirm --needed \
+                cmake ninja git pkgconf \
+                qt6-base qt6-tools ffmpeg openimageio opencolorio openexr expat portaudio \
+                mesa vulkan-headers vulkan-icd-loader libxkbcommon fmt
+              useradd -m builder
+              chown -R builder /build
+              su builder -c "makepkg -s --noconfirm"
+            '
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: oak-arch-package
+          path: oak-video-editor-*.pkg.tar.zst
+
+  # ------------------------------------------------------------------
+  # Create Draft Release
+  # ------------------------------------------------------------------
+  release:
+    needs: [windows, macos, appimage, deb, rpm, archlinux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          files: artifacts/*

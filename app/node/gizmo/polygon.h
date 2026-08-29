@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,22 +26,27 @@
 
 #include "draggable.h"
 
-namespace olive {
-
-class PolygonGizmo : public DraggableGizmo
+namespace olive
 {
-  Q_OBJECT
+
+class PolygonGizmo : public DraggableGizmo {
+	Q_OBJECT
 public:
-  explicit PolygonGizmo(QObject *parent = nullptr);
+	explicit PolygonGizmo(QObject *parent = nullptr);
 
-  const QPolygonF &GetPolygon() const { return polygon_; }
-  void SetPolygon(const QPolygonF &polygon) { polygon_ = polygon; }
+	const QPolygonF &GetPolygon() const
+	{
+		return polygon_;
+	}
+	void SetPolygon(const QPolygonF &polygon)
+	{
+		polygon_ = polygon;
+	}
 
-  virtual void Draw(QPainter *p) const override;
+	virtual void Draw(QPainter *p) const override;
 
 private:
-  QPolygonF polygon_;
-
+	QPolygonF polygon_;
 };
 
 }

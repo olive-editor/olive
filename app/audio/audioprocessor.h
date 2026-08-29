@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,58 +26,55 @@
 #include <olive/core/core.h>
 #include <QByteArray>
 
-extern "C" {
-#include <libavfilter/avfilter.h>
-}
+#include <ffmpeg_bridge/ffmpeg_bridge.h>
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class AudioProcessor
-{
+class AudioProcessor {
 public:
-  AudioProcessor();
+	AudioProcessor();
 
-  ~AudioProcessor();
+	~AudioProcessor();
 
-  DISABLE_COPY_MOVE(AudioProcessor)
+	DISABLE_COPY_MOVE(AudioProcessor)
 
-  bool Open(const AudioParams &from, const AudioParams &to, double tempo = 1.0);
+	bool Open(const AudioParams &from, const AudioParams &to,
+			  double tempo = 1.0);
 
-  void Close();
+	void Close();
 
-  bool IsOpen() const { return filter_graph_; }
+	bool IsOpen() const
+	{
+		return graph_;
+	}
 
-  using Buffer = QVector<QByteArray>;
-  int Convert(float **in, int nb_in_samples, AudioProcessor::Buffer *output);
+	using Buffer = QVector<QByteArray>;
+	int Convert(float **in, int nb_in_samples, AudioProcessor::Buffer *output);
 
-  void Flush();
+	void Flush();
 
-  const AudioParams &from() const { return from_; }
-  const AudioParams &to() const { return to_; }
+	const AudioParams &from() const
+	{
+		return from_;
+	}
+	const AudioParams &to() const
+	{
+		return to_;
+	}
 
 private:
-  static AVFilterContext* CreateTempoFilter(AVFilterGraph *graph, AVFilterContext *link, const double& tempo);
+	FBAudioGraph *graph_;
 
-  AVFilterGraph* filter_graph_;
+	AudioParams from_;
 
-  AVFilterContext* buffersrc_ctx_;
+	AudioParams to_;
 
-  AVFilterContext* buffersink_ctx_;
-
-  AudioParams from_;
-  AVSampleFormat from_fmt_;
-
-  AudioParams to_;
-  AVSampleFormat to_fmt_;
-
-  AVFrame *in_frame_;
-
-  AVFrame *out_frame_;
-
+	FBFrame *out_frame_;
 };
 
 }

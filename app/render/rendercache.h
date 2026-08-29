@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,26 +24,23 @@
 
 #include "codec/decoder.h"
 
-namespace olive {
-
-template <typename K, typename V>
-class RenderCache : public QHash<K, V>
+namespace olive
 {
+
+template <typename K, typename V> class RenderCache : public QHash<K, V> {
 public:
-  QMutex *mutex()
-  {
-    return &mutex_;
-  }
+	QMutex *mutex()
+	{
+		return &mutex_;
+	}
 
 private:
-  QMutex mutex_;
-
+	QMutex mutex_;
 };
 
-struct DecoderPair
-{
-  DecoderPtr decoder = nullptr;
-  qint64 last_modified = 0;
+struct DecoderPair {
+	DecoderPtr decoder = nullptr;
+	qint64 last_modified = 0;
 };
 
 using DecoderCache = RenderCache<Decoder::CodecStream, DecoderPair>;

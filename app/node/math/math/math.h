@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,44 +24,47 @@
 
 #include "mathbase.h"
 
-namespace olive {
-
-class MathNode : public MathNodeBase
+namespace olive
 {
-  Q_OBJECT
+
+class MathNode : public MathNodeBase {
+	Q_OBJECT
 public:
-  MathNode();
+	MathNode();
 
-  NODE_DEFAULT_FUNCTIONS(MathNode)
+	NODE_DEFAULT_FUNCTIONS(MathNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  Operation GetOperation() const
-  {
-    return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
-  }
+	Operation GetOperation() const
+	{
+		return static_cast<Operation>(GetStandardValue(kMethodIn).toInt());
+	}
 
-  void SetOperation(Operation o)
-  {
-    SetStandardValue(kMethodIn, o);
-  }
+	void SetOperation(Operation o)
+	{
+		SetStandardValue(kMethodIn, o);
+	}
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const override;
+	virtual void ProcessSamples(const NodeValueRow &values,
+								const SampleBuffer &input, SampleBuffer &output,
+								int index) const override;
 
-  static const QString kMethodIn;
-  static const QString kParamAIn;
-  static const QString kParamBIn;
-  static const QString kParamCIn;
-
+	static const QString kMethodIn;
+	static const QString kParamAIn;
+	static const QString kParamBIn;
+	static const QString kParamCIn;
 };
 
 }

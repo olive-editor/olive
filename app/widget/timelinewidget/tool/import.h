@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,45 +24,53 @@
 
 #include "tool.h"
 
-namespace olive {
-
-class ImportTool : public TimelineTool
+namespace olive
 {
+
+class ImportTool : public TimelineTool {
 public:
-  ImportTool(TimelineWidget* parent);
+	ImportTool(TimelineWidget *parent);
 
-  virtual void DragEnter(TimelineViewMouseEvent *event) override;
-  virtual void DragMove(TimelineViewMouseEvent *event) override;
-  virtual void DragLeave(QDragLeaveEvent *event) override;
-  virtual void DragDrop(TimelineViewMouseEvent *event) override;
+	virtual void DragEnter(TimelineViewMouseEvent *event) override;
+	virtual void DragMove(TimelineViewMouseEvent *event) override;
+	virtual void DragLeave(QDragLeaveEvent *event) override;
+	virtual void DragDrop(TimelineViewMouseEvent *event) override;
 
-  using DraggedFootageData = QVector<QPair<ViewerOutput*, QVector<Track::Reference> > >;
+	using DraggedFootageData =
+		QVector<QPair<ViewerOutput *, QVector<Track::Reference>>>;
 
-  void PlaceAt(const QVector<ViewerOutput *> &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0, bool jump_to_end = false);
-  void PlaceAt(const DraggedFootageData &footage, const rational& start, bool insert, MultiUndoCommand *command, int track_offset = 0, bool jump_to_end = false);
+	void PlaceAt(const QVector<ViewerOutput *> &footage, const rational &start,
+				 bool insert, MultiUndoCommand *command, int track_offset = 0,
+				 bool jump_to_end = false);
+	void PlaceAt(const DraggedFootageData &footage, const rational &start,
+				 bool insert, MultiUndoCommand *command, int track_offset = 0,
+				 bool jump_to_end = false);
 
-  enum DropWithoutSequenceBehavior {
-    kDWSAsk,
-    kDWSAuto,
-    kDWSManual,
-    kDWSDisable
-  };
+	enum DropWithoutSequenceBehavior {
+		kDWSAsk,
+		kDWSAuto,
+		kDWSManual,
+		kDWSDisable
+	};
 
 private:
-  void FootageToGhosts(rational ghost_start, const DraggedFootageData &footage, const rational &dest_tb, const int &track_start);
+	void FootageToGhosts(rational ghost_start,
+						 const DraggedFootageData &footage,
+						 const rational &dest_tb, const int &track_start);
 
-  void PrepGhosts(const rational &frame, const int &track_index);
+	void PrepGhosts(const rational &frame, const int &track_index);
 
-  void DropGhosts(bool insert, MultiUndoCommand *parent_command);
+	void DropGhosts(bool insert, MultiUndoCommand *parent_command);
 
-  TimelineViewGhostItem* CreateGhost(const TimeRange &range, const rational &media_in, const Track::Reference &track);
+	TimelineViewGhostItem *CreateGhost(const TimeRange &range,
+									   const rational &media_in,
+									   const Track::Reference &track);
 
-  DraggedFootageData dragged_footage_;
+	DraggedFootageData dragged_footage_;
 
-  int import_pre_buffer_;
+	int import_pre_buffer_;
 
-  rational ghost_offset_;
-
+	rational ghost_offset_;
 };
 
 }

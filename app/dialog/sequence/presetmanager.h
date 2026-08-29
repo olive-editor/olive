@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -35,210 +36,213 @@
 #include "common/filefunctions.h"
 #include "common/xmlutils.h"
 
-namespace olive {
-
-class Preset
+namespace olive
 {
+
+class Preset {
 public:
-  Preset() = default;
+	Preset() = default;
 
-  virtual ~Preset(){}
+	virtual ~Preset()
+	{
+	}
 
-  const QString& GetName() const
-  {
-    return name_;
-  }
+	const QString &GetName() const
+	{
+		return name_;
+	}
 
-  void SetName(const QString& s)
-  {
-    name_ = s;
-  }
+	void SetName(const QString &s)
+	{
+		name_ = s;
+	}
 
-  virtual void Load(QXmlStreamReader* reader) = 0;
+	virtual void Load(QXmlStreamReader *reader) = 0;
 
-  virtual void Save(QXmlStreamWriter* writer) const = 0;
+	virtual void Save(QXmlStreamWriter *writer) const = 0;
 
 private:
-  QString name_;
-
+	QString name_;
 };
 
 using PresetPtr = std::shared_ptr<Preset>;
 
-template <typename T>
-class PresetManager
-{
+template <typename T> class PresetManager {
 public:
-  PresetManager(QWidget* parent, const QString& preset_name) :
-    preset_name_(preset_name),
-    parent_(parent)
-  {
-    // Load custom preset data from file
-    QFile preset_file(GetCustomPresetFilename());
-    if (preset_file.open(QFile::ReadOnly)) {
-      QXmlStreamReader reader(&preset_file);
+	PresetManager(QWidget *parent, const QString &preset_name)
+		: preset_name_(preset_name)
+		, parent_(parent)
+	{
+		// Load custom preset data from file
+		QFile preset_file(GetCustomPresetFilename());
+		if (preset_file.open(QFile::ReadOnly)) {
+			QXmlStreamReader reader(&preset_file);
 
-      while (XMLReadNextStartElement(&reader)) {
-        if (reader.name() == QStringLiteral("presets")) {
-          while (XMLReadNextStartElement(&reader)) {
-            if (reader.name() == QStringLiteral("preset")) {
-              PresetPtr p = std::make_unique<T>();
+			while (XMLReadNextStartElement(&reader)) {
+				if (reader.name() == QStringLiteral("presets")) {
+					while (XMLReadNextStartElement(&reader)) {
+						if (reader.name() == QStringLiteral("preset")) {
+							PresetPtr p = std::make_unique<T>();
 
-              p->Load(&reader);
+							p->Load(&reader);
 
-              custom_preset_data_.append(p);
-            } else {
-              reader.skipCurrentElement();
-            }
-          }
-        } else {
-          reader.skipCurrentElement();
-        }
-      }
+							custom_preset_data_.append(p);
+						} else {
+							reader.skipCurrentElement();
+						}
+					}
+				} else {
+					reader.skipCurrentElement();
+				}
+			}
 
-      preset_file.close();
-    }
-  }
+			preset_file.close();
+		}
+	}
 
-  ~PresetManager()
-  {
-    // Save custom presets to disk
-    QFile preset_file(GetCustomPresetFilename());
-    if (preset_file.open(QFile::WriteOnly)) {
-      QXmlStreamWriter writer(&preset_file);
-      writer.setAutoFormatting(true);
+	~PresetManager()
+	{
+		// Save custom presets to disk
+		QFile preset_file(GetCustomPresetFilename());
+		if (preset_file.open(QFile::WriteOnly)) {
+			QXmlStreamWriter writer(&preset_file);
+			writer.setAutoFormatting(true);
 
-      writer.writeStartDocument();
+			writer.writeStartDocument();
 
-      writer.writeStartElement(QStringLiteral("presets"));
+			writer.writeStartElement(QStringLiteral("presets"));
 
-      foreach (PresetPtr p, custom_preset_data_) {
-        writer.writeStartElement(QStringLiteral("preset"));
+			foreach (PresetPtr p, custom_preset_data_) {
+				writer.writeStartElement(QStringLiteral("preset"));
 
-        p->Save(&writer);
+				p->Save(&writer);
 
-        writer.writeEndElement(); // preset
-      }
+				writer.writeEndElement(); // preset
+			}
 
-      writer.writeEndElement(); // presets
+			writer.writeEndElement(); // presets
 
-      writer.writeEndDocument();
+			writer.writeEndDocument();
 
-      preset_file.close();
-    }
-  }
+			preset_file.close();
+		}
+	}
 
-  QString GetPresetName(QString start) const
-  {
-    bool ok;
+	QString GetPresetName(QString start) const
+	{
+		bool ok;
 
-    forever {
-      start = QInputDialog::getText(parent_,
-                                    QCoreApplication::translate("PresetManager", "Save Preset"),
-                                    QCoreApplication::translate("PresetManager", "Set preset name:"),
-                                    QLineEdit::Normal,
-                                    start,
-                                    &ok);
+		forever
+		{
+			start = QInputDialog::getText(
+				parent_,
+				QCoreApplication::translate("PresetManager", "Save Preset"),
+				QCoreApplication::translate("PresetManager",
+											"Set preset name:"),
+				QLineEdit::Normal, start, &ok);
 
-      if (!ok) {
-        // Dialog cancelled - leave function entirely
-        return QString();
-      }
+			if (!ok) {
+				// Dialog cancelled - leave function entirely
+				return QString();
+			}
 
-      if (start.isEmpty()) {
-        // No preset name entered, start loop over
-        QMessageBox::critical(parent_,
-                              QCoreApplication::translate("PresetManager", "Invalid preset name"),
-                              QCoreApplication::translate("PresetManager", "You must enter a preset name"),
-                              QMessageBox::Ok);
-      } else {
-        break;
-      }
-    }
+			if (start.isEmpty()) {
+				// No preset name entered, start loop over
+				QMessageBox::critical(
+					parent_,
+					QCoreApplication::translate("PresetManager",
+												"Invalid preset name"),
+					QCoreApplication::translate("PresetManager",
+												"You must enter a preset name"),
+					QMessageBox::Ok);
+			} else {
+				break;
+			}
+		}
 
-    return start;
-  }
+		return start;
+	}
 
-  enum SaveStatus {
-    kAppended,
-    kReplaced,
-    kNotSaved
-  };
+	enum SaveStatus { kAppended, kReplaced, kNotSaved };
 
-  SaveStatus SavePreset(PresetPtr preset)
-  {
-    QString preset_name;
-    int existing_preset;
+	SaveStatus SavePreset(PresetPtr preset)
+	{
+		QString preset_name;
+		int existing_preset;
 
-    forever {
-      preset_name = GetPresetName(preset_name);
+		forever
+		{
+			preset_name = GetPresetName(preset_name);
 
-      if (preset_name.isEmpty()) {
-        // Dialog cancelled - leave function entirely
-        return kNotSaved;
-      }
+			if (preset_name.isEmpty()) {
+				// Dialog cancelled - leave function entirely
+				return kNotSaved;
+			}
 
-      existing_preset = -1;
-      for (int i=0; i<custom_preset_data_.size(); i++) {
-        if (custom_preset_data_.at(i)->GetName() == preset_name) {
-          existing_preset = i;
-          break;
-        }
-      }
+			existing_preset = -1;
+			for (int i = 0; i < custom_preset_data_.size(); i++) {
+				if (custom_preset_data_.at(i)->GetName() == preset_name) {
+					existing_preset = i;
+					break;
+				}
+			}
 
-      if (existing_preset == -1
-          || QMessageBox::question(parent_,
-                                   QCoreApplication::translate("PresetManager", "Preset exists"),
-                                   QCoreApplication::translate("PresetManager",
-                                                               "A preset with this name already exists. "
-                                                               "Would you like to replace it?")) == QMessageBox::Yes) {
-        break;
-      }
-    }
+			if (existing_preset == -1 ||
+				QMessageBox::question(
+					parent_,
+					QCoreApplication::translate("PresetManager",
+												"Preset exists"),
+					QCoreApplication::translate(
+						"PresetManager",
+						"A preset with this name already exists. "
+						"Would you like to replace it?")) == QMessageBox::Yes) {
+				break;
+			}
+		}
 
-    preset->SetName(preset_name);
+		preset->SetName(preset_name);
 
-    if (existing_preset >= 0) {
-      custom_preset_data_.replace(existing_preset, preset);
-      return kReplaced;
-    } else {
-      custom_preset_data_.append(preset);
-      return kAppended;
-    }
-  }
+		if (existing_preset >= 0) {
+			custom_preset_data_.replace(existing_preset, preset);
+			return kReplaced;
+		} else {
+			custom_preset_data_.append(preset);
+			return kAppended;
+		}
+	}
 
-  QString GetCustomPresetFilename() const
-  {
-    return QDir(FileFunctions::GetConfigurationLocation()).filePath(preset_name_);
-  }
+	QString GetCustomPresetFilename() const
+	{
+		return QDir(FileFunctions::GetConfigurationLocation())
+			.filePath(preset_name_);
+	}
 
-  PresetPtr GetPreset(int index)
-  {
-    return custom_preset_data_.at(index);
-  }
+	PresetPtr GetPreset(int index)
+	{
+		return custom_preset_data_.at(index);
+	}
 
-  void DeletePreset(int index)
-  {
-    custom_preset_data_.removeAt(index);
-  }
+	void DeletePreset(int index)
+	{
+		custom_preset_data_.removeAt(index);
+	}
 
-  int GetNumberOfPresets() const
-  {
-    return custom_preset_data_.size();
-  }
+	int GetNumberOfPresets() const
+	{
+		return custom_preset_data_.size();
+	}
 
-  const QVector<PresetPtr>& GetPresetData() const
-  {
-    return custom_preset_data_;
-  }
+	const QVector<PresetPtr> &GetPresetData() const
+	{
+		return custom_preset_data_;
+	}
 
 private:
-  QVector<PresetPtr> custom_preset_data_;
+	QVector<PresetPtr> custom_preset_data_;
 
-  QString preset_name_;
+	QString preset_name_;
 
-  QWidget* parent_;
-
+	QWidget *parent_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,91 +22,63 @@
 #ifndef FFMPEGENCODER_H
 #define FFMPEGENCODER_H
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavfilter/avfilter.h>
-#include <libavformat/avformat.h>
-#include <libswresample/swresample.h>
-#include <libavutil/opt.h>
-}
+#include <ffmpeg_bridge/ffmpeg_bridge.h>
 
 #include "codec/encoder.h"
 
-namespace olive {
-
-class FFmpegEncoder : public Encoder
+namespace olive
 {
-  Q_OBJECT
+
+/**
+ * @brief An Encoder derivative that uses the ffmpeg_bridge library for encoding
+ *
+ * All encoding work happens inside the ffmpeg_bridge shared library through
+ * its pure C API; this class only translates EncodingParams into a bridge
+ * configuration and forwards calls.
+ */
+class FFmpegEncoder : public Encoder {
+	Q_OBJECT
 public:
-  FFmpegEncoder(const EncodingParams &params);
+	FFmpegEncoder(const EncodingParams &params);
 
-  virtual QStringList GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
+	virtual QStringList
+	GetPixelFormatsForCodec(ExportCodec::Codec c) const override;
 
-  virtual std::vector<SampleFormat> GetSampleFormatsForCodec(ExportCodec::Codec c) const override;
+	virtual std::vector<SampleFormat>
+	GetSampleFormatsForCodec(ExportCodec::Codec c) const override;
 
-  virtual bool Open() override;
+	virtual bool Open() override;
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::core::rational time) override;
+	virtual bool WriteFrame(olive::FramePtr frame,
+							olive::core::rational time) override;
 
-  virtual bool WriteAudio(const olive::SampleBuffer &audio) override;
+	virtual bool WriteAudio(const olive::SampleBuffer &audio) override;
 
-  bool WriteAudioData(const AudioParams &audio_params, const uint8_t **data, int input_sample_count);
+	bool WriteAudioData(const AudioParams &audio_params, const uint8_t **data,
+						int input_sample_count);
 
-  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+	virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 
-  virtual void Close() override;
+	virtual void Close() override;
 
-  virtual PixelFormat GetDesiredPixelFormat() const override
-  {
-    return video_conversion_fmt_;
-  }
+	virtual PixelFormat GetDesiredPixelFormat() const override
+	{
+		return video_conversion_fmt_;
+	}
 
 private:
-  /**
-   * @brief Handle an FFmpeg error code
-   *
-   * Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
-   * function also automatically closes the Decoder.
-   *
-   * @param error_code
+	/**
+   * @brief Copy the last error message from the bridge into the encoder error state
    */
-  void FFmpegError(const QString &context, int error_code);
+	void SetErrorFromBridge();
 
-  bool WriteAVFrame(AVFrame* frame, AVCodecContext *codec_ctx, AVStream *stream);
+	static int ExportCodecToBridge(ExportCodec::Codec c);
 
-  bool InitializeStream(enum AVMediaType type, AVStream** stream, AVCodecContext** codec_ctx, const ExportCodec::Codec &codec);
-  bool InitializeCodecContext(AVStream** stream, AVCodecContext** codec_ctx, const AVCodec* codec);
-  bool SetupCodecContext(AVStream *stream, AVCodecContext *codec_ctx, const AVCodec *codec);
+	FBEncoder *encoder_;
 
-  void FlushEncoders();
-  void FlushCodecCtx(AVCodecContext* codec_ctx, AVStream *stream);
+	PixelFormat video_conversion_fmt_;
 
-  bool InitializeResampleContext(const AudioParams &audio);
-
-  static const AVCodec *GetEncoder(ExportCodec::Codec c, SampleFormat aformat);
-
-  AVFormatContext* fmt_ctx_;
-
-  AVStream* video_stream_;
-  AVCodecContext* video_codec_ctx_;
-  AVFilterGraph *video_scale_ctx_;
-  AVFilterContext *video_buffersrc_ctx_;
-  AVFilterContext *video_buffersink_ctx_;
-  PixelFormat video_conversion_fmt_;
-
-  AVStream* audio_stream_;
-  AVCodecContext* audio_codec_ctx_;
-  SwrContext* audio_resample_ctx_;
-  AVFrame* audio_frame_;
-  int audio_max_samples_;
-  int audio_frame_offset_;
-  int audio_write_count_;
-
-  AVStream* subtitle_stream_;
-  AVCodecContext* subtitle_codec_ctx_;
-
-  bool open_;
-
+	bool open_;
 };
 
 }

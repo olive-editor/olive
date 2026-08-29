@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2019  Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,7 +30,8 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class ActionSearchList;
 
@@ -39,11 +41,10 @@ class ActionSearchList;
  * A popup window (accessible through Help > Action Search) that allows users to search for a menu command by typing
  * rather than browsing through the menu bar. This can be created from anywhere provided olive::MainWindow is valid.
  */
-class ActionSearch : public QDialog
-{
-  Q_OBJECT
+class ActionSearch : public QDialog {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief ActionSearch Constructor
    *
    * Create ActionSearch popup.
@@ -52,14 +53,14 @@ public:
    *
    * QWidget parent. Usually MainWindow.
    */
-  ActionSearch(QWidget* parent);
+	ActionSearch(QWidget *parent);
 
-  /**
+	/**
    * @brief Set the menu bar to use in this action search
    */
-  void SetMenuBar(QMenuBar* menu_bar);
+	void SetMenuBar(QMenuBar *menu_bar);
 private slots:
-  /**
+	/**
    * @brief Update the list of actions according to a search query
    *
    * This function adds/removes actions in the action list according to a given search query entered by the user.
@@ -82,42 +83,44 @@ private slots:
    * The current menu to loop over. In most cases, this should be left as nullptr when called externally.
    * search_update() will fill this automatically as it needs while calling itself recursively.
    */
-  void search_update(const QString& s, const QString &p = nullptr, QMenu *parent = nullptr);
+	void search_update(const QString &s, const QString &p = nullptr,
+					   QMenu *parent = nullptr);
 
-  /**
+	/**
    * @brief Perform the currently selected action
    *
    * Usually triggered by pressing Enter on the ActionSearchEntry field, this will trigger whatever action is currently
    * highlighted and then close this popup. If no entries are highlighted (i.e. the list is empty), no action is
    * triggered and the popup closes anyway.
    */
-  void perform_action();
+	void perform_action();
 
-  /**
+	/**
    * @brief Move selection up
    *
    * A slot for pressing up on the ActionSearchEntry field. Moves the selection in the list up once. If the
    * selection is already at the top of the list, this is a no-op.
    */
-  void move_selection_up();
+	void move_selection_up();
 
-  /**
+	/**
    * @brief Move selection down
    *
    * A slot for pressing down on the ActionSearchEntry field. Moves the selection in the list down once. If the
    * selection is already at the bottom of the list, this is a no-op.
    */
-  void move_selection_down();
+	void move_selection_down();
+
 private:
-  /**
+	/**
    * @brief Main widget that shows the list of commands
    */
-  ActionSearchList* list_widget;
+	ActionSearchList *list_widget;
 
-  /**
+	/**
    * @brief Attached menu bar object
    */
-  QMenuBar* menu_bar_;
+	QMenuBar *menu_bar_;
 };
 
 /**
@@ -127,25 +130,26 @@ private:
  * to a slot that triggers the currently selected action.
  */
 class ActionSearchList : public QListWidget {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief ActionSearchList Constructor
    * @param parent
    *
    * Usually ActionSearch.
    */
-  ActionSearchList(QWidget* parent);
+	ActionSearchList(QWidget *parent);
+
 protected:
-  /**
+	/**
    * @brief Override of QListWidget's double click event that emits a signal.
    */
-  void mouseDoubleClickEvent(QMouseEvent *);
+	void mouseDoubleClickEvent(QMouseEvent *);
 signals:
-  /**
+	/**
    * @brief Signal emitted when a QListWidget item is double clicked.
    */
-  void dbl_click();
+	void dbl_click();
 };
 
 /**
@@ -155,32 +159,33 @@ signals:
  * can connect them to moving the current selection up or down.
  */
 class ActionSearchEntry : public QLineEdit {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief ActionSearchEntry
    * @param parent
    *
    * Usually ActionSearch.
    */
-  ActionSearchEntry(QWidget* parent);
+	ActionSearchEntry(QWidget *parent);
+
 protected:
-  /**
+	/**
    * @brief Override of QLineEdit's key press event that listens for up/down key presses.
    * @param event
    */
-  virtual bool event(QEvent *e) override;
+	virtual bool event(QEvent *e) override;
 
 signals:
-  /**
+	/**
    * @brief Emitted when the user presses the up arrow key.
    */
-  void moveSelectionUp();
+	void moveSelectionUp();
 
-  /**
+	/**
    * @brief Emitted when the user presses the down arrow key.
    */
-  void moveSelectionDown();
+	void moveSelectionDown();
 };
 
 }

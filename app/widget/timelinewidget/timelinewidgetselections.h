@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,30 +26,30 @@
 
 #include "node/output/track/track.h"
 
-namespace olive {
-
-class TimelineWidgetSelections : public QHash<Track::Reference, TimeRangeList>
+namespace olive
 {
+
+class TimelineWidgetSelections : public QHash<Track::Reference, TimeRangeList> {
 public:
-  TimelineWidgetSelections() = default;
+	TimelineWidgetSelections() = default;
 
-  void ShiftTime(const rational& diff);
+	void ShiftTime(const rational &diff);
 
-  void ShiftTracks(Track::Type type, int diff);
+	void ShiftTracks(Track::Type type, int diff);
 
-  void TrimIn(const rational& diff);
+	void TrimIn(const rational &diff);
 
-  void TrimOut(const rational& diff);
+	void TrimOut(const rational &diff);
 
-  void Subtract(const TimelineWidgetSelections &selections);
+	void Subtract(const TimelineWidgetSelections &selections);
 
-  TimelineWidgetSelections Subtracted(const TimelineWidgetSelections &selections) const
-  {
-    TimelineWidgetSelections copy = *this;
-    copy.Subtract(selections);
-    return copy;
-  }
-
+	TimelineWidgetSelections
+	Subtracted(const TimelineWidgetSelections &selections) const
+	{
+		TimelineWidgetSelections copy = *this;
+		copy.Subtract(selections);
+		return copy;
+	}
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,43 +26,49 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class NodeViewCommon {
 public:
-  enum FlowDirection {
-    kInvalidDirection = -1,
-    kTopToBottom,
-    kBottomToTop,
-    kLeftToRight,
-    kRightToLeft
-  };
+	enum FlowDirection {
+		kInvalidDirection = -1,
+		kTopToBottom,
+		kBottomToTop,
+		kLeftToRight,
+		kRightToLeft
+	};
 
-  static Qt::Orientation GetFlowOrientation(FlowDirection dir) {
-    if (dir == kTopToBottom || dir == kBottomToTop) {
-      return Qt::Vertical;
-    } else {
-      return Qt::Horizontal;
-    }
-  }
+	static Qt::Orientation GetFlowOrientation(FlowDirection dir)
+	{
+		if (dir == kTopToBottom || dir == kBottomToTop) {
+			return Qt::Vertical;
+		} else {
+			return Qt::Horizontal;
+		}
+	}
 
-  static bool IsFlowVertical(FlowDirection dir)
-  {
-    return dir == kTopToBottom || dir == kBottomToTop;
-  }
+	static bool IsFlowVertical(FlowDirection dir)
+	{
+		return dir == kTopToBottom || dir == kBottomToTop;
+	}
 
-  static bool IsFlowHorizontal(FlowDirection dir)
-  {
-    return dir == kLeftToRight || dir == kRightToLeft;
-  }
+	static bool IsFlowHorizontal(FlowDirection dir)
+	{
+		return dir == kLeftToRight || dir == kRightToLeft;
+	}
 
-  static bool DirectionsAreOpposing(FlowDirection a, FlowDirection b) {
-    return ((a == NodeViewCommon::kLeftToRight && b == NodeViewCommon::kRightToLeft)
-            || (a == NodeViewCommon::kRightToLeft && b == NodeViewCommon::kLeftToRight)
-            || (a == NodeViewCommon::kTopToBottom && b == NodeViewCommon::kBottomToTop)
-            || (a == NodeViewCommon::kBottomToTop && b == NodeViewCommon::kTopToBottom));
-  }
-
+	static bool DirectionsAreOpposing(FlowDirection a, FlowDirection b)
+	{
+		return ((a == NodeViewCommon::kLeftToRight &&
+				 b == NodeViewCommon::kRightToLeft) ||
+				(a == NodeViewCommon::kRightToLeft &&
+				 b == NodeViewCommon::kLeftToRight) ||
+				(a == NodeViewCommon::kTopToBottom &&
+				 b == NodeViewCommon::kBottomToTop) ||
+				(a == NodeViewCommon::kBottomToTop &&
+				 b == NodeViewCommon::kTopToBottom));
+	}
 };
 
 }

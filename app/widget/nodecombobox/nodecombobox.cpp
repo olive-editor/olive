@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,67 +29,68 @@
 #include "ui/icons/icons.h"
 #include "widget/menu/menu.h"
 
-namespace olive {
+namespace olive
+{
 
-NodeComboBox::NodeComboBox(QWidget *parent) :
-  QComboBox(parent)
+NodeComboBox::NodeComboBox(QWidget *parent)
+	: QComboBox(parent)
 {
 }
 
 void NodeComboBox::showPopup()
 {
-  Menu* m = NodeFactory::CreateMenu(this, true);
+	Menu *m = NodeFactory::CreateMenu(this, true);
 
-  QAction* selected = m->exec(parentWidget()->mapToGlobal(pos()));
+	QAction *selected = m->exec(parentWidget()->mapToGlobal(pos()));
 
-  if (selected) {
-    QString new_id = NodeFactory::GetIDFromMenuAction(selected);
+	if (selected) {
+		QString new_id = NodeFactory::GetIDFromMenuAction(selected);
 
-    SetNodeInternal(new_id, true);
-  }
+		SetNodeInternal(new_id, true);
+	}
 
-  delete m;
+	delete m;
 }
 
 const QString &NodeComboBox::GetSelectedNode() const
 {
-  return selected_id_;
+	return selected_id_;
 }
 
 void NodeComboBox::SetNode(const QString &id)
 {
-  SetNodeInternal(id, false);
+	SetNodeInternal(id, false);
 }
 
 void NodeComboBox::changeEvent(QEvent *e)
 {
-  if (e->type() == QEvent::LanguageChange) {
-    UpdateText();
-  }
+	if (e->type() == QEvent::LanguageChange) {
+		UpdateText();
+	}
 
-  QComboBox::changeEvent(e);
+	QComboBox::changeEvent(e);
 }
 
 void NodeComboBox::UpdateText()
 {
-  clear();
+	clear();
 
-  if (!selected_id_.isEmpty()) {
-    addItem(NodeFactory::GetNameFromID(selected_id_));
-  }
+	if (!selected_id_.isEmpty()) {
+		addItem(NodeFactory::GetNameFromID(selected_id_));
+	}
 }
 
 void NodeComboBox::SetNodeInternal(const QString &id, bool emit_signal)
 {
-  if (selected_id_ != id) {
-    selected_id_ = id;
+	if (selected_id_ != id) {
+		selected_id_ = id;
 
-    UpdateText();
+		UpdateText();
 
-    if (emit_signal) {
-      emit NodeChanged(selected_id_);
-    }
-  }
+		if (emit_signal) {
+			emit NodeChanged(selected_id_);
+		}
+	}
 }
 
 }

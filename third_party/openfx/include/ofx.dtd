@@ -1,0 +1,231 @@
+<!--
+  - Olive Community Edition - Non-Linear Video Editor
+  - Copyright (C) 2025 Olive CE Team
+  -
+  - This program is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - This program is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!--
+DTD for the XML resource file of an OFX image effect plugin.
+
+Author Bruno Nicoletti
+
+Each ofx binary may have a single xml file associated with it that is contains resource overrides for various properties of the plugin. This file is the DTD for those resource files. Typically, the properties being changed are to do with user interface labels and layouts, as well as a few other things such as default values for parameters and so on.
+
+If an element in the DTD has an equivilant property in OFX, the element will be the named with the same string that labels the property in the binary. For example the default property is labelled with "OfxParamPropDefault" in both cases.
+
+The only attributes used on any element are there to identify the element, typically to associate it with a named object in the binary. This is the 'name' attribute. The only other attributes are to associate a host and a locale with the resource set.
+
+The root element is 'OfxImageEffectResource'.
+
+As each binary contains one or more plug-ins, the resource file contains overrides for multiple plug-ins. This is the 'OfxPlugin' element. The 'name' attribute of each must correspond to a OfxPlugin::pluginIdentifier string found in the binary.
+
+Each plug-in can have multiple resources respecifications. This is the 'OfxResourceSet'. Each resource set has an 'ofxHost' and 'ofxLocale' attribute. These specify which host application and which locale the resource set applies to. This allows for internationalisation and per host tuning. Either or both of these can be set to the value 'default', which acts as a catch all case. For example to change all the labels to a specific locale, have a resource set with the host set to 'default' and the locale to the given one.
+
+A resource set is made up of one more 'OfxImageEffectContext' elements, as well as the labels for the plug-in itself and message redefinitions. The 'name' attribute of a context corresponds to one of the context that the plugin declared itself valid for, or 'default'. You can thus redefine properties on a per context basis, with a catch all default case.
+
+A message redefinition is associated with the 'messageId' passed into the OfxMessageSuite::message function. The CDATA value is the new value of the message.
+
+A resource set is made up of parameter redefinitions, clip redefinitions, parameter hierarchy redefinitions and parameter page set redefinitions.
+
+Any parameter (except page and hierachy params) in the binary may have certain properties overridden. Each parameter type has a corresponding element, for example the 2D integer parameter is specified via the 'OfxParamTypeInteger2D', the choice parameter by the 'OfxParamTypeChoice' element. There are many different elements, each of which corresponds to an OFX parameter type. The 'name' attribute of a parameter element is used to associate it with a specific parameter in the binary.
+
+Each parameter element has its own specific set of sub elements, as not all parameters support all properties.
+
+An image effect clip may simply have its labels and hints overridden. This is the 'OfxImageClip' element. It is associated with a clip in the binary via its 'name' element.
+
+An 'OfxParamHierarchy' element is used to redefine the hierarchical ordering of parameters. A parameter can only occur once in this hierarchy. If a hierarchy is encountered, then it will completely redefine any hierarchy defined in the binary. It is fairly straight forward. It allows for the definition of new grouping parameters. This must be reflected in the structures created in the plug-in.
+
+The 'OfxParamPageSet' element is used to define paged layouts of parameters. If present, it will completely redefine all paged layouts for the given context. It consists of one or more 'OfxParamPage' elements, which can be labelled. The order of pages in any user interface is the same as encountered in the resource file. As parameters are added to the page, they appear in any interface at the top left and are added top down, left to right. The two dummy position skipping parameters, "OfxParamPageSkipRow" and "OfxParamPageSkipColumn" can be used to control where in the page parameters are added.
+
+Because of the ability to 'default' hosts, locales and contexts, there is potentially ambiguity as to what property applies in which case, as the same property may be set in more that one valid location. In order of precedence, a property has its value set from the resource file if a match is found according to...
+   - exact locale,   exact host,   exact context
+   - exact locale,   exact host,   default context
+   - exact locale,   default host, exact context
+   - exact locale,   default host, default context
+   - default locale, exact host,   exact context
+   - default locale, exact host,   default context
+   - default locale, default host, exact context
+   - default locale, default host, default context
+
+Otherwise its value is that found in the binary.
+
+Parameters and clips can have their properties set in the 'default' context, even if they do not appear in all contexts.
+
+You cannot set the page layout or the parameter hierarchy in the default context.
+
+In summary, a rough hierarchy of elements is below. '+' means one or more, '*' means zero or more, '?' means zero or one.
+
+OfxImageEffectResource
+  - OfxPlugin+ 'name'
+    - OfxResourceSet+ 'ofxHost' 'ofxLocale'
+      - OfxImageEffectContext+ 'name'
+        - parameter redefinitions*
+	- clip redefinitions*
+	- OfxParamHierarchy
+	  - OfxParam*
+	  - OfxParamGroup*
+	    - OfxParam
+	    - OfxParamGroup*
+        - OfxParamPageSet?
+	  - OfxParamPage+
+            - OfxParam+
+
+The 'base' level elements used to set property values come in several varieties, bool, int, double and string. These are used in situations where the an element can have more than one 'type' or is not a simple string value. For example the OfxParamPropDefault element for a parameter can be int, double or string, of 1, 2 or 3 dimensions, whilst the OfxPropLabel element is always a string. Int, double and string come in 2 and 3 dimensional varieties.
+
+For the non simple base element, their values can be....
+
+Bool has 'true', 'false', 'TRUE', 'FALSE', '0' and '1' as acceptable values.
+
+Legal values for integers correspond to the standard C library function 'strtol' syntax.
+
+Legal values for doubles are specified by the standard C library function 'strtod' syntax.
+
+String values must be enclosed in double quotes ie, '"'. To use a double quote in a string, escape it with a backslash character.
+
+Multiple dimensional values are simply separated by white space.
+
+Examples...
+	<bool> FALSE </bool>
+	<int> 1 </int>
+	<string3> "tom" "dick" "harry" </string3>
+
+
+Errors should be handled robustly. If a respecified parameter doesn't exist in the binary, or it doesn't have a certain property, the host should not fail on that XML file.
+
+ -->
+<!DOCTYPE OfxImageEffectResource [
+
+ <!ELEMENT OfxImageEffectResource (OfxPlugin+)>
+ <!ELEMENT OfxPlugin (OfxResourceSet+)>
+ <!ATTLIST OfxPlugin name CDATA "">
+
+ <!ELEMENT OfxResourceSet (OfxImageEffectContext+, OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxImageEffectPluginPropGrouping?, OfxMessage* ) >
+
+ <!ATTLIST OfxResourceSet ofxHost CDATA "default">
+ <!ATTLIST OfxResourceSet ofxLocale CDATA "default">
+
+
+ <!ELEMENT OfxMessage ( CDATA )>
+ <!ATTLIST OfxMessage name CDATA "">
+
+ <!ELEMENT OfxImageEffectContext (OfxImageClip*, OfxParamPageSet?, OfxParamHierarchy?, OfxParamTypeInteger*, OfxParamTypeDouble*, OfxParamTypeBoolean*, OfxParamTypeChoice*, OfxParamTypeStrChoice*, OfxParamTypeRGBA*, OfxParamTypeRGB*, OfxParamTypeDouble2D*, OfxParamTypeDouble3D*, OfxParamTypeInteger2D*, OfxParamTypeInteger3D*, OfxParamTypeString*, OfxParamTypeCustom*, OfxParamTypePushButton*) >
+
+ <!ATTLIST OfxImageEffectContext name CDATA "default">
+
+ <!ELEMENT OfxParamHierarchy (OfxParam*, OfxParamGroup*)>
+
+ <!ELEMENT OfxParam ( EMPTY )>
+ <!ATTLIST OfxParam name CDATA "">
+
+ <!ELEMENT OfxParamGroup (OfxPropLabel, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParam*, OfxParamGroup*)>
+
+ <!ELEMENT OfxImageClip ((OfxPropLabel, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropHint?)>
+ <!ATTLIST OfxImageClip name CDATA "">
+
+ <!ELEMENT OfxParamPageSet (OfxParamPage+)>
+ <!ELEMENT OfxParamPage (OfxPropLabel, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropHint?, OfxParam+)>
+
+ <!ELEMENT OfxParamTypeInteger (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeInteger name CDATA "">
+
+ <!-- If you are not redefining the hierarchy, you can relabel a group param -->
+ <!ELEMENT OfxParamTypeGroup (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?)>
+ <!ATTLIST OfxParamTypeGroup name CDATA "">
+
+ <!-- If you are not redefining the page layout, you can relabel a page param -->
+ <!ELEMENT OfxParamTypePage (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?)>
+ <!ATTLIST OfxParamTypePage name CDATA "">
+
+ <!ELEMENT OfxParamTypeInteger2D (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?, OfxParamPropDimensionLabel?)>
+ <!ATTLIST  OfxParamTypeInteger2D name CDATA "">
+
+ <!ELEMENT OfxParamTypeInteger3D (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?, OfxParamPropDimensionLabel?)>
+ <!ATTLIST  OfxParamTypeInteger3D name CDATA "">
+
+ <!ELEMENT OfxParamTypeDouble (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?, kOfxParamPropDoubleType?, OfxParamPropDigits?, OfxParamPropShowTimeMarker?)>
+ <!ATTLIST  OfxParamTypeDouble name CDATA "">
+
+ <!ELEMENT OfxParamTypeDouble2D (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?, kOfxParamPropDoubleType?, OfxParamPropDigits?, OfxParamPropShowTimeMarker?, OfxParamPropDimensionLabel?)>
+ <!ATTLIST  OfxParamTypeDouble2D name CDATA "">
+
+ <!ELEMENT OfxParamTypeDouble3D (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?, kOfxParamPropDoubleType?, OfxParamPropDigits?, OfxParamPropShowTimeMarker?, OfxParamPropDimensionLabel?)>
+ <!ATTLIST  OfxParamTypeDouble3D name CDATA "">
+
+ <!ELEMENT OfxParamTypeBoolean (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeBoolean name CDATA "">
+
+ <!ELEMENT OfxParamTypeChoice (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropDefault?, OfxParamPropChoiceOption?)>
+ <!ATTLIST  OfxParamTypeChoice name CDATA "">
+
+ <!ELEMENT OfxParamTypeRGB (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeRGB name CDATA "">
+
+ <!ELEMENT OfxParamTypeRGBA (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropMin?,  OfxParamPropMax?, OfxParamPropDisplayMin?, OfxParamPropDisplayMax?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeRGBA name CDATA "">
+
+ <!ELEMENT OfxParamTypeString (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeString name CDATA "">
+
+ <!ELEMENT OfxParamTypeCustom (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?, OfxParamPropAnimates?, OfxParamPropEvaluateOnChange?, OfxParamPropPersistant?, OfxParamPropSecret?, OfxParamPropScriptName?, OfxParamPropHint?, OfxParamPropEnabled?, OfxParamPropDefault?)>
+ <!ATTLIST  OfxParamTypeCustom name CDATA "">
+
+ <!ELEMENT OfxParamTypePushButton (OfxPropLabel?, OfxPropShortLabel?, OfxPropLongLabel?, OfxParamPropInteractSizeAspect?, OfxParamPropInteractMinimumSize?, OfxParamPropInteractPreferedSize?,  OfxParamPropSecret?, OfxParamPropHint?, OfxParamPropEnabled?)>
+ <!ATTLIST  OfxParamTypePushButton name CDATA "">
+
+ <!ELEMENT OfxPropLabel (CDATA)>
+ <!ELEMENT OfxPropShortLabel (CDATA)>
+ <!ELEMENT OfxPropLongLabel (CDATA)>
+
+ <!ELEMENT OfxImageEffectPluginPropGrouping (CDATA)>
+
+ <!ELEMENT OfxParamPropInteractSizeAspect (double)>
+ <!ELEMENT OfxParamPropInteractMinimumSize (int2)>
+ <!ELEMENT OfxParamPropInteractPreferedSize (int2)>
+ <!ELEMENT OfxParamPropAnimates (bool)>
+ <!ELEMENT OfxParamPropEvaluateOnChange (bool)>
+ <!ELEMENT OfxParamPropPersistant (bool)>
+ <!ELEMENT OfxParamPropSecret (bool)>
+ <!ELEMENT OfxParamPropScriptName (CDATA)>
+ <!ELEMENT OfxParamPropHint (CDATA)>
+ <!ELEMENT OfxParamPropDoubleType (CDATA)>
+
+ <!ELEMENT OfxParamPropEnabled (bool)>
+ <!ELEMENT OfxParamPropChoiceOption (string*)>
+ <!ELEMENT OfxParamPropShowTimeMarker (bool)>
+ <!ELEMENT OfxParamPropIncrement (double)>
+ <!ELEMENT OfxParamPropDigits (int)>
+ <!ELEMENT OfxParamPropDimensionLabel (string2?, string3?)>
+ <!ELEMENT OfxParamPropStringMode (CDATA)>
+
+ <!ELEMENT OfxParamPropMin (int?, int2?, int3?, double?, double2?, double3?, double4?)>
+ <!ELEMENT OfxParamPropMax (int?, int2?, int3?, double?, double2?, double3?, double4?)>
+ <!ELEMENT OfxParamPropDisplayMin (int?, int2?, int3?, double?, double2?, double3?, double4?)>
+ <!ELEMENT OfxParamPropDisplayMax (int?, int2?, int3?, double?, double2?, double3?, double4?)>
+ <!ELEMENT OfxParamPropDefault (int?, int2?, int3?, double?, double2?, double3?, double4?, bool?, string?)>
+
+ <!ELEMENT bool (CDATA)>
+ <!ELEMENT int (CDATA)>
+ <!ELEMENT int2 (CDATA)>
+ <!ELEMENT int3 (CDATA)>
+ <!ELEMENT double (CDATA)>
+ <!ELEMENT double2 (CDATA)>
+ <!ELEMENT double3 (CDATA)>
+ <!ELEMENT double4 (CDATA)>
+ <!ELEMENT string (CDATA)>
+ <!ELEMENT string2 (CDATA)>
+ <!ELEMENT string3 (CDATA)>
+
+]
+>

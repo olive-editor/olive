@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,134 +23,139 @@
 
 #include <QMouseEvent>
 
-namespace olive {
+namespace olive
+{
 
 #define super QGraphicsView
 
-NodeViewMiniMap::NodeViewMiniMap(NodeViewScene *scene, QWidget *parent) :
-  super(parent),
-  resizing_(false)
+NodeViewMiniMap::NodeViewMiniMap(NodeViewScene *scene, QWidget *parent)
+	: super(parent)
+	, resizing_(false)
 {
-  connect(scene, &QGraphicsScene::sceneRectChanged, this, &NodeViewMiniMap::SceneChanged);
-  setScene(scene);
+	connect(scene, &QGraphicsScene::sceneRectChanged, this,
+			&NodeViewMiniMap::SceneChanged);
+	setScene(scene);
 
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setViewportUpdateMode(FullViewportUpdate);
-  setFrameShape(QFrame::Panel);
-  setFrameShadow(QFrame::Plain);
-  setMouseTracking(true);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setViewportUpdateMode(FullViewportUpdate);
+	setFrameShape(QFrame::Panel);
+	setFrameShadow(QFrame::Plain);
+	setMouseTracking(true);
 
-  QMetaObject::invokeMethod(this, &NodeViewMiniMap::SetDefaultSize, Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, &NodeViewMiniMap::SetDefaultSize,
+							  Qt::QueuedConnection);
 
-  resize_triangle_sz_ = fontMetrics().height() / 2;
+	resize_triangle_sz_ = fontMetrics().height() / 2;
 }
 
 void NodeViewMiniMap::SetViewportRect(const QPolygonF &rect)
 {
-  viewport_rect_ = rect;
+	viewport_rect_ = rect;
 
-  viewport()->update();
+	viewport()->update();
 }
 
 void NodeViewMiniMap::drawForeground(QPainter *painter, const QRectF &rect)
 {
-  super::drawForeground(painter, rect);
+	super::drawForeground(painter, rect);
 
-  QColor viewport_color = palette().text().color();
+	QColor viewport_color = palette().text().color();
 
-  // Draw resize triangle
-  painter->save();
-  painter->resetTransform();
+	// Draw resize triangle
+	painter->save();
+	painter->resetTransform();
 
-  QPointF triangle[3] = {QPointF(0, 0), QPointF(resize_triangle_sz_, 0), QPointF(0, resize_triangle_sz_)};
-  painter->setBrush(viewport_color);
-  painter->setPen(viewport_color);
-  painter->drawPolygon(triangle, 3);
+	QPointF triangle[3] = { QPointF(0, 0), QPointF(resize_triangle_sz_, 0),
+							QPointF(0, resize_triangle_sz_) };
+	painter->setBrush(viewport_color);
+	painter->setPen(viewport_color);
+	painter->drawPolygon(triangle, 3);
 
-  painter->restore();
+	painter->restore();
 
-  // Draw viewport rectangle
-  viewport_color.setAlphaF(0.25);
-  painter->setBrush(viewport_color);
+	// Draw viewport rectangle
+	viewport_color.setAlphaF(0.25);
+	painter->setBrush(viewport_color);
 
-  painter->drawPolygon(viewport_rect_);
+	painter->drawPolygon(viewport_rect_);
 }
 
 void NodeViewMiniMap::resizeEvent(QResizeEvent *event)
 {
-  super::resizeEvent(event);
+	super::resizeEvent(event);
 
-  emit Resized();
+	emit Resized();
 
-  SceneChanged(sceneRect());
+	SceneChanged(sceneRect());
 }
 
 void NodeViewMiniMap::mousePressEvent(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton) {
-    if (MouseInsideResizeTriangle(event)) {
-      // Resizing!
-      resizing_ = true;
-      resize_anchor_ = QCursor::pos();
-    } else {
-      EmitMoveSignal(event);
-    }
-  }
+	if (event->button() == Qt::LeftButton) {
+		if (MouseInsideResizeTriangle(event)) {
+			// Resizing!
+			resizing_ = true;
+			resize_anchor_ = QCursor::pos();
+		} else {
+			EmitMoveSignal(event);
+		}
+	}
 }
 
 void NodeViewMiniMap::mouseMoveEvent(QMouseEvent *event)
 {
-  if (event->buttons() & Qt::LeftButton) {
-    if (resizing_) {
-      QPointF movement = QCursor::pos() - resize_anchor_;
-      resize(QSize(width() - movement.x(), height() - movement.y()));
-      resize_anchor_ = QCursor::pos();
-    } else {
-      EmitMoveSignal(event);
-    }
-  } else {
-    if (MouseInsideResizeTriangle(event)) {
-      setCursor(Qt::SizeFDiagCursor);
-    } else {
-      unsetCursor();
-    }
-  }
+	if (event->buttons() & Qt::LeftButton) {
+		if (resizing_) {
+			QPointF movement = QCursor::pos() - resize_anchor_;
+			resize(QSize(width() - movement.x(), height() - movement.y()));
+			resize_anchor_ = QCursor::pos();
+		} else {
+			EmitMoveSignal(event);
+		}
+	} else {
+		if (MouseInsideResizeTriangle(event)) {
+			setCursor(Qt::SizeFDiagCursor);
+		} else {
+			unsetCursor();
+		}
+	}
 }
 
 void NodeViewMiniMap::mouseReleaseEvent(QMouseEvent *event)
 {
-  resizing_ = false;
+	resizing_ = false;
 }
 
 void NodeViewMiniMap::SceneChanged(const QRectF &bounding)
 {
-  double x_scale = double(this->width()) / bounding.width();
-  double y_scale = double(this->height()) / bounding.height();
+	double x_scale = double(this->width()) / bounding.width();
+	double y_scale = double(this->height()) / bounding.height();
 
-  double min_scale = qMin(x_scale, y_scale);
+	double min_scale = qMin(x_scale, y_scale);
 
-  QTransform transform;
-  transform.scale(min_scale, min_scale);
+	QTransform transform;
+	transform.scale(min_scale, min_scale);
 
-  setTransform(transform);
+	setTransform(transform);
 }
 
 void NodeViewMiniMap::SetDefaultSize()
 {
-  if (parentWidget()) {
-    resize(parentWidget()->width()/4, parentWidget()->height()/4);
-  }
+	if (parentWidget()) {
+		resize(parentWidget()->width() / 4, parentWidget()->height() / 4);
+	}
 }
 
 bool NodeViewMiniMap::MouseInsideResizeTriangle(QMouseEvent *event)
 {
-  return event->pos().x() <= resize_triangle_sz_ && event->pos().y() <= resize_triangle_sz_;
+	return event->pos().x() <= resize_triangle_sz_ &&
+		   event->pos().y() <= resize_triangle_sz_;
 }
 
 void NodeViewMiniMap::EmitMoveSignal(QMouseEvent *event)
 {
-  emit MoveToScenePoint(mapToScene(event->pos()));
+	emit MoveToScenePoint(mapToScene(event->pos()));
 }
 
 }

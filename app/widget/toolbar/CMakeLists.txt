@@ -15,10 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/toolbar/toolbar.h
-  widget/toolbar/toolbar.cpp
-  widget/toolbar/toolbarbutton.h
-  widget/toolbar/toolbarbutton.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/toolbar/toolbar.h
+        widget/toolbar/toolbar.cpp
+        widget/toolbar/toolbarbutton.h
+        widget/toolbar/toolbarbutton.cpp
+        PARENT_SCOPE
 )

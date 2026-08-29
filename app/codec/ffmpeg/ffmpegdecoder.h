@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,16 +22,9 @@
 #ifndef FFMPEGDECODER_H
 #define FFMPEGDECODER_H
 
-// Fixes weird define issue when including <avfilter.h>
 #include <inttypes.h>
 
-extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavfilter/avfilter.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-#include <libswresample/swresample.h>
-}
+#include <ffmpeg_bridge/ffmpeg_bridge.h>
 
 #include <QTimer>
 #include <QVector>
@@ -39,147 +33,117 @@ extern "C" {
 #include "codec/decoder.h"
 #include "common/ffmpegutils.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
- * @brief A Decoder derivative that wraps FFmpeg functions as on Olive decoder
+ * @brief A Decoder derivative that uses the ffmpeg_bridge library as an Olive decoder
+ *
+ * All media access goes through the pure C API of the ffmpeg_bridge shared
+ * library; this class never sees an FFmpeg structure or function.
  */
-class FFmpegDecoder : public Decoder
-{
-  Q_OBJECT
+class FFmpegDecoder : public Decoder {
+	Q_OBJECT
 public:
-  // Constructor
-  FFmpegDecoder();
+	// Constructor
+	FFmpegDecoder();
 
-  // Destructor
-  DECODER_DEFAULT_DESTRUCTOR(FFmpegDecoder)
+	// Destructor
+	DECODER_DEFAULT_DESTRUCTOR(FFmpegDecoder)
 
-  virtual QString id() const override;
+	virtual QString id() const override;
 
-  virtual bool SupportsVideo() override{return true;}
-  virtual bool SupportsAudio() override{return true;}
+	virtual bool SupportsVideo() override
+	{
+		return true;
+	}
+	virtual bool SupportsAudio() override
+	{
+		return true;
+	}
 
-  virtual FootageDescription Probe(const QString &filename, CancelAtom *cancelled) const override;
+	virtual FootageDescription Probe(const QString &filename,
+									 CancelAtom *cancelled) const override;
 
 protected:
-  virtual bool OpenInternal() override;
-  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
-  virtual bool ConformAudioInternal(const QVector<QString>& filenames, const AudioParams &params, CancelAtom *cancelled) override;
-  virtual void CloseInternal() override;
+	virtual bool OpenInternal() override;
+	virtual TexturePtr
+	RetrieveVideoInternal(const RetrieveVideoParams &p) override;
+	virtual FramePtr
+	RetrieveVideoFrameInternal(const RetrieveVideoParams &p) override;
+	virtual bool ConformAudioInternal(const QVector<QString> &filenames,
+									  const AudioParams &params,
+									  CancelAtom *cancelled) override;
+	virtual void CloseInternal() override;
 
-  virtual rational GetAudioStartOffset() const override;
+	virtual rational GetAudioStartOffset() const override;
 
 private:
-  class Instance
-  {
-  public:
-    Instance();
-
-    ~Instance()
-    {
-      Close();
-    }
-
-    bool Open(const char* filename, int stream_index);
-
-    bool IsOpen() const
-    {
-      return fmt_ctx_;
-    }
-
-    void Close();
-
-    /**
-     * @brief Uses the FFmpeg API to retrieve a packet (stored in pkt_) and decode it (stored in frame_)
-     *
-     * @return
-     *
-     * An FFmpeg error code, or >= 0 on success
-     */
-    int GetFrame(AVPacket* pkt, AVFrame* frame);
-
-    const char *GetSubtitleHeader() const;
-
-    int GetSubtitle(AVPacket* pkt, AVSubtitle* sub);
-
-    int GetPacket(AVPacket *pkt);
-
-    void Seek(int64_t timestamp);
-
-    AVFormatContext* fmt_ctx() const
-    {
-      return fmt_ctx_;
-    }
-
-    AVStream* avstream() const
-    {
-      return avstream_;
-    }
-
-  private:
-    AVFormatContext* fmt_ctx_;
-    AVCodecContext* codec_ctx_;
-    AVStream* avstream_;
-    AVDictionary* opts_;
-
-  };
-
-  /**
-   * @brief Handle an FFmpeg error code
+	/**
+   * @brief Handle a bridge error code
    *
-   * Uses the FFmpeg API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
+   * Uses the bridge API to retrieve a descriptive string for this error code and sends it to Error(). As such, this
    * function also automatically closes the Decoder.
    *
    * @param error_code
    */
-  static QString FFmpegError(int error_code);
+	static QString FFmpegError(int error_code);
 
-  void FreeScaler();
+	void FreeScaler();
 
-  static PixelFormat GetNativePixelFormat(AVPixelFormat pix_fmt);
-  static int GetNativeChannelCount(AVPixelFormat pix_fmt);
+	AVFramePtr TransferHardwareFrame(AVFramePtr f);
 
-  static uint64_t ValidateChannelLayout(AVStream *stream);
+	static PixelFormat GetNativePixelFormat(int pix_fmt);
+	static int GetNativeChannelCount(int pix_fmt);
 
-  static const char* GetInterlacingModeInFFmpeg(VideoParams::Interlacing interlacing);
+	static bool IsPixelFormatGLSLCompatible(int f);
 
-  static bool IsPixelFormatGLSLCompatible(AVPixelFormat f);
+	AVFramePtr GetFrameFromCache(const int64_t &t) const;
 
-  AVFramePtr GetFrameFromCache(const int64_t &t) const;
+	void ClearFrameCache();
 
-  void ClearFrameCache();
+	AVFramePtr PreProcessFrame(AVFramePtr f, const RetrieveVideoParams &p);
 
-  AVFramePtr PreProcessFrame(AVFramePtr f, const RetrieveVideoParams &p);
+	TexturePtr ProcessFrameIntoTexture(AVFramePtr f,
+									   const RetrieveVideoParams &p,
+									   const AVFramePtr original);
 
-  TexturePtr ProcessFrameIntoTexture(AVFramePtr f, const RetrieveVideoParams &p, const AVFramePtr original);
+	AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
 
-  AVFramePtr RetrieveFrame(const rational &time, CancelAtom *cancelled);
+	void RemoveFirstFrame();
 
-  void RemoveFirstFrame();
+	static int MaximumQueueSize();
 
-  static int MaximumQueueSize();
+	FBScaler *scaler_;
+	int scaler_src_width_;
+	int scaler_src_height_;
+	int scaler_src_format_;
+	int scaler_dst_width_;
+	int scaler_dst_height_;
+	int scaler_dst_format_;
+	int scaler_colrange_;
+	int scaler_colspace_;
 
-  SwsContext *sws_ctx_;
-  int sws_src_width_;
-  int sws_src_height_;
-  AVPixelFormat sws_src_format_;
-  int sws_dst_width_;
-  int sws_dst_height_;
-  AVPixelFormat sws_dst_format_;
-  AVColorRange sws_colrange_;
-  AVColorSpace sws_colspace_;
+	FBPacket *working_packet_;
 
-  AVPacket *working_packet_;
+	int64_t second_ts_;
 
-  int64_t second_ts_;
+	std::list<AVFramePtr> cached_frames_;
 
-  std::list<AVFramePtr> cached_frames_;
+	bool cache_at_zero_;
+	bool cache_at_eof_;
 
-  bool cache_at_zero_;
-  bool cache_at_eof_;
+	FBDecoder *instance_;
 
-  Instance instance_;
-
+	// Stream parameters cached on open (the stream object itself lives
+	// inside the bridge library)
+	rational stream_time_base_;
+	int64_t stream_start_time_;
+	int64_t stream_duration_;
+	int64_t format_start_time_;
+	int input_sample_format_;
+	int input_sample_rate_;
+	uint64_t input_channel_layout_mask_;
 };
 
 }

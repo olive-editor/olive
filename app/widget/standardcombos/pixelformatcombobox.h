@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,40 +26,40 @@
 
 #include "render/videoparams.h"
 
-namespace olive {
-
-class PixelFormatComboBox : public QComboBox
+namespace olive
 {
-  Q_OBJECT
+
+class PixelFormatComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  PixelFormatComboBox(bool float_only, QWidget* parent = nullptr) :
-    QComboBox(parent)
-  {
-    // Set up preview formats
-    for (int i=0;i<PixelFormat::COUNT;i++) {
-      PixelFormat pix_fmt = static_cast<PixelFormat::Format>(i);
+	PixelFormatComboBox(bool float_only, QWidget *parent = nullptr)
+		: QComboBox(parent)
+	{
+		// Set up preview formats
+		for (int i = 0; i < PixelFormat::COUNT; i++) {
+			PixelFormat pix_fmt = static_cast<PixelFormat::Format>(i);
 
-      if (!float_only || pix_fmt.is_float()) {
-        this->addItem(VideoParams::GetFormatName(pix_fmt), static_cast<PixelFormat::Format>(pix_fmt));
-      }
-    }
-  }
+			if (!float_only || pix_fmt.is_float()) {
+				this->addItem(VideoParams::GetFormatName(pix_fmt),
+							  static_cast<PixelFormat::Format>(pix_fmt));
+			}
+		}
+	}
 
-  PixelFormat GetPixelFormat() const
-  {
-    return static_cast<PixelFormat::Format>(this->currentData().toInt());
-  }
+	PixelFormat GetPixelFormat() const
+	{
+		return static_cast<PixelFormat::Format>(this->currentData().toInt());
+	}
 
-  void SetPixelFormat(PixelFormat fmt)
-  {
-    for (int i=0; i<this->count(); i++) {
-      if (this->itemData(i).toInt() == fmt) {
-        this->setCurrentIndex(i);
-        break;
-      }
-    }
-  }
-
+	void SetPixelFormat(PixelFormat fmt)
+	{
+		for (int i = 0; i < this->count(); i++) {
+			if (this->itemData(i).toInt() == fmt) {
+				this->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
 };
 
 }

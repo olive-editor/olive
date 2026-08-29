@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,49 +24,51 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class ValueNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class ValueNode : public Node {
+	Q_OBJECT
 public:
-  ValueNode();
+	ValueNode();
 
-  NODE_DEFAULT_FUNCTIONS(ValueNode)
+	NODE_DEFAULT_FUNCTIONS(ValueNode)
 
-  virtual QString Name() const override
-  {
-    return tr("Value");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Value");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.value");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.value");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryGenerator};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryGenerator };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Create a single value that can be connected to various other inputs.");
-  }
+	virtual QString Description() const override
+	{
+		return tr(
+			"Create a single value that can be connected to various other inputs.");
+	}
 
-  static const QString kTypeInput;
-  static const QString kValueInput;
+	static const QString kTypeInput;
+	static const QString kValueInput;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
 protected:
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
 private:
-  static const QVector<NodeValue::Type> kSupportedTypes;
-
+	static const QVector<NodeValue::Type> kSupportedTypes;
 };
 
 }

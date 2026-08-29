@@ -1,0 +1,37 @@
+Dependencies
+------------
+
+Dependent upon the following
+
+*the expat library (expat.h) - to parse XML
+*ofx header files
+
+How to build the library
+------------------------
+
+UNIX
+  - simply type 'make' in this directory, it will create 'libofxHost.a' in directory ./lib
+  - the Makefile assumes expat is installed in a standard system location, if it is not, 
+    you need to do the following
+
+     make EXPAT_INCLUDE=-IDIRECTORY_WITH_EXPAT
+
+WINDOWS
+  - use the vc8 projects
+
+
+How to build the examples
+------------------------
+
+UNIX
+  - make the ofxHostLib.a library
+  - in the examples directory type 'make',
+  - the Makefile assumes expat is installed in a standard system location, if it is not, 
+    you need to do the following
+
+     make EXPAT_INCLUDE=-IDIRECTORY_WITH_EXPAT EXPAT_LIB=SOMEWHERE/libexpat.a
+
+WINDOWS
+  - use the vc8 projects
+
+

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,42 +28,44 @@
 
 #include "node/value.h"
 
-namespace olive {
+namespace olive
+{
 
 #define OLIVE_CONFIG(x) Config::Current()[QStringLiteral(x)]
 #define OLIVE_CONFIG_STR(x) Config::Current()[x]
 
 class Config {
 public:
-  static Config& Current();
+	static Config &Current();
 
-  void SetDefaults();
+	void SetDefaults();
 
-  static void Load();
+	static void Load();
 
-  static void Save();
+	static void Save();
 
-  QVariant operator[](const QString&) const;
+	QVariant operator[](const QString &) const;
 
-  QVariant& operator[](const QString&);
+	QVariant &operator[](const QString &);
 
-  NodeValue::Type GetConfigEntryType(const QString& key) const;
+	NodeValue::Type GetConfigEntryType(const QString &key) const;
 
 private:
-  Config();
+	Config();
 
-  struct ConfigEntry {
-    NodeValue::Type type;
-    QVariant data;
-  };
+	struct ConfigEntry {
+		NodeValue::Type type;
+		QVariant data;
+	};
 
-  void SetEntryInternal(const QString& key, NodeValue::Type type, const QVariant& data);
+	void SetEntryInternal(const QString &key, NodeValue::Type type,
+						  const QVariant &data);
 
-  QMap<QString, ConfigEntry> config_map_;
+	QMap<QString, ConfigEntry> config_map_;
 
-  static Config current_config_;
+	static Config current_config_;
 
-  static QString GetConfigFilePath();
+	static QString GetConfigFilePath();
 };
 
 }

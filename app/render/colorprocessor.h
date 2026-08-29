@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,46 +26,46 @@
 #include "common/ocioutils.h"
 #include "render/colortransform.h"
 
-namespace olive {
+namespace olive
+{
 
 class ColorManager;
 
 class ColorProcessor;
 using ColorProcessorPtr = std::shared_ptr<ColorProcessor>;
 
-class ColorProcessor
-{
+class ColorProcessor {
 public:
-  enum Direction {
-    kNormal,
-    kInverse
-  };
+	enum Direction { kNormal, kInverse };
 
-  ColorProcessor(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction = kNormal);
-  ColorProcessor(OCIO::ConstProcessorRcPtr processor);
+	ColorProcessor(ColorManager *config, const QString &input,
+				   const ColorTransform &dest_space,
+				   Direction direction = kNormal);
+	ColorProcessor(OCIO::ConstProcessorRcPtr processor);
 
-  DISABLE_COPY_MOVE(ColorProcessor)
+	DISABLE_COPY_MOVE(ColorProcessor)
 
-  static ColorProcessorPtr Create(ColorManager* config, const QString& input, const ColorTransform& dest_space, Direction direction = kNormal);
-  static ColorProcessorPtr Create(OCIO::ConstProcessorRcPtr processor);
+	static ColorProcessorPtr Create(ColorManager *config, const QString &input,
+									const ColorTransform &dest_space,
+									Direction direction = kNormal);
+	static ColorProcessorPtr Create(OCIO::ConstProcessorRcPtr processor);
 
-  OCIO::ConstProcessorRcPtr GetProcessor();
+	OCIO::ConstProcessorRcPtr GetProcessor();
 
-  void ConvertFrame(FramePtr f);
-  void ConvertFrame(Frame* f);
+	void ConvertFrame(FramePtr f);
+	void ConvertFrame(Frame *f);
 
-  Color ConvertColor(const Color &in);
+	Color ConvertColor(const Color &in);
 
-  const char *id() const
-  {
-    return processor_->getCacheID();
-  }
+	const char *id() const
+	{
+		return processor_->getCacheID();
+	}
 
 private:
-  OCIO::ConstProcessorRcPtr processor_;
+	OCIO::ConstProcessorRcPtr processor_;
 
-  OCIO::ConstCPUProcessorRcPtr cpu_processor_;
-
+	OCIO::ConstCPUProcessorRcPtr cpu_processor_;
 };
 
 using ColorProcessorChain = QVector<ColorProcessorPtr>;

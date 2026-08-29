@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,76 +28,87 @@
 #include "config/config.h"
 #include "timeline/timelinecommon.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super SeekableWidget
 
-AudioWaveformView::AudioWaveformView(QWidget *parent) :
-  super(parent),
-  playback_(nullptr)
+AudioWaveformView::AudioWaveformView(QWidget *parent)
+	: super(parent)
+	, playback_(nullptr)
 {
-  setAutoFillBackground(true);
-  setBackgroundRole(QPalette::Base);
-  setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setAutoFillBackground(true);
+	setBackgroundRole(QPalette::Base);
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-  // NOTE: At some point it might make sense for this to be AlignCenter since the waveform
-  //       originates from the center. But we're leaving it top/left for now since it was just
-  //       ported from a QWidget's paintEvent.
-  setAlignment(Qt::AlignLeft | Qt::AlignTop);
+	// NOTE: At some point it might make sense for this to be AlignCenter since the waveform
+	//       originates from the center. But we're leaving it top/left for now since it was just
+	//       ported from a QWidget's paintEvent.
+	setAlignment(Qt::AlignLeft | Qt::AlignTop);
 }
 
 void AudioWaveformView::SetViewer(ViewerOutput *playback)
 {
-  if (playback_) {
-    pool_.clear();
-    pool_.waitForDone();
+	if (playback_) {
+		pool_.clear();
+		pool_.waitForDone();
 
-    disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+		disconnect(playback_, &ViewerOutput::ConnectedWaveformChanged,
+				   viewport(),
+				   static_cast<void (QWidget::*)()>(&QWidget::update));
 
-    SetTimebase(0);
-  }
+		SetTimebase(0);
+	}
 
-  playback_ = playback;
+	playback_ = playback;
 
-  if (playback_) {
-    connect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(), static_cast<void(QWidget::*)()>(&QWidget::update));
+	if (playback_) {
+		connect(playback_, &ViewerOutput::ConnectedWaveformChanged, viewport(),
+				static_cast<void (QWidget::*)()>(&QWidget::update));
 
-    SetTimebase(playback_->GetAudioParams().sample_rate_as_time_base());
-  }
+		rational tb = playback_->GetVideoParams().frame_rate_as_time_base();
+		if (tb.isNull()) {
+			tb = OLIVE_CONFIG("DefaultSequenceFrameRate")
+					 .value<rational>()
+					 .flipped();
+		}
+		SetTimebase(tb);
+		UpdateSceneRect();
+	}
 }
 
 void AudioWaveformView::drawForeground(QPainter *p, const QRectF &rect)
 {
-  super::drawForeground(p, rect);
+	super::drawForeground(p, rect);
 
-  if (!playback_) {
-    return;
-  }
+	if (!playback_) {
+		return;
+	}
 
-  const AudioWaveformCache *wave = playback_->GetConnectedWaveform();
-  if (!wave) {
-    return;
-  }
+	const AudioWaveformCache *wave = playback_->GetConnectedWaveform();
+	if (!wave) {
+		return;
+	}
 
-  const AudioParams& params = wave->GetParameters();
-  if (!params.is_valid()) {
-    return;
-  }
+	const AudioParams &params = wave->GetParameters();
+	if (!params.is_valid()) {
+		return;
+	}
 
-  // Draw in/out points
-  DrawWorkArea(p);
-  DrawMarkers(p);
+	// Draw in/out points
+	DrawWorkArea(p);
+	DrawMarkers(p);
 
-  // Draw waveform
-  p->setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
-  wave->Draw(p, rect.toRect(), GetScale(), SceneToTime(GetScroll()));
+	// Draw waveform
+	p->setPen(QColor(64, 255, 160)); // FIXME: Hardcoded color
+	wave->Draw(p, rect.toRect(), GetScale(), SceneToTime(GetScroll()));
 
-  // Draw playhead
-  p->setPen(PLAYHEAD_COLOR);
+	// Draw playhead
+	p->setPen(PLAYHEAD_COLOR);
 
-  int playhead_x = TimeToScene(GetViewerNode()->GetPlayhead());
-  p->drawLine(playhead_x, 0, playhead_x, height());
+	int playhead_x = TimeToScene(GetViewerNode()->GetPlayhead());
+	p->drawLine(playhead_x, 0, playhead_x, height());
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,98 +27,108 @@
 #include "config/config.h"
 #include "node/project.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super ViewerWidget
 
-FootageViewerWidget::FootageViewerWidget(QWidget *parent) :
-  super(parent)
+FootageViewerWidget::FootageViewerWidget(QWidget *parent)
+	: super(parent)
 {
-  connect(display_widget(), &ViewerDisplayWidget::DragStarted, this, &FootageViewerWidget::StartFootageDrag);
+	connect(display_widget(), &ViewerDisplayWidget::DragStarted, this,
+			&FootageViewerWidget::StartFootageDrag);
 
-  controls_->SetAudioVideoDragButtonsVisible(true);
-  connect(controls_, &PlaybackControls::VideoClicked, this, &FootageViewerWidget::VideoButtonClicked);
-  connect(controls_, &PlaybackControls::AudioClicked, this, &FootageViewerWidget::AudioButtonClicked);
-  connect(controls_, &PlaybackControls::VideoDragged, this, &FootageViewerWidget::StartVideoDrag);
-  connect(controls_, &PlaybackControls::AudioDragged, this, &FootageViewerWidget::StartAudioDrag);
+	controls_->SetAudioVideoDragButtonsVisible(true);
+	connect(controls_, &PlaybackControls::VideoClicked, this,
+			&FootageViewerWidget::VideoButtonClicked);
+	connect(controls_, &PlaybackControls::AudioClicked, this,
+			&FootageViewerWidget::AudioButtonClicked);
+	connect(controls_, &PlaybackControls::VideoDragged, this,
+			&FootageViewerWidget::StartVideoDrag);
+	connect(controls_, &PlaybackControls::AudioDragged, this,
+			&FootageViewerWidget::StartAudioDrag);
 
-  override_workarea_ = new TimelineWorkArea(this);
+	override_workarea_ = new TimelineWorkArea(this);
 }
 
 void FootageViewerWidget::OverrideWorkArea(const TimeRange &r)
 {
-  override_workarea_->set_enabled(true);
-  override_workarea_->set_range(r);
-  this->ConnectWorkArea(override_workarea_);
+	override_workarea_->set_enabled(true);
+	override_workarea_->set_range(r);
+	this->ConnectWorkArea(override_workarea_);
 }
 
 void FootageViewerWidget::ResetWorkArea()
 {
-  if (GetConnectedWorkArea() == override_workarea_) {
-    this->ConnectWorkArea(GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
-  }
+	if (GetConnectedWorkArea() == override_workarea_) {
+		this->ConnectWorkArea(
+			GetConnectedNode() ? GetConnectedNode()->GetWorkArea() : nullptr);
+	}
 }
 
-void FootageViewerWidget::StartFootageDragInternal(bool enable_video, bool enable_audio)
+void FootageViewerWidget::StartFootageDragInternal(bool enable_video,
+												   bool enable_audio)
 {
-  if (!GetConnectedNode()) {
-    return;
-  }
+	if (!GetConnectedNode()) {
+		return;
+	}
 
-  QDrag* drag = new QDrag(this);
-  QMimeData* mimedata = new QMimeData();
+	QDrag *drag = new QDrag(this);
+	QMimeData *mimedata = new QMimeData();
 
-  QByteArray encoded_data;
-  QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
+	QByteArray encoded_data;
+	QDataStream data_stream(&encoded_data, QIODevice::WriteOnly);
 
-  QVector<Track::Reference> streams = GetConnectedNode()->GetEnabledStreamsAsReferences();
+	QVector<Track::Reference> streams =
+		GetConnectedNode()->GetEnabledStreamsAsReferences();
 
-  // Disable streams that have been disabled
-  if (!enable_video || !enable_audio) {
-    for (int i=0; i<streams.size(); i++) {
-      const Track::Reference& ref = streams.at(i);
+	// Disable streams that have been disabled
+	if (!enable_video || !enable_audio) {
+		for (int i = 0; i < streams.size(); i++) {
+			const Track::Reference &ref = streams.at(i);
 
-      if ((ref.type() == Track::kVideo && !enable_video)
-          || (ref.type() == Track::kAudio && !enable_audio)) {
-        streams.removeAt(i);
-        i--;
-      }
-    }
-  }
+			if ((ref.type() == Track::kVideo && !enable_video) ||
+				(ref.type() == Track::kAudio && !enable_audio)) {
+				streams.removeAt(i);
+				i--;
+			}
+		}
+	}
 
-  if (!streams.isEmpty()) {
-    data_stream << streams << reinterpret_cast<quintptr>(GetConnectedNode());
+	if (!streams.isEmpty()) {
+		data_stream << streams
+					<< reinterpret_cast<quintptr>(GetConnectedNode());
 
-    mimedata->setData(Project::kItemMimeType, encoded_data);
-    drag->setMimeData(mimedata);
+		mimedata->setData(Project::kItemMimeType, encoded_data);
+		drag->setMimeData(mimedata);
 
-    drag->exec();
-  }
+		drag->exec();
+	}
 }
 
 void FootageViewerWidget::StartFootageDrag()
 {
-  StartFootageDragInternal(true, true);
+	StartFootageDragInternal(true, true);
 }
 
 void FootageViewerWidget::StartVideoDrag()
 {
-  StartFootageDragInternal(true, false);
+	StartFootageDragInternal(true, false);
 }
 
 void FootageViewerWidget::StartAudioDrag()
 {
-  StartFootageDragInternal(false, true);
+	StartFootageDragInternal(false, true);
 }
 
 void FootageViewerWidget::VideoButtonClicked()
 {
-  this->SetWaveformMode(kWFAutomatic);
+	this->SetWaveformMode(kWFAutomatic);
 }
 
 void FootageViewerWidget::AudioButtonClicked()
 {
-  this->SetWaveformMode(kWFWaveformOnly);
+	this->SetWaveformMode(kWFWaveformOnly);
 }
 
 }

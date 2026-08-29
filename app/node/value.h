@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +31,8 @@
 #include "node/splitvalue.h"
 #include "render/texture.h"
 
-namespace olive {
+namespace olive
+{
 
 class Node;
 class NodeValue;
@@ -39,423 +41,481 @@ class NodeValueTable;
 using NodeValueArray = std::map<int, NodeValue>;
 using NodeValueTableArray = std::map<int, NodeValueTable>;
 
-class NodeValue
-{
+class NodeValue {
 public:
-  /**
+	/**
    * @brief The types of data that can be passed between Nodes
    */
-  enum Type {
-    kNone,
+	enum Type {
+		kNone,
 
-    /**
+		/**
      ****************************** SPECIFIC IDENTIFIERS ******************************
      */
 
-    /**
+		/**
      * Integer type
      *
      * Resolves to int64_t.
      */
-    kInt,
+		kInt,
 
-    /**
+		/**
      * Decimal (floating-point) type
      *
      * Resolves to `double`.
      */
-    kFloat,
+		kFloat,
 
-    /**
+		/**
      * Decimal (rational) type
      *
      * Resolves to `double`.
      */
-    kRational,
+		kRational,
 
-    /**
+		/**
      * Boolean type
      *
      * Resolves to `bool`.
      */
-    kBoolean,
+		kBoolean,
 
-    /**
+		/**
      * Floating-point type
      *
      * Resolves to `Color`.
      *
      * Colors passed around the nodes should always be in reference space and preferably use
      */
-    kColor,
+		kColor,
 
-    /**
+		/**
      * Matrix type
      *
      * Resolves to `QMatrix4x4`.
      */
-    kMatrix,
+		kMatrix,
 
-    /**
+		/**
      * Text type
      *
      * Resolves to `QString`.
      */
-    kText,
+		kText,
 
-    /**
+		/**
      * Font type
      *
      * Resolves to `QFont`.
      */
-    kFont,
+		kFont,
 
-    /**
+		/**
      * File type
      *
      * Resolves to a `QString` containing an absolute file path.
      */
-    kFile,
+		kFile,
 
-    /**
+		/**
      * Image buffer type
      *
      * True value type depends on the render engine used.
      */
-    kTexture,
+		kTexture,
 
-    /**
+		/**
      * Audio samples type
      *
      * Resolves to `SampleBufferPtr`.
      */
-    kSamples,
+		kSamples,
 
-    /**
+		/**
      * Two-dimensional vector (XY) type
      *
      * Resolves to `QVector2D`.
      */
-    kVec2,
+		kVec2,
 
-    /**
+		/**
      * Three-dimensional vector (XYZ) type
      *
      * Resolves to `QVector3D`.
      */
-    kVec3,
+		kVec3,
 
-    /**
+		/**
      * Four-dimensional vector (XYZW) type
      *
      * Resolves to `QVector4D`.
      */
-    kVec4,
+		kVec4,
 
-    /**
+		/**
      * Cubic bezier type that contains three X/Y coordinates, the main point, and two control points
      *
      * Resolves to `Bezier`
      */
-    kBezier,
+		kBezier,
 
-    /**
+		/**
      * ComboBox type
      *
      * Resolves to `int` - the index currently selected
      */
-    kCombo,
-
-    /**
+		kCombo,
+		/**
+	 * ComboBox type
+	 *
+	 * Resolves to `QString` - the text of choice currently selected
+	 * This is to support the OpenFX type kOfxParamTypeStrChoice
+	 */
+		kStrCombo,
+		/**
      * Video Parameters type
      *
      * Resolves to `VideoParams`
      */
-    kVideoParams,
+		kVideoParams,
 
-    /**
+		/**
      * Audio Parameters type
      *
      * Resolves to `AudioParams`
      */
-    kAudioParams,
+		kAudioParams,
 
-    /**
+		/**
      * Subtitle Parameters type
      *
      * Resolves to `SubtitleParams`
      */
-    kSubtitleParams,
+		kSubtitleParams,
 
-    /**
+		/**
      * Binary Data
      */
-    kBinary,
+		kBinary,
 
-    /**
+		/**
+		 *Push Button
+		 */
+		kPushButton,
+		/**
      * End of list
      */
-    kDataTypeCount
-  };
+		kDataTypeCount
+	};
 
-  NodeValue() :
-    type_(kNone),
-    from_(nullptr),
-    array_(false)
-  {
-  }
+	NodeValue()
+		: type_(kNone)
+		, from_(nullptr)
+		, array_(false)
+	{
+	}
 
-  template <typename T>
-  NodeValue(Type type, const T& data, const Node* from = nullptr, bool array = false, const QString& tag = QString()) :
-    type_(type),
-    from_(from),
-    tag_(tag),
-    array_(array)
-  {
-    set_value(data);
-  }
+	template <typename T>
+	NodeValue(Type type, const T &data, const Node *from = nullptr,
+			  bool array = false, const QString &tag = QString())
+		: type_(type)
+		, from_(from)
+		, tag_(tag)
+		, array_(array)
+	{
+		set_value(data);
+	}
 
-  template <typename T>
-  NodeValue(Type type, const T& data, const Node* from, const QString& tag) :
-    NodeValue(type, data, from, false, tag)
-  {
-  }
+	template <typename T>
+	NodeValue(Type type, const T &data, const Node *from, const QString &tag)
+		: NodeValue(type, data, from, false, tag)
+	{
+	}
 
-  Type type() const
-  {
-    return type_;
-  }
+	Type type() const
+	{
+		return type_;
+	}
 
-  template <typename T>
-  T value() const
-  {
-    return data_.value<T>();
-  }
+	template <typename T> T value() const
+	{
+		return data_.value<T>();
+	}
 
-  template <typename T>
-  void set_value(const T &v)
-  {
-    data_ = QVariant::fromValue(v);
-  }
+	template <typename T> void set_value(const T &v)
+	{
+		data_ = QVariant::fromValue(v);
+	}
 
-  const QVariant &data() const { return data_; }
+	const QVariant &data() const
+	{
+		return data_;
+	}
 
-  template <typename T>
-  bool canConvert() const
-  {
-    return data_.canConvert<T>();
-  }
+	template <typename T> bool canConvert() const
+	{
+		return data_.canConvert<T>();
+	}
 
-  const QString& tag() const
-  {
-    return tag_;
-  }
+	const QString &tag() const
+	{
+		return tag_;
+	}
 
-  void set_tag(const QString& tag)
-  {
-    tag_ = tag;
-  }
+	void set_tag(const QString &tag)
+	{
+		tag_ = tag;
+	}
 
-  const Node* source() const
-  {
-    return from_;
-  }
+	const Node *source() const
+	{
+		return from_;
+	}
 
-  bool array() const
-  {
-    return array_;
-  }
+	bool array() const
+	{
+		return array_;
+	}
 
-  bool operator==(const NodeValue& rhs) const
-  {
-    return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
-  }
+	bool operator==(const NodeValue &rhs) const
+	{
+		return type_ == rhs.type_ && tag_ == rhs.tag_ && data_ == rhs.data_;
+	}
 
-  operator bool() const
-  {
-    return !data_.isNull();
-  }
+	operator bool() const
+	{
+		return !data_.isNull();
+	}
 
-  static QString GetPrettyDataTypeName(Type type);
+	static QString GetPrettyDataTypeName(Type type);
 
-  static QString GetDataTypeName(Type type);
-  static NodeValue::Type GetDataTypeFromName(const QString &n);
+	static QString GetDataTypeName(Type type);
+	static NodeValue::Type GetDataTypeFromName(const QString &n);
 
-  static QString ValueToString(Type data_type, const QVariant& value, bool value_is_a_key_track);
-  static QString ValueToString(const NodeValue &v, bool value_is_a_key_track)
-  {
-    return ValueToString(v.type_, v.data_, value_is_a_key_track);
-  }
+	static QString ValueToString(Type data_type, const QVariant &value,
+								 bool value_is_a_key_track);
+	static QString ValueToString(const NodeValue &v, bool value_is_a_key_track)
+	{
+		return ValueToString(v.type_, v.data_, value_is_a_key_track);
+	}
 
-  static QVariant StringToValue(Type data_type, const QString &string, bool value_is_a_key_track);
+	static QVariant StringToValue(Type data_type, const QString &string,
+								  bool value_is_a_key_track);
 
-  static QVector<QVariant> split_normal_value_into_track_values(Type type, const QVariant &value);
+	static QVector<QVariant>
+	split_normal_value_into_track_values(Type type, const QVariant &value);
 
-  static QVariant combine_track_values_into_normal_value(Type type, const QVector<QVariant>& split);
+	static QVariant
+	combine_track_values_into_normal_value(Type type,
+										   const QVector<QVariant> &split);
 
-  SplitValue to_split_value() const
-  {
-    return split_normal_value_into_track_values(type_, data_);
-  }
+	SplitValue to_split_value() const
+	{
+		return split_normal_value_into_track_values(type_, data_);
+	}
 
-  /**
+	/**
    * @brief Returns whether a data type can be interpolated or not
    */
-  static bool type_can_be_interpolated(NodeValue::Type type)
-  {
-    return type == kFloat
-        || type == kVec2
-        || type == kVec3
-        || type == kVec4
-        || type == kBezier
-        || type == kColor
-        || type == kRational;
-  }
+	static bool type_can_be_interpolated(NodeValue::Type type)
+	{
+		return type == kFloat || type == kVec2 || type == kVec3 ||
+			   type == kVec4 || type == kBezier || type == kColor ||
+			   type == kRational;
+	}
 
-  static bool type_is_numeric(NodeValue::Type type)
-  {
-    return type == kFloat
-        || type == kInt
-        || type == kRational;
-  }
+	static bool type_is_numeric(NodeValue::Type type)
+	{
+		return type == kFloat || type == kInt || type == kRational;
+	}
 
-  static bool type_is_vector(NodeValue::Type type)
-  {
-    return type == kVec2
-        || type == kVec3
-        || type == kVec4;
-  }
+	static bool type_is_vector(NodeValue::Type type)
+	{
+		return type == kVec2 || type == kVec3 || type == kVec4;
+	}
 
-  static bool type_is_buffer(NodeValue::Type type)
-  {
-    return type == kTexture
-        || type == kSamples;
-  }
+	static bool type_is_buffer(NodeValue::Type type)
+	{
+		return type == kTexture || type == kSamples;
+	}
 
-  static int get_number_of_keyframe_tracks(Type type);
+	static int get_number_of_keyframe_tracks(Type type);
 
-  static void ValidateVectorString(QStringList* list, int count);
+	static void ValidateVectorString(QStringList *list, int count);
 
-  TexturePtr toTexture() const { return value<TexturePtr>(); }
-  SampleBuffer toSamples() const { return value<SampleBuffer>(); }
-  bool toBool() const { return value<bool>(); }
-  double toDouble() const { return value<double>(); }
-  int64_t toInt() const { return value<int64_t>(); }
-  rational toRational() const { return value<olive::core::rational>(); }
-  QString toString() const { return value<QString>(); }
-  Color toColor() const { return value<olive::core::Color>(); }
-  QMatrix4x4 toMatrix() const { return value<QMatrix4x4>(); }
-  VideoParams toVideoParams() const { return value<VideoParams>(); }
-  AudioParams toAudioParams() const { return value<AudioParams>(); }
-  QVector2D toVec2() const { return value<QVector2D>(); }
-  QVector3D toVec3() const { return value<QVector3D>(); }
-  QVector4D toVec4() const { return value<QVector4D>(); }
-  Bezier toBezier() const { return value<Bezier>(); }
-  NodeValueArray toArray() const { return value<NodeValueArray>(); }
+	TexturePtr toTexture() const
+	{
+		return value<TexturePtr>();
+	}
+	SampleBuffer toSamples() const
+	{
+		return value<SampleBuffer>();
+	}
+	bool toBool() const
+	{
+		return value<bool>();
+	}
+	double toDouble() const
+	{
+		return value<double>();
+	}
+	int64_t toInt() const
+	{
+		return value<int64_t>();
+	}
+	rational toRational() const
+	{
+		return value<olive::core::rational>();
+	}
+	QString toString() const
+	{
+		return value<QString>();
+	}
+	Color toColor() const
+	{
+		return value<olive::core::Color>();
+	}
+	QMatrix4x4 toMatrix() const
+	{
+		return value<QMatrix4x4>();
+	}
+	VideoParams toVideoParams() const
+	{
+		return value<VideoParams>();
+	}
+	AudioParams toAudioParams() const
+	{
+		return value<AudioParams>();
+	}
+	QVector2D toVec2() const
+	{
+		return value<QVector2D>();
+	}
+	QVector3D toVec3() const
+	{
+		return value<QVector3D>();
+	}
+	QVector4D toVec4() const
+	{
+		return value<QVector4D>();
+	}
+	Bezier toBezier() const
+	{
+		return value<Bezier>();
+	}
+	NodeValueArray toArray() const
+	{
+		return value<NodeValueArray>();
+	}
 
 private:
-  Type type_;
-  QVariant data_;
-  const Node* from_;
-  QString tag_;
-  bool array_;
-
+	Type type_;
+	QVariant data_;
+	const Node *from_;
+	QString tag_;
+	bool array_;
 };
 
-class NodeValueTable
-{
+class NodeValueTable {
 public:
-  NodeValueTable() = default;
+	NodeValueTable() = default;
 
-  NodeValue Get(NodeValue::Type type, const QString& tag = QString()) const
-  {
-    QVector<NodeValue::Type> types = {type};
-    return Get(types, tag);
-  }
+	NodeValue Get(NodeValue::Type type, const QString &tag = QString()) const
+	{
+		QVector<NodeValue::Type> types = { type };
+		return Get(types, tag);
+	}
 
-  NodeValue Get(const QVector<NodeValue::Type>& type, const QString& tag = QString()) const;
+	NodeValue Get(const QVector<NodeValue::Type> &type,
+				  const QString &tag = QString()) const;
 
-  NodeValue Take(NodeValue::Type type, const QString& tag = QString())
-  {
-    QVector<NodeValue::Type> types = {type};
-    return Take(types, tag);
-  }
+	NodeValue Take(NodeValue::Type type, const QString &tag = QString())
+	{
+		QVector<NodeValue::Type> types = { type };
+		return Take(types, tag);
+	}
 
-  NodeValue Take(const QVector<NodeValue::Type>& type, const QString& tag = QString());
+	NodeValue Take(const QVector<NodeValue::Type> &type,
+				   const QString &tag = QString());
 
-  void Push(const NodeValue& value)
-  {
-    values_.append(value);
-  }
+	void Push(const NodeValue &value)
+	{
+		values_.append(value);
+	}
 
-  void Push(const NodeValueTable& value)
-  {
-    values_.append(value.values_);
-  }
+	void Push(const NodeValueTable &value)
+	{
+		values_.append(value.values_);
+	}
 
-  template <typename T>
-  void Push(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
-  {
-    Push(NodeValue(type, data, from, array, tag));
-  }
+	template <typename T>
+	void Push(NodeValue::Type type, const T &data, const Node *from,
+			  bool array = false, const QString &tag = QString())
+	{
+		Push(NodeValue(type, data, from, array, tag));
+	}
 
-  template <typename T>
-  void Push(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
-  {
-    Push(NodeValue(type, data, from, false, tag));
-  }
+	template <typename T>
+	void Push(NodeValue::Type type, const T &data, const Node *from,
+			  const QString &tag)
+	{
+		Push(NodeValue(type, data, from, false, tag));
+	}
 
-  void Prepend(const NodeValue& value)
-  {
-    values_.prepend(value);
-  }
+	void Prepend(const NodeValue &value)
+	{
+		values_.prepend(value);
+	}
 
-  template <typename T>
-  void Prepend(NodeValue::Type type, const T& data, const Node *from, bool array = false, const QString& tag = QString())
-  {
-    Prepend(NodeValue(type, data, from, array, tag));
-  }
+	template <typename T>
+	void Prepend(NodeValue::Type type, const T &data, const Node *from,
+				 bool array = false, const QString &tag = QString())
+	{
+		Prepend(NodeValue(type, data, from, array, tag));
+	}
 
-  template <typename T>
-  void Prepend(NodeValue::Type type, const T& data, const Node *from, const QString& tag)
-  {
-    Prepend(NodeValue(type, data, from, false, tag));
-  }
+	template <typename T>
+	void Prepend(NodeValue::Type type, const T &data, const Node *from,
+				 const QString &tag)
+	{
+		Prepend(NodeValue(type, data, from, false, tag));
+	}
 
-  const NodeValue& at(int index) const
-  {
-    return values_.at(index);
-  }
-  NodeValue TakeAt(int index)
-  {
-    return values_.takeAt(index);
-  }
+	const NodeValue &at(int index) const
+	{
+		return values_.at(index);
+	}
+	NodeValue TakeAt(int index)
+	{
+		return values_.takeAt(index);
+	}
 
-  int Count() const
-  {
-    return values_.size();
-  }
+	int Count() const
+	{
+		return values_.size();
+	}
 
-  bool Has(NodeValue::Type type) const;
-  void Remove(const NodeValue& v);
+	bool Has(NodeValue::Type type) const;
+	void Remove(const NodeValue &v);
 
-  void Clear()
-  {
-    values_.clear();
-  }
+	void Clear()
+	{
+		values_.clear();
+	}
 
-  bool isEmpty() const
-  {
-    return values_.isEmpty();
-  }
+	bool isEmpty() const
+	{
+		return values_.isEmpty();
+	}
 
-  int GetValueIndex(const QVector<NodeValue::Type> &type, const QString& tag) const;
+	int GetValueIndex(const QVector<NodeValue::Type> &type,
+					  const QString &tag) const;
 
-  static NodeValueTable Merge(QList<NodeValueTable> tables);
+	static NodeValueTable Merge(QList<NodeValueTable> tables);
 
 private:
-  QVector<NodeValue> values_;
-
+	QVector<NodeValue> values_;
 };
 
 using NodeValueRow = QHash<QString, NodeValue>;

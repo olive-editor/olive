@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 #include "common/define.h"
 #include "render/videoparams.h"
 
-namespace olive {
+namespace olive
+{
 
 class Frame;
 using FramePtr = std::shared_ptr<Frame>;
@@ -36,135 +38,134 @@ using FramePtr = std::shared_ptr<Frame>;
 /**
  * @brief Video frame data or audio sample data from a Decoder
  */
-class Frame
-{
+class Frame {
 public:
-  Frame();
+	Frame();
 
-  ~Frame();
+	~Frame();
 
-  DISABLE_COPY_MOVE(Frame)
+	DISABLE_COPY_MOVE(Frame)
 
-  static FramePtr Create();
+	static FramePtr Create();
 
-  const VideoParams& video_params() const;
-  void set_video_params(const VideoParams& params);
+	const VideoParams &video_params() const;
+	void set_video_params(const VideoParams &params);
 
-  static FramePtr Interlace(FramePtr top, FramePtr bottom);
+	static FramePtr Interlace(FramePtr top, FramePtr bottom);
 
-  static int generate_linesize_bytes(int width, PixelFormat format, int channel_count);
+	static int generate_linesize_bytes(int width, PixelFormat format,
+									   int channel_count);
 
-  int linesize_pixels() const
-  {
-    return linesize_pixels_;
-  }
+	int linesize_pixels() const
+	{
+		return linesize_pixels_;
+	}
 
-  int linesize_bytes() const
-  {
-    return linesize_;
-  }
+	int linesize_bytes() const
+	{
+		return linesize_;
+	}
 
-  int width() const
-  {
-    return params_.effective_width();
-  }
+	int width() const
+	{
+		return params_.effective_width();
+	}
 
-  int height() const
-  {
-    return params_.effective_height();
-  }
+	int height() const
+	{
+		return params_.effective_height();
+	}
 
-  PixelFormat format() const
-  {
-    return params_.format();
-  }
+	PixelFormat format() const
+	{
+		return params_.format();
+	}
 
-  int channel_count() const
-  {
-    return params_.channel_count();
-  }
+	int channel_count() const
+	{
+		return params_.channel_count();
+	}
 
-  Color get_pixel(int x, int y) const;
-  bool contains_pixel(int x, int y) const;
-  void set_pixel(int x, int y, const Color& c);
+	Color get_pixel(int x, int y) const;
+	bool contains_pixel(int x, int y) const;
+	void set_pixel(int x, int y, const Color &c);
 
-  /**
+	/**
    * @brief Get frame's timestamp.
    *
    * This timestamp is always a rational that will equate to the time in seconds.
    */
-  const rational& timestamp() const
-  {
-    return timestamp_;
-  }
+	const rational &timestamp() const
+	{
+		return timestamp_;
+	}
 
-  void set_timestamp(const rational& timestamp)
-  {
-    timestamp_ = timestamp;
-  }
+	void set_timestamp(const rational &timestamp)
+	{
+		timestamp_ = timestamp;
+	}
 
-  /**
+	/**
    * @brief Get the data buffer of this frame
    */
-  char* data()
-  {
-    return data_;
-  }
+	char *data()
+	{
+		return data_;
+	}
 
-  /**
+	/**
    * @brief Get the const data buffer of this frame
    */
-  const char* const_data() const
-  {
-    return data_;
-  }
+	const char *const_data() const
+	{
+		return data_;
+	}
 
-  /**
+	/**
    * @brief Allocate memory buffer to store data based on parameters
    *
    * For video frames, the width(), height(), and format() must be set for this function to work.
    *
    * If a memory buffer has been previously allocated without destroying, this function will destroy it.
    */
-  bool allocate();
+	bool allocate();
 
-  /**
+	/**
    * @brief Return whether the frame is allocated or not
    */
-  bool is_allocated() const
-  {
-    return data_;
-  }
+	bool is_allocated() const
+	{
+		return data_;
+	}
 
-  /**
+	/**
    * @brief Destroy a memory buffer allocated with allocate()
    */
-  void destroy();
+	void destroy();
 
-  /**
+	/**
    * @brief Returns the size of the array returned in data() in bytes
    *
    * Returns 0 if nothing is allocated.
    */
-  int allocated_size() const
-  {
-    return data_size_;
-  }
+	int allocated_size() const
+	{
+		return data_size_;
+	}
 
-  FramePtr convert(PixelFormat format) const;
+	FramePtr convert(PixelFormat format) const;
 
 private:
-  VideoParams params_;
+	VideoParams params_;
 
-  char* data_;
-  int data_size_;
+	char *data_;
+	int data_size_;
 
-  rational timestamp_;
+	rational timestamp_;
 
-  int linesize_;
+	int linesize_;
 
-  int linesize_pixels_;
-
+	int linesize_pixels_;
 };
 
 }

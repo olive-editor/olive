@@ -19,14 +19,14 @@ set(QRC_BODY "")
 list(TRANSFORM STYLE_RESOURCES PREPEND "png/")
 list(APPEND STYLE_RESOURCES "palette.ini")
 list(APPEND STYLE_RESOURCES "style.css")
-foreach(ICON_FILE ${STYLE_RESOURCES})
-  string(APPEND QRC_BODY "<file>${ICON_FILE}</file>\n")
-  configure_file("${ICON_FILE}" "${ICON_FILE}" COPYONLY)
-endforeach()
+foreach (ICON_FILE ${STYLE_RESOURCES})
+    string(APPEND QRC_BODY "<file>${ICON_FILE}</file>\n")
+    configure_file("${ICON_FILE}" "${ICON_FILE}" COPYONLY)
+endforeach ()
 configure_file(res.qrc.in res.qrc @ONLY)
 
 set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  ${CMAKE_CURRENT_BINARY_DIR}/res.qrc
-  PARENT_SCOPE
+        ${OLIVE_RESOURCES}
+        ${CMAKE_CURRENT_BINARY_DIR}/res.qrc
+        PARENT_SCOPE
 )

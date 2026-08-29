@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,42 +27,42 @@
 #include "node/color/colormanager/colormanager.h"
 #include "render/managedcolor.h"
 
-namespace olive {
-
-class ColorButton : public QPushButton
+namespace olive
 {
-  Q_OBJECT
-public:
-  ColorButton(ColorManager* color_manager, bool show_dialog_on_click, QWidget* parent = nullptr);
-  ColorButton(ColorManager* color_manager, QWidget* parent = nullptr) :
-    ColorButton(color_manager, true, parent)
-  {
-  }
 
-  const ManagedColor& GetColor() const;
+class ColorButton : public QPushButton {
+	Q_OBJECT
+public:
+	ColorButton(ColorManager *color_manager, bool show_dialog_on_click,
+				QWidget *parent = nullptr);
+	ColorButton(ColorManager *color_manager, QWidget *parent = nullptr)
+		: ColorButton(color_manager, true, parent)
+	{
+	}
+
+	const ManagedColor &GetColor() const;
 
 public slots:
-  void SetColor(const ManagedColor& c);
+	void SetColor(const ManagedColor &c);
 
 signals:
-  void ColorChanged(const ManagedColor& c);
+	void ColorChanged(const ManagedColor &c);
 
 private slots:
-  void ShowColorDialog();
+	void ShowColorDialog();
 
-  void ColorDialogFinished(int e);
+	void ColorDialogFinished(int e);
 
 private:
-  void UpdateColor();
+	void UpdateColor();
 
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  ManagedColor color_;
+	ManagedColor color_;
 
-  ColorProcessorPtr color_processor_;
+	ColorProcessorPtr color_processor_;
 
-  bool dialog_open_;
-
+	bool dialog_open_;
 };
 
 }

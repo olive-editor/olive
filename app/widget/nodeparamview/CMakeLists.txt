@@ -1,5 +1,6 @@
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2022 Olive Team
+# Modifications Copyright (C) 2025 mikesolar
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,28 +16,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/nodeparamview/nodeparamview.cpp
-  widget/nodeparamview/nodeparamview.h
-  widget/nodeparamview/nodeparamviewarraywidget.cpp
-  widget/nodeparamview/nodeparamviewarraywidget.h
-  widget/nodeparamview/nodeparamviewconnectedlabel.cpp
-  widget/nodeparamview/nodeparamviewconnectedlabel.h
-  widget/nodeparamview/nodeparamviewcontext.cpp
-  widget/nodeparamview/nodeparamviewcontext.h
-  widget/nodeparamview/nodeparamviewdockarea.cpp
-  widget/nodeparamview/nodeparamviewdockarea.h
-  widget/nodeparamview/nodeparamviewitem.cpp
-  widget/nodeparamview/nodeparamviewitem.h
-  widget/nodeparamview/nodeparamviewitembase.cpp
-  widget/nodeparamview/nodeparamviewitembase.h
-  widget/nodeparamview/nodeparamviewitemtitlebar.cpp
-  widget/nodeparamview/nodeparamviewitemtitlebar.h
-  widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
-  widget/nodeparamview/nodeparamviewkeyframecontrol.h
-  widget/nodeparamview/nodeparamviewtextedit.cpp
-  widget/nodeparamview/nodeparamviewtextedit.h
-  widget/nodeparamview/nodeparamviewwidgetbridge.cpp
-  widget/nodeparamview/nodeparamviewwidgetbridge.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/nodeparamview/nodeparamview.cpp
+        widget/nodeparamview/nodeparamview.h
+        widget/nodeparamview/nodeparamviewarraywidget.cpp
+        widget/nodeparamview/nodeparamviewarraywidget.h
+        widget/nodeparamview/nodeparamviewconnectedlabel.cpp
+        widget/nodeparamview/nodeparamviewconnectedlabel.h
+        widget/nodeparamview/nodeparamviewcontext.cpp
+        widget/nodeparamview/nodeparamviewcontext.h
+        widget/nodeparamview/nodeparamviewdockarea.cpp
+        widget/nodeparamview/nodeparamviewdockarea.h
+        widget/nodeparamview/nodeparamviewitem.cpp
+        widget/nodeparamview/nodeparamviewitem.h
+        widget/nodeparamview/nodeparamviewitembase.cpp
+        widget/nodeparamview/nodeparamviewitembase.h
+        widget/nodeparamview/nodeparamviewitemtitlebar.cpp
+        widget/nodeparamview/nodeparamviewitemtitlebar.h
+        widget/nodeparamview/nodeparamviewkeyframecontrol.cpp
+        widget/nodeparamview/nodeparamviewkeyframecontrol.h
+        widget/nodeparamview/nodeparamviewtextedit.cpp
+        widget/nodeparamview/nodeparamviewtextedit.h
+        widget/nodeparamview/nodeparamviewwidgetbridge.cpp
+        widget/nodeparamview/nodeparamviewwidgetbridge.h
+        widget/nodeparamview/nodeparambutton.h
+        widget/nodeparamview/nodeparambutton.cpp
+        PARENT_SCOPE
 )

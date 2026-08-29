@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,43 +21,44 @@
 
 #include "customcachetask.h"
 
-namespace olive {
-
-CustomCacheTask::CustomCacheTask(const QString &sequence_name) :
-  cancelled_through_finish_(false)
+namespace olive
 {
-  SetTitle(tr("Caching custom range for \"%1\"").arg(sequence_name));
+
+CustomCacheTask::CustomCacheTask(const QString &sequence_name)
+	: cancelled_through_finish_(false)
+{
+	SetTitle(tr("Caching custom range for \"%1\"").arg(sequence_name));
 }
 
 void CustomCacheTask::Finish()
 {
-  mutex_.lock();
+	mutex_.lock();
 
-  cancelled_through_finish_ = true;
-  Cancel();
+	cancelled_through_finish_ = true;
+	Cancel();
 
-  mutex_.unlock();
+	mutex_.unlock();
 }
 
 bool CustomCacheTask::Run()
 {
-  mutex_.lock();
+	mutex_.lock();
 
-  while (!IsCancelled()) {
-    wait_cond_.wait(&mutex_);
-  }
+	while (!IsCancelled()) {
+		wait_cond_.wait(&mutex_);
+	}
 
-  mutex_.unlock();
+	mutex_.unlock();
 
-  return true;
+	return true;
 }
 
 void CustomCacheTask::CancelEvent()
 {
-  if (!cancelled_through_finish_) {
-    emit Cancelled();
-  }
-  wait_cond_.wakeOne();
+	if (!cancelled_through_finish_) {
+		emit Cancelled();
+	}
+	wait_cond_.wakeOne();
 }
 
 }

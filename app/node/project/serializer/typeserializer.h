@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,18 +28,17 @@
 
 #include "common/xmlutils.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class TypeSerializer
-{
+class TypeSerializer {
 public:
-  TypeSerializer() = default;
+	TypeSerializer() = default;
 
-  static AudioParams LoadAudioParams(QXmlStreamReader *reader);
-  static void SaveAudioParams(QXmlStreamWriter *writer, const AudioParams &a);
-
+	static AudioParams LoadAudioParams(QXmlStreamReader *reader);
+	static void SaveAudioParams(QXmlStreamWriter *writer, const AudioParams &a);
 };
 
 }

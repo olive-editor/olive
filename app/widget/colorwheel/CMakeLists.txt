@@ -15,20 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/colorwheel/colorgradientwidget.h
-  widget/colorwheel/colorgradientwidget.cpp
-  widget/colorwheel/colorpreviewbox.h
-  widget/colorwheel/colorpreviewbox.cpp
-  widget/colorwheel/colorspacechooser.h
-  widget/colorwheel/colorspacechooser.cpp
-  widget/colorwheel/colorswatchchooser.h
-  widget/colorwheel/colorswatchchooser.cpp
-  widget/colorwheel/colorswatchwidget.h
-  widget/colorwheel/colorswatchwidget.cpp
-  widget/colorwheel/colorvalueswidget.h
-  widget/colorwheel/colorvalueswidget.cpp
-  widget/colorwheel/colorwheelwidget.h
-  widget/colorwheel/colorwheelwidget.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/colorwheel/colorgradientwidget.h
+        widget/colorwheel/colorgradientwidget.cpp
+        widget/colorwheel/colorpreviewbox.h
+        widget/colorwheel/colorpreviewbox.cpp
+        widget/colorwheel/colorspacechooser.h
+        widget/colorwheel/colorspacechooser.cpp
+        widget/colorwheel/colorswatchchooser.h
+        widget/colorwheel/colorswatchchooser.cpp
+        widget/colorwheel/colorswatchwidget.h
+        widget/colorwheel/colorswatchwidget.cpp
+        widget/colorwheel/colorvalueswidget.h
+        widget/colorwheel/colorvalueswidget.cpp
+        widget/colorwheel/colorwheelwidget.h
+        widget/colorwheel/colorwheelwidget.cpp
+        PARENT_SCOPE
 )

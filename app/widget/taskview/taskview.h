@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,7 +27,8 @@
 
 #include "widget/taskview/taskviewitem.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A widget that shows a list of Tasks
@@ -36,34 +38,32 @@ namespace olive {
  * is necessary since TaskViewItem will automatically delete itself (thus removing itself from the TaskView) when the
  * Task finishes.
  */
-class TaskView : public QScrollArea
-{
-  Q_OBJECT
+class TaskView : public QScrollArea {
+	Q_OBJECT
 public:
-  TaskView(QWidget* parent);
+	TaskView(QWidget *parent);
 
 signals:
-  void TaskCancelled(Task* t);
+	void TaskCancelled(Task *t);
 
 public slots:
-  /**
+	/**
    * @brief Creates a TaskViewItem, connects it to a Task, and adds it to this widget
    *
    * Connect this to TaskManager::TaskAdded().
    */
-  void AddTask(Task* t);
+	void AddTask(Task *t);
 
-  void TaskFailed(Task* t);
+	void TaskFailed(Task *t);
 
-  void RemoveTask(Task* t);
+	void RemoveTask(Task *t);
 
 private:
-  QWidget* central_widget_;
+	QWidget *central_widget_;
 
-  QVBoxLayout* layout_;
+	QVBoxLayout *layout_;
 
-  QHash<Task*, TaskViewItem*> items_;
-
+	QHash<Task *, TaskViewItem *> items_;
 };
 
 }

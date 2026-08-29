@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,29 +22,31 @@
 #include "beam.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-namespace olive {
+namespace olive
+{
 
-BeamTool::BeamTool(TimelineWidget *parent) :
-  TimelineTool(parent)
+BeamTool::BeamTool(TimelineWidget *parent)
+	: TimelineTool(parent)
 {
 }
 
 void BeamTool::HoverMove(TimelineViewMouseEvent *event)
 {
-  parent()->SetViewBeamCursor(ValidatedCoordinate(event->GetCoordinates(true)));
+	parent()->SetViewBeamCursor(
+		ValidatedCoordinate(event->GetCoordinates(true)));
 }
 
 TimelineCoordinate BeamTool::ValidatedCoordinate(TimelineCoordinate coord)
 {
-  if (Core::instance()->snapping()) {
-    rational movement;
-    parent()->SnapPoint({coord.GetFrame()}, &movement);
-    if (!movement.isNull()) {
-      coord.SetFrame(coord.GetFrame() + movement);
-    }
-  }
+	if (Core::instance()->snapping()) {
+		rational movement;
+		parent()->SnapPoint({ coord.GetFrame() }, &movement);
+		if (!movement.isNull()) {
+			coord.SetFrame(coord.GetFrame() + movement);
+		}
+	}
 
-  return coord;
+	return coord;
 }
 
 }

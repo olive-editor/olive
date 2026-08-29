@@ -16,8 +16,8 @@
 
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/project/folder/folder.h
-  node/project/folder/folder.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/project/folder/folder.h
+        node/project/folder/folder.cpp
+        PARENT_SCOPE
 )

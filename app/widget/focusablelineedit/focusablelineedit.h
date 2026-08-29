@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,25 +26,23 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class FocusableLineEdit : public QLineEdit
+namespace olive
 {
-  Q_OBJECT
+
+class FocusableLineEdit : public QLineEdit {
+	Q_OBJECT
 public:
-  FocusableLineEdit(QWidget* parent = nullptr);
+	FocusableLineEdit(QWidget *parent = nullptr);
 
 signals:
-  void Confirmed();
+	void Confirmed();
 
-  void Cancelled();
+	void Cancelled();
 
 protected:
-  void keyPressEvent(QKeyEvent *) override;
+	void keyPressEvent(QKeyEvent *) override;
 
-  void focusOutEvent(QFocusEvent *) override;
-
-
+	void focusOutEvent(QFocusEvent *) override;
 };
 
 }

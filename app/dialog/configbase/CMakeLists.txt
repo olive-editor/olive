@@ -15,10 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/configbase/configdialogbase.cpp
-  dialog/configbase/configdialogbase.h
-  dialog/configbase/configdialogbasetab.cpp
-  dialog/configbase/configdialogbasetab.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/configbase/configdialogbase.cpp
+        dialog/configbase/configdialogbase.h
+        dialog/configbase/configdialogbasetab.cpp
+        dialog/configbase/configdialogbasetab.h
+        PARENT_SCOPE
 )

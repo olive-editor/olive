@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,49 +29,47 @@
 #include "widget/colorlabelmenu/colorcodingcombobox.h"
 #include "widget/slider/rationalslider.h"
 
-namespace olive {
-
-class LineEditWithFocusSignal : public QLineEdit
+namespace olive
 {
-  Q_OBJECT
+
+class LineEditWithFocusSignal : public QLineEdit {
+	Q_OBJECT
 public:
-  LineEditWithFocusSignal(QWidget *parent = nullptr) :
-    QLineEdit(parent)
-  {
-  }
+	LineEditWithFocusSignal(QWidget *parent = nullptr)
+		: QLineEdit(parent)
+	{
+	}
 
 protected:
-  virtual void focusInEvent(QFocusEvent *e) override
-  {
-    QLineEdit::focusInEvent(e);
-    emit Focused();
-  }
+	virtual void focusInEvent(QFocusEvent *e) override
+	{
+		QLineEdit::focusInEvent(e);
+		emit Focused();
+	}
 
 signals:
-  void Focused();
-
+	void Focused();
 };
 
-class MarkerPropertiesDialog : public QDialog
-{
-  Q_OBJECT
+class MarkerPropertiesDialog : public QDialog {
+	Q_OBJECT
 public:
-  MarkerPropertiesDialog(const std::vector<TimelineMarker*> &markers, const rational &timebase, QWidget *parent = nullptr);
+	MarkerPropertiesDialog(const std::vector<TimelineMarker *> &markers,
+						   const rational &timebase, QWidget *parent = nullptr);
 
 public slots:
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  std::vector<TimelineMarker*> markers_;
+	std::vector<TimelineMarker *> markers_;
 
-  LineEditWithFocusSignal *label_edit_;
+	LineEditWithFocusSignal *label_edit_;
 
-  ColorCodingComboBox *color_menu_;
+	ColorCodingComboBox *color_menu_;
 
-  RationalSlider *in_slider_;
+	RationalSlider *in_slider_;
 
-  RationalSlider *out_slider_;
-
+	RationalSlider *out_slider_;
 };
 
 }

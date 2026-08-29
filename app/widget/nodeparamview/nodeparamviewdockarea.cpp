@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,28 +23,41 @@
 
 #include <QDockWidget>
 
-namespace olive {
-
-NodeParamViewDockArea::NodeParamViewDockArea(QWidget *parent) :
-  QMainWindow(parent)
+namespace olive
 {
-  // Disable dock widgets from tabbing and disable glitchy animations
-  setDockOptions(static_cast<QMainWindow::DockOption>(0));
 
-  // HACK: Hide the main window separators (unfortunately the cursors still appear)
-  setStyleSheet(QStringLiteral("QMainWindow::separator {background: rgba(0, 0, 0, 0)}"));
+NodeParamViewDockArea::NodeParamViewDockArea(QWidget *parent)
+	: QMainWindow(parent)
+{
+	// Disable dock widgets from tabbing and disable glitchy animations
+	setDockOptions(static_cast<QMainWindow::DockOption>(0));
+
+	// HACK: Hide the main window separators (unfortunately the cursors still appear)
+	setStyleSheet(QStringLiteral(
+		"QMainWindow::separator {background: rgba(0, 0, 0, 0)}"));
 }
 
 QMenu *NodeParamViewDockArea::createPopupMenu()
 {
-  return nullptr;
+	return nullptr;
 }
 
 void NodeParamViewDockArea::AddItem(QDockWidget *item)
 {
-  item->setAllowedAreas(Qt::LeftDockWidgetArea);
-  item->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
-  addDockWidget(Qt::LeftDockWidgetArea, item);
+	item->setAllowedAreas(Qt::LeftDockWidgetArea);
+	item->setFeatures(QDockWidget::DockWidgetClosable |
+					  QDockWidget::DockWidgetMovable);
+	addDockWidget(Qt::LeftDockWidgetArea, item);
+}
+
+void NodeParamViewDockArea::RemoveItem(QDockWidget *item)
+{
+	if (!item) {
+		return;
+	}
+	removeDockWidget(item);
+	item->setParent(nullptr);
+	item->deleteLater();
 }
 
 }

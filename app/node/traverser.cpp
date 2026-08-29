@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,456 +25,527 @@
 #include "node/block/clip/clip.h"
 #include "render/job/footagejob.h"
 #include "render/rendermanager.h"
+#include "render/job/pluginjob.h"
 
-namespace olive {
-
-NodeValueDatabase NodeTraverser::GenerateDatabase(const Node* node, const TimeRange &range)
+namespace olive
 {
-  NodeValueDatabase database;
 
-  // HACK: Pick up loop mode from clips
-  LoopMode old_loop_mode = loop_mode_;
-  if (const ClipBlock *clip = dynamic_cast<const ClipBlock*>(node)) {
-    loop_mode_ = clip->loop_mode();
-  }
+NodeValueDatabase NodeTraverser::GenerateDatabase(const Node *node,
+												  const TimeRange &range)
+{
+	NodeValueDatabase database;
 
-  // We need to insert tables into the database for each input
-  auto ignore = node->IgnoreInputsForRendering();
-  foreach (const QString& input, node->inputs()) {
-    if (IsCancelled()) {
-      return NodeValueDatabase();
-    }
+	// HACK: Pick up loop mode from clips
+	LoopMode old_loop_mode = loop_mode_;
+	if (const ClipBlock *clip = dynamic_cast<const ClipBlock *>(node)) {
+		loop_mode_ = clip->loop_mode();
+	}
 
-    if (ignore.contains(input)) {
-      continue;
-    }
+	// We need to insert tables into the database for each input
+	auto ignore = node->IgnoreInputsForRendering();
+	foreach (const QString &input, node->inputs()) {
+		if (IsCancelled()) {
+			return NodeValueDatabase();
+		}
 
-    database.Insert(input, ProcessInput(node, input, range));
-  }
+		if (ignore.contains(input)) {
+			continue;
+		}
 
-  loop_mode_ = old_loop_mode;
+		database.Insert(input, ProcessInput(node, input, range));
+	}
 
-  return database;
+	loop_mode_ = old_loop_mode;
+
+	return database;
 }
 
-NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database, const Node *node, const TimeRange &range)
+NodeValueRow NodeTraverser::GenerateRow(NodeValueDatabase *database,
+										const Node *node,
+										const TimeRange &range)
 {
-  // Generate row
-  NodeValueRow row;
-  for (auto it=database->begin(); it!=database->end(); it++) {
-    // Get hint for which value should be pulled
-    NodeValue value = GenerateRowValue(node, it.key(), &it.value(), range);
-    row.insert(it.key(), value);
-  }
+	// Generate row
+	NodeValueRow row;
+	for (auto it = database->begin(); it != database->end(); it++) {
+		// Get hint for which value should be pulled
+		NodeValue value = GenerateRowValue(node, it.key(), &it.value(), range);
+		row.insert(it.key(), value);
+	}
 
-  // TEMP: Audio needs to be refactored to work with new job system. But refactoring hasn't been
-  //       done yet, so we emulate old behavior here JUST FOR AUDIO.
-  for (auto it=row.begin(); it!=row.end(); it++) {
-    NodeValue &val = it.value();
-    if (val.type() == NodeValue::kSamples) {
-      ResolveJobs(val);
-    }
-  }
-  // END TEMP
+	// TEMP: Audio needs to be refactored to work with new job system. But refactoring hasn't been
+	//       done yet, so we emulate old behavior here JUST FOR AUDIO.
+	for (auto it = row.begin(); it != row.end(); it++) {
+		NodeValue &val = it.value();
+		if (val.type() == NodeValue::kSamples) {
+			ResolveJobs(val);
+		}
+	}
+	// END TEMP
 
-  return row;
+	return row;
 }
 
-NodeValueRow NodeTraverser::GenerateRow(const Node *node, const TimeRange &range)
+NodeValueRow NodeTraverser::GenerateRow(const Node *node,
+										const TimeRange &range)
 {
-  // Generate database of input values of node
-  NodeValueDatabase database = GenerateDatabase(node, range);
+	// Generate database of input values of node
+	NodeValueDatabase database = GenerateDatabase(node, range);
 
-  return GenerateRow(&database, node, range);
+	return GenerateRow(&database, node, range);
 }
 
-NodeValue NodeTraverser::GenerateRowValue(const Node *node, const QString &input, NodeValueTable *table, const TimeRange &time)
+NodeValue NodeTraverser::GenerateRowValue(const Node *node,
+										  const QString &input,
+										  NodeValueTable *table,
+										  const TimeRange &time)
 {
-  NodeValue value = GenerateRowValueElement(node, input, -1, table, time);
+	NodeValue value = GenerateRowValueElement(node, input, -1, table, time);
 
-  if (value.array()) {
-    // Resolve each element of array
-    NodeValueTableArray tables = value.value<NodeValueTableArray>();
-    NodeValueArray output;
+	if (value.array()) {
+		// Resolve each element of array
+		NodeValueTableArray tables = value.value<NodeValueTableArray>();
+		NodeValueArray output;
 
-    for (auto it=tables.begin(); it!=tables.end(); it++) {
-      output[it->first] = GenerateRowValueElement(node, input, it->first, &it->second, time);
-    }
+		for (auto it = tables.begin(); it != tables.end(); it++) {
+			output[it->first] = GenerateRowValueElement(node, input, it->first,
+														&it->second, time);
+		}
 
-    value = NodeValue(value.type(), QVariant::fromValue(output), value.source(), value.array(), value.tag());
-  }
+		value = NodeValue(value.type(), QVariant::fromValue(output),
+						  value.source(), value.array(), value.tag());
+	}
 
-  return value;
+	return value;
 }
 
-NodeValue NodeTraverser::GenerateRowValueElement(const Node *node, const QString &input, int element, NodeValueTable *table, const TimeRange &time)
+NodeValue NodeTraverser::GenerateRowValueElement(const Node *node,
+												 const QString &input,
+												 int element,
+												 NodeValueTable *table,
+												 const TimeRange &time)
 {
-  int value_index = GenerateRowValueElementIndex(node->GetValueHintForInput(input, element), node->GetInputDataType(input), table);
+	int value_index =
+		GenerateRowValueElementIndex(node->GetValueHintForInput(input, element),
+									 node->GetInputDataType(input), table);
 
-  if (value_index == -1) {
-    // If value was -1, try getting the last value
-    value_index = table->Count() - 1;
-  }
+	if (value_index == -1) {
+		// If value was -1, try getting the last value
+		value_index = table->Count() - 1;
+	}
 
-  if (value_index == -1) {
-    // If value is still -1, assume the table is empty and return nothing
-    return NodeValue();
-  }
+	if (value_index == -1) {
+		// If value is still -1, assume the table is empty and return nothing
+		return NodeValue();
+	}
 
-  NodeValue value = table->TakeAt(value_index);
+	NodeValue value = table->TakeAt(value_index);
 
-  if (value.type() == NodeValue::kTexture && UseCache()) {
-    if (TexturePtr tex = value.toTexture()) {
-      QMutexLocker locker(node->video_frame_cache()->mutex());
+	if (value.type() == NodeValue::kTexture && UseCache()) {
+		if (TexturePtr tex = value.toTexture()) {
+			QMutexLocker locker(node->video_frame_cache()->mutex());
 
-      node->video_frame_cache()->LoadState();
+			node->video_frame_cache()->LoadState();
 
-      QString cache = node->video_frame_cache()->GetValidCacheFilename(time.in());
-      if (!cache.isEmpty()) {
-        value.set_value(tex->toJob(CacheJob(cache, value)));
-      }
-    }
-  }
+			QString cache =
+				node->video_frame_cache()->GetValidCacheFilename(time.in());
+			if (!cache.isEmpty()) {
+				value.set_value(tex->toJob(CacheJob(cache, value)));
+			}
+		}
+	}
 
-  return value;
+	return value;
 }
 
-int NodeTraverser::GenerateRowValueElementIndex(const Node::ValueHint &hint, NodeValue::Type preferred_type, const NodeValueTable *table)
+int NodeTraverser::GenerateRowValueElementIndex(const Node::ValueHint &hint,
+												NodeValue::Type preferred_type,
+												const NodeValueTable *table)
 {
-  QVector<NodeValue::Type> types = hint.types();
+	QVector<NodeValue::Type> types = hint.types();
 
-  if (types.isEmpty()) {
-    types.append(preferred_type);
-  }
+	if (types.isEmpty()) {
+		types.append(preferred_type);
+	}
 
-  if (hint.index() == -1) {
-    // Get most recent value with this type and tag
-    return table->GetValueIndex(types, hint.tag());
-  } else {
-    // Try to find value at this index
-    int index = table->Count() - 1 - hint.index();
-    int diff = 0;
+	if (hint.index() == -1) {
+		// Get most recent value with this type and tag
+		return table->GetValueIndex(types, hint.tag());
+	} else {
+		// Try to find value at this index
+		int index = table->Count() - 1 - hint.index();
+		int diff = 0;
 
-    while (index + diff < table->Count() && index - diff >= 0) {
-      if (index + diff < table->Count() && types.contains(table->at(index + diff).type())) {
-        return index + diff;
-      }
-      if (index - diff >= 0 && types.contains(table->at(index - diff).type())) {
-        return index - diff;
-      }
-      diff++;
-    }
+		while (index + diff < table->Count() && index - diff >= 0) {
+			if (index + diff < table->Count() &&
+				types.contains(table->at(index + diff).type())) {
+				return index + diff;
+			}
+			if (index - diff >= 0 &&
+				types.contains(table->at(index - diff).type())) {
+				return index - diff;
+			}
+			diff++;
+		}
 
-    return -1;
-  }
+		return -1;
+	}
 }
 
-int NodeTraverser::GenerateRowValueElementIndex(const Node *node, const QString &input, int element, const NodeValueTable *table)
+int NodeTraverser::GenerateRowValueElementIndex(const Node *node,
+												const QString &input,
+												int element,
+												const NodeValueTable *table)
 {
-  return GenerateRowValueElementIndex(node->GetValueHintForInput(input, element), node->GetInputDataType(input), table);
+	return GenerateRowValueElementIndex(node->GetValueHintForInput(input,
+																   element),
+										node->GetInputDataType(input), table);
 }
 
-void NodeTraverser::Transform(QTransform *transform, const Node *start, const Node *end, const TimeRange &range)
+void NodeTraverser::Transform(QTransform *transform, const Node *start,
+							  const Node *end, const TimeRange &range)
 {
-  transform_ = transform;
-  transform_start_ = start;
-  transform_now_ = nullptr;
+	transform_ = transform;
+	transform_start_ = start;
+	transform_now_ = nullptr;
 
-  GenerateTable(end, range);
+	GenerateTable(end, range);
 
-  transform_ = nullptr;
+	transform_ = nullptr;
 }
 
-NodeValueTable NodeTraverser::ProcessInput(const Node* node, const QString& input, const TimeRange& range)
+NodeValueTable NodeTraverser::ProcessInput(const Node *node,
+										   const QString &input,
+										   const TimeRange &range)
 {
-  // If input is connected, retrieve value directly
-  if (node->IsInputConnectedForRender(input)) {
+	// If input is connected, retrieve value directly
+	if (node->IsInputConnectedForRender(input)) {
+		TimeRange adjusted_range =
+			node->InputTimeAdjustment(input, -1, range, true);
 
-    TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range, true);
+		// Value will equal something from the connected node, follow it
+		Node *output = node->GetConnectedRenderOutput(input);
+		NodeValueTable table = GenerateTable(output, adjusted_range, node);
+		return table;
 
-    // Value will equal something from the connected node, follow it
-    Node *output = node->GetConnectedRenderOutput(input);
-    NodeValueTable table = GenerateTable(output, adjusted_range, node);
-    return table;
+	} else {
+		// Store node
+		QVariant return_val;
+		bool is_array = node->InputIsArray(input);
 
-  } else {
+		if (is_array) {
+			// Value is an array, we will return a list of NodeValueTables
+			NodeValueTableArray array_tbl;
 
-    // Store node
-    QVariant return_val;
-    bool is_array = node->InputIsArray(input);
+			Node::ActiveElements a =
+				node->GetActiveElementsAtTime(input, range);
+			if (a.mode() == Node::ActiveElements::kAllElements) {
+				int sz = node->InputArraySize(input);
+				for (int i = 0; i < sz; i++) {
+					ProcessInputElement(array_tbl, node, input, i, range);
+				}
+			} else if (a.mode() == Node::ActiveElements::kSpecified) {
+				for (int ele : a.elements()) {
+					ProcessInputElement(array_tbl, node, input, ele, range);
+				}
+			}
 
-    if (is_array) {
+			return_val = QVariant::fromValue(array_tbl);
 
-      // Value is an array, we will return a list of NodeValueTables
-      NodeValueTableArray array_tbl;
+		} else {
+			// Not connected or an array, just pull the immediate
+			TimeRange adjusted_range =
+				node->InputTimeAdjustment(input, -1, range, true);
 
-      Node::ActiveElements a = node->GetActiveElementsAtTime(input, range);
-      if (a.mode() == Node::ActiveElements::kAllElements) {
-        int sz = node->InputArraySize(input);
-        for (int i=0; i<sz; i++) {
-          ProcessInputElement(array_tbl, node, input, i, range);
-        }
-      } else if (a.mode() == Node::ActiveElements::kSpecified) {
-        for (int ele : a.elements()) {
-          ProcessInputElement(array_tbl, node, input, ele, range);
-        }
-      }
+			return_val = node->GetValueAtTime(input, adjusted_range.in());
+		}
 
-      return_val = QVariant::fromValue(array_tbl);
-
-    } else {
-
-      // Not connected or an array, just pull the immediate
-      TimeRange adjusted_range = node->InputTimeAdjustment(input, -1, range, true);
-
-      return_val = node->GetValueAtTime(input, adjusted_range.in());
-
-    }
-
-    NodeValueTable return_table;
-    return_table.Push(node->GetInputDataType(input), return_val, node, is_array);
-    return return_table;
-
-  }
+		NodeValueTable return_table;
+		return_table.Push(node->GetInputDataType(input), return_val, node,
+						  is_array);
+		return return_table;
+	}
 }
 
-void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl, const Node *node, const QString &input, int element, const TimeRange &range)
+void NodeTraverser::ProcessInputElement(NodeValueTableArray &array_tbl,
+										const Node *node, const QString &input,
+										int element, const TimeRange &range)
 {
-  NodeValueTable& sub_tbl = array_tbl[element];
-  TimeRange adjusted_range = node->InputTimeAdjustment(input, element, range, true);
+	NodeValueTable &sub_tbl = array_tbl[element];
+	TimeRange adjusted_range =
+		node->InputTimeAdjustment(input, element, range, true);
 
-  if (node->IsInputConnectedForRender(input, element)) {
-    Node *output = node->GetConnectedRenderOutput(input, element);
-    sub_tbl = GenerateTable(output, adjusted_range, node);
-  } else {
-    QVariant input_value = node->GetValueAtTime(input, adjusted_range.in(), element);
-    sub_tbl.Push(node->GetInputDataType(input), input_value, node);
-  }
+	if (node->IsInputConnectedForRender(input, element)) {
+		Node *output = node->GetConnectedRenderOutput(input, element);
+		sub_tbl = GenerateTable(output, adjusted_range, node);
+	} else {
+		QVariant input_value =
+			node->GetValueAtTime(input, adjusted_range.in(), element);
+		sub_tbl.Push(node->GetInputDataType(input), input_value, node);
+	}
 }
 
-NodeTraverser::NodeTraverser() :
-  cancel_(nullptr),
-  transform_(nullptr),
-  loop_mode_(LoopMode::kLoopModeOff)
+NodeTraverser::NodeTraverser()
+	: cancel_(nullptr)
+	, transform_(nullptr)
+	, loop_mode_(LoopMode::kLoopModeOff)
 {
 }
 
-class GTTTime
-{
+class GTTTime {
 public:
-  GTTTime(const Node *n) { t = QDateTime::currentMSecsSinceEpoch(); node = n; }
+	GTTTime(const Node *n)
+	{
+		t = QDateTime::currentMSecsSinceEpoch();
+		node = n;
+	}
 
-  ~GTTTime() { qDebug() << "GT for" << node << "took" << (QDateTime::currentMSecsSinceEpoch() - t); }
+	~GTTTime()
+	{
+		qDebug() << "GT for" << node << "took"
+				 << (QDateTime::currentMSecsSinceEpoch() - t);
+	}
 
-  qint64 t;
-  const Node *node;
-
+	qint64 t;
+	const Node *node;
 };
 
-NodeValueTable NodeTraverser::GenerateTable(const Node *n, const TimeRange& range, const Node *next_node)
+NodeValueTable NodeTraverser::GenerateTable(const Node *n,
+											const TimeRange &range,
+											const Node *next_node)
 {
-  // NOTE: Times how long a node takes to process, useful for profiling.
-  //GTTTime gtt(n);Q_UNUSED(gtt);
+	// NOTE: Times how long a node takes to process, useful for profiling.
+	//GTTTime gtt(n);Q_UNUSED(gtt);
 
-  // Use table cache to skip processing where available
-  if (value_cache_.contains(n)) {
-    QHash<TimeRange, NodeValueTable> &node_value_map = value_cache_[n];
-    if (node_value_map.contains(range)) {
-      return node_value_map.value(range);
-    }
-  }
+	// Use table cache to skip processing where available
+	if (value_cache_.contains(n)) {
+		QHash<TimeRange, NodeValueTable> &node_value_map = value_cache_[n];
+		if (node_value_map.contains(range)) {
+			return node_value_map.value(range);
+		}
+	}
 
-  // Generate row for node
-  NodeValueDatabase database = GenerateDatabase(n, range);
+	// Generate row for node
+	NodeValueDatabase database = GenerateDatabase(n, range);
 
-  // Check for bypass
-  bool is_enabled;
-  if (!database[Node::kEnabledInput].Has(NodeValue::kBoolean)) {
-    // Fallback if we couldn't find a bool value
-    is_enabled = true;
-  } else {
-    is_enabled = database[Node::kEnabledInput].Get(NodeValue::kBoolean).toBool();
-  }
+	// Check for bypass
+	bool is_enabled;
+	if (!database[Node::kEnabledInput].Has(NodeValue::kBoolean)) {
+		// Fallback if we couldn't find a bool value
+		is_enabled = true;
+	} else {
+		is_enabled =
+			database[Node::kEnabledInput].Get(NodeValue::kBoolean).toBool();
+	}
 
-  NodeValueTable table;
+	NodeValueTable table;
 
-  if (is_enabled) {
-    NodeValueRow row = GenerateRow(&database, n, range);
+	if (is_enabled) {
+		NodeValueRow row = GenerateRow(&database, n, range);
 
-    // Generate output table
-    table = database.Merge();
+		// Generate output table
+		table = database.Merge();
 
-    // By this point, the node should have all the inputs it needs to render correctly
-    NodeGlobals globals(video_params_, audio_params_, range, loop_mode_);
-    n->Value(row, globals, &table);
+		// By this point, the node should have all the inputs it needs to render correctly
+		NodeGlobals globals(video_params_, audio_params_, range, loop_mode_);
+		n->Value(row, globals, &table);
 
-    // `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
-    // "down" the graph so that any traversing going back up doesn't unnecessarily transform
-    // from unrelated nodes or the same node twice
-    if (transform_) {
-      if (transform_now_ == n || transform_start_ == n) {
-        if (transform_now_ == n) {
-          QTransform t = n->GizmoTransformation(row, globals);
-          if (!t.isIdentity()) {
-            (*transform_) *= t;
-          }
-        }
+		// `transform_now_` is the next node in the path that needs to be traversed. It only ever goes
+		// "down" the graph so that any traversing going back up doesn't unnecessarily transform
+		// from unrelated nodes or the same node twice
+		if (transform_) {
+			if (transform_now_ == n || transform_start_ == n) {
+				if (transform_now_ == n) {
+					QTransform t = n->GizmoTransformation(row, globals);
+					if (!t.isIdentity()) {
+						(*transform_) *= t;
+					}
+				}
 
-        transform_now_ = next_node;
-      }
-    }
-  } else {
-    // If this node has an effect input, ensure that is pushed last
-    NodeValueTable primary;
-    if (!n->GetEffectInputID().isEmpty()) {
-      primary = database.Take(n->GetEffectInputID());
-    }
+				transform_now_ = next_node;
+			}
+		}
+	} else {
+		// If this node has an effect input, ensure that is pushed last
+		NodeValueTable primary;
+		if (!n->GetEffectInputID().isEmpty()) {
+			primary = database.Take(n->GetEffectInputID());
+		}
 
-    table = database.Merge();
-    table.Push(primary);
-  }
+		table = database.Merge();
+		table.Push(primary);
+	}
 
-  value_cache_[n][range] = table;
+	value_cache_[n][range] = table;
 
-  return table;
+	return table;
 }
 
 TexturePtr NodeTraverser::ProcessVideoCacheJob(const CacheJob *val)
 {
-  return nullptr;
+	return nullptr;
 }
 
+TexturePtr NodeTraverser::ProcessPluginJob(TexturePtr texture,
+										   TexturePtr destination,
+										   const Node *node)
+{
+	// TODO
+	return nullptr;
+}
 QVector2D NodeTraverser::GenerateResolution() const
 {
-  return QVector2D(video_params_.square_pixel_width(), video_params_.height());
+	return QVector2D(video_params_.square_pixel_width(),
+					 video_params_.height());
 }
 
+/**
+ * Resolve Jobs. I need to add a PluginJob here and move the plugin code here.
+ * @param val
+ */
 void NodeTraverser::ResolveJobs(NodeValue &val)
 {
-  if (val.type() == NodeValue::kTexture) {
+	if (val.type() == NodeValue::kTexture) {
+		if (TexturePtr job_tex = val.toTexture()) {
+			if (AcceleratedJob *base_job = job_tex->job()) {
+				if (resolved_texture_cache_.contains(job_tex.get())) {
+					val.set_value(resolved_texture_cache_.value(job_tex.get()));
+				} else {
+					// Resolve any sub-jobs
+					for (auto it = base_job->GetValues().begin();
+						 it != base_job->GetValues().end(); it++) {
+						// Jobs will almost always be submitted with one of these types
+						NodeValue &subval = it.value();
+						ResolveJobs(subval);
+					}
 
-    if (TexturePtr job_tex = val.toTexture()) {
-      if (AcceleratedJob *base_job = job_tex->job()) {
+					if (CacheJob *cj = dynamic_cast<CacheJob *>(base_job)) {
+						TexturePtr tex = ProcessVideoCacheJob(cj);
+						if (tex) {
+							val.set_value(tex);
+						} else {
+							val.set_value(cj->GetFallback());
+						}
 
-        if (resolved_texture_cache_.contains(job_tex.get())) {
-          val.set_value(resolved_texture_cache_.value(job_tex.get()));
-        } else {
-          // Resolve any sub-jobs
-          for (auto it=base_job->GetValues().begin(); it!=base_job->GetValues().end(); it++) {
-            // Jobs will almost always be submitted with one of these types
-            NodeValue &subval = it.value();
-            ResolveJobs(subval);
-          }
+					} else if (ColorTransformJob *ctj =
+								   dynamic_cast<ColorTransformJob *>(
+									   base_job)) {
+						VideoParams ctj_params = job_tex->params();
 
-          if (CacheJob *cj = dynamic_cast<CacheJob*>(base_job)) {
-            TexturePtr tex = ProcessVideoCacheJob(cj);
-            if (tex) {
-              val.set_value(tex);
-            } else {
-              val.set_value(cj->GetFallback());
-            }
+						ctj_params.set_format(GetCacheVideoParams().format());
 
-          } else if (ColorTransformJob *ctj = dynamic_cast<ColorTransformJob*>(base_job)) {
+						TexturePtr dest = CreateTexture(ctj_params);
 
-            VideoParams ctj_params = job_tex->params();
+						// Resolve input texture
+						NodeValue v = ctj->GetInputTexture();
+						ResolveJobs(v);
+						ctj->SetInputTexture(v);
 
-            ctj_params.set_format(GetCacheVideoParams().format());
+						ProcessColorTransform(dest, val.source(), ctj);
 
-            TexturePtr dest = CreateTexture(ctj_params);
+						val.set_value(dest);
 
-            // Resolve input texture
-            NodeValue v = ctj->GetInputTexture();
-            ResolveJobs(v);
-            ctj->SetInputTexture(v);
+					} else if (ShaderJob *sj =
+								   dynamic_cast<ShaderJob *>(base_job)) {
+						VideoParams tex_params = job_tex->params();
 
-            ProcessColorTransform(dest, val.source(), ctj);
+						TexturePtr tex = CreateTexture(tex_params);
 
-            val.set_value(dest);
+						ProcessShader(tex, val.source(), sj);
 
-          } else if (ShaderJob *sj = dynamic_cast<ShaderJob*>(base_job)) {
+						val.set_value(tex);
 
-            VideoParams tex_params = job_tex->params();
+					} else if (GenerateJob *gj =
+								   dynamic_cast<GenerateJob *>(base_job)) {
+						VideoParams tex_params = job_tex->params();
 
-            TexturePtr tex = CreateTexture(tex_params);
+						TexturePtr tex = CreateTexture(tex_params);
 
-            ProcessShader(tex, val.source(), sj);
+						ProcessFrameGeneration(tex, val.source(), gj);
 
-            val.set_value(tex);
+						// Convert to reference space
+						const QString &colorspace = tex_params.colorspace();
+						if (!colorspace.isEmpty()) {
+							// Set format to primary format
+							tex_params.set_format(
+								GetCacheVideoParams().format());
 
-          } else if (GenerateJob *gj = dynamic_cast<GenerateJob*>(base_job)) {
+							TexturePtr dest = CreateTexture(tex_params);
 
-            VideoParams tex_params = job_tex->params();
+							ConvertToReferenceSpace(dest, tex, colorspace);
 
-            TexturePtr tex = CreateTexture(tex_params);
+							tex = dest;
+						}
 
-            ProcessFrameGeneration(tex, val.source(), gj);
+						val.set_value(tex);
 
-            // Convert to reference space
-            const QString &colorspace = tex_params.colorspace();
-            if (!colorspace.isEmpty()) {
-              // Set format to primary format
-              tex_params.set_format(GetCacheVideoParams().format());
+					} else if (FootageJob *fj =
+								   dynamic_cast<FootageJob *>(base_job)) {
+						rational footage_time = Footage::AdjustTimeByLoopMode(
+							fj->time().in(), fj->loop_mode(), fj->length(),
+							fj->video_params().video_type(),
+							fj->video_params().frame_rate_as_time_base());
 
-              TexturePtr dest = CreateTexture(tex_params);
+						TexturePtr tex;
 
-              ConvertToReferenceSpace(dest, tex, colorspace);
+						if (footage_time.isNaN()) {
+							// Push dummy texture
+							tex = CreateDummyTexture(fj->video_params());
+						} else {
+							VideoParams managed_params = fj->video_params();
+							managed_params.set_format(
+								GetCacheVideoParams().format());
 
-              tex = dest;
-            }
+							tex = CreateTexture(managed_params);
+							if (tex) {
+								ProcessVideoFootage(tex, fj, footage_time);
+							}
+						}
 
-            val.set_value(tex);
+						val.set_value(tex);
+					} else if (plugin::PluginJob *plugin_job =
+								   dynamic_cast<plugin::PluginJob *>(
+									   base_job)) {
+						VideoParams tex_params = job_tex->params();
+						// Force internal working format (F32) for plugin processing,
+						// matching FootageJob/GenerateJob behavior.
+						tex_params.set_format(GetCacheVideoParams().format());
+						tex_params.set_channel_count(
+							VideoParams::kRGBAChannelCount);
 
-          } else if (FootageJob *fj = dynamic_cast<FootageJob*>(base_job)) {
+						TexturePtr tex = CreateTexture(tex_params);
 
-            rational footage_time = Footage::AdjustTimeByLoopMode(fj->time().in(), fj->loop_mode(), fj->length(), fj->video_params().video_type(), fj->video_params().frame_rate_as_time_base());
+						ProcessPluginJob(job_tex, tex, val.source());
+						val.set_value(tex);
+					}
 
-            TexturePtr tex;
+					// Cache resolved value
+					resolved_texture_cache_.insert(job_tex.get(),
+												   val.toTexture());
+				}
+			}
+		}
 
-            if (footage_time.isNaN()) {
-              // Push dummy texture
-              tex = CreateDummyTexture(fj->video_params());
-            } else {
-              VideoParams managed_params = fj->video_params();
-              managed_params.set_format(GetCacheVideoParams().format());
+	} else if (val.type() == NodeValue::kSamples) {
+		if (val.canConvert<SampleJob>()) {
+			SampleJob job = val.value<SampleJob>();
+			SampleBuffer output_buffer = CreateSampleBuffer(
+				job.samples().audio_params(), job.samples().sample_count());
+			ProcessSamples(output_buffer, val.source(), job.time(), job);
+			val.set_value(QVariant::fromValue(output_buffer));
 
-              tex = CreateTexture(managed_params);
-              ProcessVideoFootage(tex, fj, footage_time);
-            }
-
-            val.set_value(tex);
-
-          }
-
-          // Cache resolved value
-          resolved_texture_cache_.insert(job_tex.get(), val.toTexture());
-        }
-      }
-    }
-
-  } else if (val.type() == NodeValue::kSamples) {
-
-    if (val.canConvert<SampleJob>()) {
-
-      SampleJob job = val.value<SampleJob>();
-      SampleBuffer output_buffer = CreateSampleBuffer(job.samples().audio_params(), job.samples().sample_count());
-      ProcessSamples(output_buffer, val.source(), job.time(), job);
-      val.set_value(QVariant::fromValue(output_buffer));
-
-    } else if (val.canConvert<FootageJob>()) {
-
-      FootageJob job = val.value<FootageJob>();
-      SampleBuffer buffer = CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
-      ProcessAudioFootage(buffer, &job, job.time());
-      val.set_value(buffer);
-
-    }
-
-  }
+		} else if (val.canConvert<FootageJob>()) {
+			FootageJob job = val.value<FootageJob>();
+			SampleBuffer buffer =
+				CreateSampleBuffer(GetCacheAudioParams(), job.time().length());
+			ProcessAudioFootage(buffer, &job, job.time());
+			val.set_value(buffer);
+		}
+	}
 }
 
 TexturePtr NodeTraverser::CreateDummyTexture(const VideoParams &p)
 {
-  return std::make_shared<Texture>(p);
+	return std::make_shared<Texture>(p);
 }
 
 }

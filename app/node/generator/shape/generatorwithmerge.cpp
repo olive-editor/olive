@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,7 +23,8 @@
 
 #include "node/math/merge/merge.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super Node
 
@@ -30,42 +32,47 @@ const QString GeneratorWithMerge::kBaseInput = QStringLiteral("base_in");
 
 GeneratorWithMerge::GeneratorWithMerge()
 {
-  AddInput(kBaseInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
-  SetEffectInput(kBaseInput);
-  SetFlag(kVideoEffect);
+	AddInput(kBaseInput, NodeValue::kTexture,
+			 InputFlags(kInputFlagNotKeyframable));
+	SetEffectInput(kBaseInput);
+	SetFlag(kVideoEffect);
 }
 
 void GeneratorWithMerge::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kBaseInput, tr("Base"));
+	SetInputName(kBaseInput, tr("Base"));
 }
 
 ShaderCode GeneratorWithMerge::GetShaderCode(const ShaderRequest &request) const
 {
-  if (request.id == QStringLiteral("mrg")) {
-    return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
-  }
+	if (request.id == QStringLiteral("mrg")) {
+		return ShaderCode(
+			FileFunctions::ReadFileAsString(":/shaders/alphaover.frag"));
+	}
 
-  return ShaderCode();
+	return ShaderCode();
 }
 
-void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value, TexturePtr job, NodeValueTable *table) const
+void GeneratorWithMerge::PushMergableJob(const NodeValueRow &value,
+										 TexturePtr job,
+										 NodeValueTable *table) const
 {
-  if (TexturePtr base = value[kBaseInput].toTexture()) {
-    // Push as merge node
-    ShaderJob merge;
+	if (TexturePtr base = value[kBaseInput].toTexture()) {
+		// Push as merge node
+		ShaderJob merge;
 
-    merge.SetShaderID(QStringLiteral("mrg"));
-    merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
-    merge.Insert(MergeNode::kBlendIn, NodeValue(NodeValue::kTexture, job, this));
+		merge.SetShaderID(QStringLiteral("mrg"));
+		merge.Insert(MergeNode::kBaseIn, value[kBaseInput]);
+		merge.Insert(MergeNode::kBlendIn,
+					 NodeValue(NodeValue::kTexture, job, this));
 
-    table->Push(NodeValue::kTexture, base->toJob(merge), this);
-  } else {
-    // Just push generate job
-    table->Push(NodeValue::kTexture, job, this);
-  }
+		table->Push(NodeValue::kTexture, base->toJob(merge), this);
+	} else {
+		// Just push generate job
+		table->Push(NodeValue::kTexture, job, this);
+	}
 }
 
 }

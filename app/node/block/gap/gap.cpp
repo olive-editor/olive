@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 #include "gap.h"
 
-namespace olive {
+namespace olive
+{
 
 GapBlock::GapBlock()
 {
@@ -28,17 +30,17 @@ GapBlock::GapBlock()
 
 QString GapBlock::Name() const
 {
-  return tr("Gap");
+	return tr("Gap");
 }
 
 QString GapBlock::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.gap");
+	return QStringLiteral("org.olivevideoeditor.Olive.gap");
 }
 
 QString GapBlock::Description() const
 {
-  return tr("A time-based node that represents an empty space.");
+	return tr("A time-based node that represents an empty space.");
 }
 
 }

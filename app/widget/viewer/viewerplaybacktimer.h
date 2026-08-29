@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,25 +23,27 @@
 #define VIEWERPLAYBACKTIMER_H
 
 #include <QtGlobal>
+#include <QElapsedTimer>
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class ViewerPlaybackTimer {
 public:
-  void Start(const int64_t& start_timestamp, const int& playback_speed, const double& timebase);
+	void Start(const int64_t &start_timestamp, const int &playback_speed,
+			   const double &timebase);
 
-  int64_t GetTimestampNow() const;
+	int64_t GetTimestampNow() const;
 
 private:
-  qint64 start_msec_;
-  int64_t start_timestamp_;
+	QElapsedTimer timer_;
+	int64_t start_timestamp_;
 
-  int playback_speed_;
+	int playback_speed_;
 
-  double timebase_;
-
+	double timebase_;
 };
 
 }

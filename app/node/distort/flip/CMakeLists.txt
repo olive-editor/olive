@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/distort/flip/flipdistortnode.cpp
-  node/distort/flip/flipdistortnode.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/distort/flip/flipdistortnode.cpp
+        node/distort/flip/flipdistortnode.h
+        PARENT_SCOPE
 )

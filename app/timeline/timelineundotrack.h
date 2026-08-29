@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,105 +24,102 @@
 
 #include "node/output/track/track.h"
 
-namespace olive {
-
-class TrackRippleRemoveBlockCommand : public UndoCommand
+namespace olive
 {
-public:
-  TrackRippleRemoveBlockCommand(Track* track, Block* block) :
-    track_(track),
-    block_(block)
-  {
-  }
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
+class TrackRippleRemoveBlockCommand : public UndoCommand {
+public:
+	TrackRippleRemoveBlockCommand(Track *track, Block *block)
+		: track_(track)
+		, block_(block)
+	{
+	}
+
+	virtual Project *GetRelevantProject() const override
+	{
+		return track_->project();
+	}
 
 protected:
-  virtual void redo() override
-  {
-    before_ = block_->previous();
-    track_->RippleRemoveBlock(block_);
-  }
+	virtual void redo() override
+	{
+		before_ = block_->previous();
+		track_->RippleRemoveBlock(block_);
+	}
 
-  virtual void undo() override
-  {
-    track_->InsertBlockAfter(block_, before_);
-  }
+	virtual void undo() override
+	{
+		track_->InsertBlockAfter(block_, before_);
+	}
 
 private:
-  Track* track_;
+	Track *track_;
 
-  Block* block_;
+	Block *block_;
 
-  Block* before_;
-
+	Block *before_;
 };
 
-class TrackPrependBlockCommand : public UndoCommand
-{
+class TrackPrependBlockCommand : public UndoCommand {
 public:
-  TrackPrependBlockCommand(Track* track, Block* block) :
-    track_(track),
-    block_(block)
-  {
-  }
+	TrackPrependBlockCommand(Track *track, Block *block)
+		: track_(track)
+		, block_(block)
+	{
+	}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return track_->project();
+	}
 
 protected:
-  virtual void redo() override
-  {
-    track_->PrependBlock(block_);
-  }
+	virtual void redo() override
+	{
+		track_->PrependBlock(block_);
+	}
 
-  virtual void undo() override
-  {
-    track_->RippleRemoveBlock(block_);
-  }
+	virtual void undo() override
+	{
+		track_->RippleRemoveBlock(block_);
+	}
 
 private:
-  Track* track_;
-  Block* block_;
+	Track *track_;
+	Block *block_;
 };
 
-class TrackInsertBlockAfterCommand : public UndoCommand
-{
+class TrackInsertBlockAfterCommand : public UndoCommand {
 public:
-  TrackInsertBlockAfterCommand(Track* track, Block* block, Block* before) :
-    track_(track),
-    block_(block),
-    before_(before)
-  {
-  }
+	TrackInsertBlockAfterCommand(Track *track, Block *block, Block *before)
+		: track_(track)
+		, block_(block)
+		, before_(before)
+	{
+	}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return block_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return block_->project();
+	}
 
 protected:
-  virtual void redo() override
-  {
-    track_->InsertBlockAfter(block_, before_);
-  }
+	virtual void redo() override
+	{
+		track_->InsertBlockAfter(block_, before_);
+	}
 
-  virtual void undo() override
-  {
-    track_->RippleRemoveBlock(block_);
-  }
+	virtual void undo() override
+	{
+		track_->RippleRemoveBlock(block_);
+	}
 
 private:
-  Track* track_;
+	Track *track_;
 
-  Block* block_;
+	Block *block_;
 
-  Block* before_;
+	Block *before_;
 };
 
 /**
@@ -129,37 +127,35 @@ private:
  *
  * Both blocks must have equal lengths.
  */
-class TrackReplaceBlockCommand : public UndoCommand
-{
+class TrackReplaceBlockCommand : public UndoCommand {
 public:
-  TrackReplaceBlockCommand(Track* track, Block* old, Block* replace) :
-    track_(track),
-    old_(old),
-    replace_(replace)
-  {
-  }
+	TrackReplaceBlockCommand(Track *track, Block *old, Block *replace)
+		: track_(track)
+		, old_(old)
+		, replace_(replace)
+	{
+	}
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return track_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return track_->project();
+	}
 
 protected:
-  virtual void redo() override
-  {
-    track_->ReplaceBlock(old_, replace_);
-  }
+	virtual void redo() override
+	{
+		track_->ReplaceBlock(old_, replace_);
+	}
 
-  virtual void undo() override
-  {
-    track_->ReplaceBlock(replace_, old_);
-  }
+	virtual void undo() override
+	{
+		track_->ReplaceBlock(replace_, old_);
+	}
 
 private:
-  Track* track_;
-  Block* old_;
-  Block* replace_;
-
+	Track *track_;
+	Block *old_;
+	Block *replace_;
 };
 
 }

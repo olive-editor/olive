@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Studios LLC
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,17 +24,16 @@
 
 #include "panel/panel.h"
 
-namespace olive {
-
-class HistoryPanel : public PanelWidget
+namespace olive
 {
-  Q_OBJECT
+
+class HistoryPanel : public PanelWidget {
+	Q_OBJECT
 public:
-  HistoryPanel();
+	HistoryPanel();
 
 protected:
-  virtual void Retranslate() override;
-
+	virtual void Retranslate() override;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,26 +33,43 @@
 #include "tabs/preferencesdisktab.h"
 #include "tabs/preferencesaudiotab.h"
 #include "tabs/preferenceskeyboardtab.h"
+#include "tabs/preferencesluttab.h"
 #include "window/mainwindow/mainwindow.h"
 
-namespace olive {
-
-PreferencesDialog::PreferencesDialog(MainWindow *main_window) :
-  ConfigDialogBase(main_window)
+namespace olive
 {
-  setWindowTitle(tr("Preferences"));
 
-  AddTab(new PreferencesGeneralTab(), tr("General"));
-  AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
-  AddTab(new PreferencesBehaviorTab(), tr("Behavior"));
-  AddTab(new PreferencesDiskTab(), tr("Disk"));
-  AddTab(new PreferencesAudioTab(), tr("Audio"));
-  AddTab(new PreferencesKeyboardTab(main_window), tr("Keyboard"));
+PreferencesDialog::PreferencesDialog(MainWindow *main_window, int start_tab)
+	: ConfigDialogBase(main_window)
+{
+	setWindowTitle(tr("Preferences"));
+
+	AddTab(new PreferencesGeneralTab(), tr("General"));
+	AddTab(new PreferencesAppearanceTab(), tr("Appearance"));
+	AddTab(new PreferencesAudioTab(), tr("Audio"));
+	AddTab(
+		new PreferencesBehaviorTab(PreferencesBehaviorTab::kCategoryTimeline),
+		tr("Timeline"));
+	AddTab(
+		new PreferencesBehaviorTab(PreferencesBehaviorTab::kCategoryPlayback),
+		tr("Playback"));
+	AddTab(new PreferencesBehaviorTab(PreferencesBehaviorTab::kCategoryProject),
+		   tr("Project"));
+	AddTab(new PreferencesBehaviorTab(PreferencesBehaviorTab::kCategoryNodes),
+		   tr("Nodes"));
+	AddTab(
+		new PreferencesBehaviorTab(PreferencesBehaviorTab::kCategoryRendering),
+		tr("Rendering"));
+	AddTab(new PreferencesDiskTab(), tr("Disk"));
+	AddTab(new PreferencesLutTab(), tr("LUT"));
+	AddTab(new PreferencesKeyboardTab(main_window), tr("Keyboard"));
+
+	SetCurrentTab(start_tab);
 }
 
 void PreferencesDialog::AcceptEvent()
 {
-  Config::Save();
+	Config::Save();
 }
 
 }

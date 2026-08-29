@@ -1,0 +1,73 @@
+OFX Support Library
+
+    This directory tree contains the source to a C++ library that skins the OFX
+    C plugin API with a set of classes. It is meant to act as a guide to people implementing
+    plugins and hosts using the API and reveal the logical structure of the OFX API.
+
+
+********************************************************************************
+Copyright and License
+
+     The library is copyright OpenFX and contributors to the OpenFX project, and was
+     written by Bruno Nicoletti (bruno@thefoundry.co.uk).
+
+     It was originally released under the GNU Lesser General Public License.
+
+     It has subsequently been released under a 'BSD-3-Clause' license. See the
+     file 'LICENSE' for details.
+
+********************************************************************************
+Structure
+        - include    - contains the headers for any client code.
+        - Library    - contains the code that implements the support library.
+        - PropTester - contains code for a plugin that performs extensive property testing.
+	- Plugins    - contains a set of example plugins using the support library.
+
+********************************************************************************
+Building
+      Plug-ins and library have OSX makefiles and windows MSDEV project files. They build and link and load happily on compliant hosts.
+
+********************************************************************************
+Problems And Debugging
+
+	- unsupported properties on a host. If a hosts returns kOfxStatErrUnsupported when the plugin sets a property that is not absolutely essential (eg the hint property on a parameter), an exception is thrown at line 39 of Library/ofxsProperty.cpp. This in turn will cause the plug-in to return kOfxStatFailed. Comment out this line out if you encounter failure on a host and it may run.
+
+	- if compiled in debug, the plugin writes a log file out, call "ofxTestLog.txt" in the current directory. This log will contain a variety of error messages. The most important of which concern property validation. The file Library/ofxsPropertyValidation.cpp contains code to validate each possible type of property handle used by OFX, making sure the host has the correct properties on each. If it finds a property not to exist, or to have the wrong default, it will print messages to the log file.
+
+********************************************************************************
+Release Notes
+
+
+31-1-2005
+	All accessor functions have had 'get' prepended to their name.
+	Added integrate and differentiate functions to 2D and 3D double parameters.
+	The generic memory allocator takes an option ImageEffect pointer, not a void * handle.
+	Refactored plugins to use new member names.
+	Added a root makefile to the plugins directory.
+	Added a 'clean' target to the plugin makefiles.
+
+13-01-2005 Version 0.2
+
+	   Skinned everything except message suite and parameter interacts custom GUIS,
+	   Skinned overlays,
+	   Build enviromnments for OSX and MSDEV,
+	   Example plug-ins written for each context,
+	   Doxygen documentation (especially proud of my 15 line plugin writing guide),
+	   Still to be done,
+	   	 decent set of exceptions and exception specifiers on each function,
+		 skin the parameter custom interact,
+		 parameter integration and differentiation functions needed on 2D and 3D doubles and the colour classses,
+		 parameters should return their values in a struct, as well as by a reference arg (some do already),
+		 write examples showing custom param and param animation,
+		 write an example showing use of external resource files,
+		 more testing.
+
+15-12-2004 Version 0.1
+
+	   Implemented most of the basic classes, need to do more work on clip instances and image effect instances.
+           Library builds fine on OSX 10.3, not fully tested yet.
+           No where near finsihed yet,
+           	   Need to finish off the actions.
+                   Need to do a cleaner set of exception classes.
+                   Need to test somewhat more (hey they do compile though!).
+                   Need to build on more machines too (OSX 10.3 fine) and come up with make files for the appropriates

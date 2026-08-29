@@ -20,6 +20,6 @@ add_subdirectory(mosaic)
 add_subdirectory(stroke)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

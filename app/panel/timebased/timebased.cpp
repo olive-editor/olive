@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,206 +21,211 @@
 
 #include "timebased.h"
 
-namespace olive {
+namespace olive
+{
 
-TimeBasedPanel::TimeBasedPanel(const QString &object_name) :
-  PanelWidget(object_name),
-  widget_(nullptr),
-  show_and_raise_on_connect_(false)
+TimeBasedPanel::TimeBasedPanel(const QString &object_name)
+	: PanelWidget(object_name)
+	, widget_(nullptr)
+	, show_and_raise_on_connect_(false)
 {
 }
 
 TimeBasedPanel::~TimeBasedPanel()
 {
-  delete widget_;
+	delete widget_;
 }
 
-const rational& TimeBasedPanel::timebase()
+const rational &TimeBasedPanel::timebase()
 {
-  return widget_->timebase();
+	return widget_->timebase();
 }
 
 void TimeBasedPanel::GoToStart()
 {
-  widget_->GoToStart();
+	widget_->GoToStart();
 }
 
 void TimeBasedPanel::PrevFrame()
 {
-  widget_->PrevFrame();
+	widget_->PrevFrame();
 }
 
 void TimeBasedPanel::NextFrame()
 {
-  widget_->NextFrame();
+	widget_->NextFrame();
 }
 
 void TimeBasedPanel::GoToEnd()
 {
-  widget_->GoToEnd();
+	widget_->GoToEnd();
 }
 
 void TimeBasedPanel::ZoomIn()
 {
-  widget_->ZoomIn();
+	widget_->ZoomIn();
 }
 
 void TimeBasedPanel::ZoomOut()
 {
-  widget_->ZoomOut();
+	widget_->ZoomOut();
 }
 
 void TimeBasedPanel::SetTimebase(const rational &timebase)
 {
-  widget_->SetTimebase(timebase);
+	widget_->SetTimebase(timebase);
 }
 
 void TimeBasedPanel::GoToPrevCut()
 {
-  widget_->GoToPrevCut();
+	widget_->GoToPrevCut();
 }
 
 void TimeBasedPanel::GoToNextCut()
 {
-  widget_->GoToNextCut();
+	widget_->GoToNextCut();
 }
 
 void TimeBasedPanel::PlayPause()
 {
-  emit PlayPauseRequested();
+	emit PlayPauseRequested();
 }
 
 void TimeBasedPanel::PlayInToOut()
 {
-  emit PlayInToOutRequested();
+	emit PlayInToOutRequested();
 }
 
 void TimeBasedPanel::ShuttleLeft()
 {
-  emit ShuttleLeftRequested();
+	emit ShuttleLeftRequested();
 }
 
 void TimeBasedPanel::ShuttleStop()
 {
-  emit ShuttleStopRequested();
+	emit ShuttleStopRequested();
 }
 
 void TimeBasedPanel::ShuttleRight()
 {
-  emit ShuttleRightRequested();
+	emit ShuttleRightRequested();
 }
 
 void TimeBasedPanel::ConnectViewerNode(ViewerOutput *node)
 {
-  widget_->ConnectViewerNode(node);
+	widget_->ConnectViewerNode(node);
 }
 
 void TimeBasedPanel::SetTimeBasedWidget(TimeBasedWidget *widget)
 {
-  if (widget_) {
-    disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
-  }
+	if (widget_) {
+		disconnect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this,
+				   &TimeBasedPanel::ConnectedNodeChanged);
+	}
 
-  widget_ = widget;
+	widget_ = widget;
 
-  if (widget_) {
-    connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this, &TimeBasedPanel::ConnectedNodeChanged);
-  }
+	if (widget_) {
+		connect(widget_, &TimeBasedWidget::ConnectedNodeChanged, this,
+				&TimeBasedPanel::ConnectedNodeChanged);
+	}
 
-  SetWidgetWithPadding(widget_);
+	SetWidgetWithPadding(widget_);
 }
 
 void TimeBasedPanel::Retranslate()
 {
-  if (GetTimeBasedWidget()->GetConnectedNode()) {
-    SetSubtitle(GetTimeBasedWidget()->GetConnectedNode()->GetLabel());
-  } else {
-    SetSubtitle(tr("(none)"));
-  }
+	if (GetTimeBasedWidget()->GetConnectedNode()) {
+		SetSubtitle(GetTimeBasedWidget()->GetConnectedNode()->GetLabel());
+	} else {
+		SetSubtitle(tr("(none)"));
+	}
 }
 
 void TimeBasedPanel::ConnectedNodeChanged(ViewerOutput *old, ViewerOutput *now)
 {
-  if (old) {
-    disconnect(old, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
-  }
+	if (old) {
+		disconnect(old, &ViewerOutput::LabelChanged, this,
+				   &TimeBasedPanel::SetSubtitle);
+	}
 
-  if (now) {
-    connect(now, &ViewerOutput::LabelChanged, this, &TimeBasedPanel::SetSubtitle);
+	if (now) {
+		connect(now, &ViewerOutput::LabelChanged, this,
+				&TimeBasedPanel::SetSubtitle);
 
-    if (show_and_raise_on_connect_) {
-      this->show();
-      this->raise();
-    }
-  }
+		if (show_and_raise_on_connect_) {
+			this->show();
+			this->raise();
+		}
+	}
 
-  // Update strings
-  Retranslate();
+	// Update strings
+	Retranslate();
 }
 
 void TimeBasedPanel::SetIn()
 {
-  GetTimeBasedWidget()->SetInAtPlayhead();
+	GetTimeBasedWidget()->SetInAtPlayhead();
 }
 
 void TimeBasedPanel::SetOut()
 {
-  GetTimeBasedWidget()->SetOutAtPlayhead();
+	GetTimeBasedWidget()->SetOutAtPlayhead();
 }
 
 void TimeBasedPanel::ResetIn()
 {
-  GetTimeBasedWidget()->ResetIn();
+	GetTimeBasedWidget()->ResetIn();
 }
 
 void TimeBasedPanel::ResetOut()
 {
-  GetTimeBasedWidget()->ResetOut();
+	GetTimeBasedWidget()->ResetOut();
 }
 
 void TimeBasedPanel::ClearInOut()
 {
-  GetTimeBasedWidget()->ClearInOutPoints();
+	GetTimeBasedWidget()->ClearInOutPoints();
 }
 
 void TimeBasedPanel::SetMarker()
 {
-  GetTimeBasedWidget()->SetMarker();
+	GetTimeBasedWidget()->SetMarker();
 }
 
 void TimeBasedPanel::ToggleShowAll()
 {
-  GetTimeBasedWidget()->ToggleShowAll();
+	GetTimeBasedWidget()->ToggleShowAll();
 }
 
 void TimeBasedPanel::GoToIn()
 {
-  GetTimeBasedWidget()->GoToIn();
+	GetTimeBasedWidget()->GoToIn();
 }
 
 void TimeBasedPanel::GoToOut()
 {
-  GetTimeBasedWidget()->GoToOut();
+	GetTimeBasedWidget()->GoToOut();
 }
 
 void TimeBasedPanel::DeleteSelected()
 {
-  GetTimeBasedWidget()->DeleteSelected();
+	GetTimeBasedWidget()->DeleteSelected();
 }
 
 void TimeBasedPanel::CutSelected()
 {
-  GetTimeBasedWidget()->CopySelected(true);
+	GetTimeBasedWidget()->CopySelected(true);
 }
 
 void TimeBasedPanel::CopySelected()
 {
-  GetTimeBasedWidget()->CopySelected(false);
+	GetTimeBasedWidget()->CopySelected(false);
 }
 
 void TimeBasedPanel::Paste()
 {
-  GetTimeBasedWidget()->Paste();
+	GetTimeBasedWidget()->Paste();
 }
 
 }

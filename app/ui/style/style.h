@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,34 +27,37 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class StyleManager : public QObject {
 public:
-  static void Init();
+	static void Init();
 
-  static const QString& GetStyle();
+	static const QString &GetStyle();
 
-  static void SetStyle(const QString& style_path);
+	static void SetStyle(const QString &style_path);
 
-  static const char* kDefaultStyle;
+	inline static const char *kDefaultStyle = "olive-dark";
 
-  static const QMap<QString, QString>& available_themes()
-  {
-    return available_themes_;
-  }
+	static const QMap<QString, QString> &available_themes()
+	{
+		return available_themes_;
+	}
 
 private:
-  static QPalette ParsePalette(const QString& ini_path);
+	static QPalette ParsePalette(const QString &ini_path);
 
-  static void ParsePaletteGroup(QSettings* ini, QPalette* palette, QPalette::ColorGroup group);
+	static void ParsePaletteGroup(QSettings *ini, QPalette *palette,
+								  QPalette::ColorGroup group);
 
-  static void ParsePaletteColor(QSettings* ini, QPalette* palette, QPalette::ColorGroup group, const QString& role_name);
+	static void ParsePaletteColor(QSettings *ini, QPalette *palette,
+								  QPalette::ColorGroup group,
+								  const QString &role_name);
 
-  static QString current_style_;
+	static QString current_style_;
 
-  static QMap<QString, QString> available_themes_;
-
+	static QMap<QString, QString> available_themes_;
 };
 
 }

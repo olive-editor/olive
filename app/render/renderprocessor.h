@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,72 +23,101 @@
 #define RENDERPROCESSOR_H
 
 #include "node/block/clip/clip.h"
+#include <memory>
 #include "node/traverser.h"
 #include "render/renderer.h"
 #include "rendercache.h"
 #include "renderticket.h"
 
-namespace olive {
-
-class RenderProcessor : public NodeTraverser
+namespace olive
 {
+
+namespace plugin
+{
+class PluginRenderer;
+}
+
+class RenderProcessor : public NodeTraverser {
 public:
-  virtual NodeValueDatabase GenerateDatabase(const Node *node, const TimeRange &range) override;
+	virtual NodeValueDatabase GenerateDatabase(const Node *node,
+											   const TimeRange &range) override;
 
-  static void Process(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
+	static void Process(RenderTicketPtr ticket, Renderer *render_ctx,
+						DecoderCache *decoder_cache, ShaderCache *shader_cache);
 
-  struct RenderedWaveform {
-    const ClipBlock* block;
-    AudioVisualWaveform waveform;
-    TimeRange range;
-    bool silence;
-  };
+	struct RenderedWaveform {
+		const ClipBlock *block;
+		AudioVisualWaveform waveform;
+		TimeRange range;
+		bool silence;
+	};
 
 protected:
-  virtual void ProcessVideoFootage(TexturePtr destination, const FootageJob *stream, const rational &input_time) override;
+	virtual void ProcessVideoFootage(TexturePtr destination,
+									 const FootageJob *stream,
+									 const rational &input_time) override;
 
-  virtual void ProcessAudioFootage(SampleBuffer &destination, const FootageJob *stream, const TimeRange &input_time) override;
+	virtual void ProcessAudioFootage(SampleBuffer &destination,
+									 const FootageJob *stream,
+									 const TimeRange &input_time) override;
 
-  virtual void ProcessShader(TexturePtr destination, const Node *node, const ShaderJob *job) override;
+	virtual void ProcessShader(TexturePtr destination, const Node *node,
+							   const ShaderJob *job) override;
 
-  virtual void ProcessSamples(SampleBuffer &destination, const Node *node, const TimeRange &range, const SampleJob &job) override;
+	virtual void ProcessSamples(SampleBuffer &destination, const Node *node,
+								const TimeRange &range,
+								const SampleJob &job) override;
 
-  virtual void ProcessColorTransform(TexturePtr destination, const Node *node, const ColorTransformJob *job) override;
+	virtual void ProcessColorTransform(TexturePtr destination, const Node *node,
+									   const ColorTransformJob *job) override;
 
-  virtual void ProcessFrameGeneration(TexturePtr destination, const Node *node, const GenerateJob *job) override;
+	virtual void ProcessFrameGeneration(TexturePtr destination,
+										const Node *node,
+										const GenerateJob *job) override;
 
-  virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val) override;
+	virtual TexturePtr ProcessPluginJob(TexturePtr texture,
+										TexturePtr destination,
+										const Node *node) override;
 
-  virtual TexturePtr CreateTexture(const VideoParams &p) override;
+	virtual TexturePtr ProcessVideoCacheJob(const CacheJob *val) override;
 
-  virtual SampleBuffer CreateSampleBuffer(const AudioParams &params, int sample_count) override
-  {
-    return SampleBuffer(params, sample_count);
-  }
+	virtual TexturePtr CreateTexture(const VideoParams &p) override;
 
-  virtual void ConvertToReferenceSpace(TexturePtr destination, TexturePtr source, const QString &input_cs) override;
+	virtual SampleBuffer CreateSampleBuffer(const AudioParams &params,
+											int sample_count) override
+	{
+		return SampleBuffer(params, sample_count);
+	}
 
-  virtual bool UseCache() const override;
+	virtual void ConvertToReferenceSpace(TexturePtr destination,
+										 TexturePtr source,
+										 const QString &input_cs) override;
+
+	virtual bool UseCache() const override;
 
 private:
-  RenderProcessor(RenderTicketPtr ticket, Renderer* render_ctx, DecoderCache* decoder_cache, ShaderCache* shader_cache);
+	RenderProcessor(RenderTicketPtr ticket, Renderer *render_ctx,
+					DecoderCache *decoder_cache, ShaderCache *shader_cache);
 
-  TexturePtr GenerateTexture(const rational& time, const rational& frame_length);
+	TexturePtr GenerateTexture(const rational &time,
+							   const rational &frame_length);
 
-  FramePtr GenerateFrame(TexturePtr texture, const rational &time);
+	FramePtr GenerateFrame(TexturePtr texture, const rational &time);
 
-  void Run();
+	void Run();
 
-  DecoderPtr ResolveDecoderFromInput(const QString &decoder_id, const Decoder::CodecStream& stream);
+	DecoderPtr ResolveDecoderFromInput(const QString &decoder_id,
+									   const Decoder::CodecStream &stream);
 
-  RenderTicketPtr ticket_;
+	RenderTicketPtr ticket_;
 
-  Renderer* render_ctx_;
+	Renderer *render_ctx_;
 
-  DecoderCache* decoder_cache_;
+	std::unique_ptr<olive::plugin::PluginRenderer> plugin_renderer_;
 
-  ShaderCache* shader_cache_;
+	DecoderCache *decoder_cache_;
 
+	ShaderCache *shader_cache_;
 };
 
 }

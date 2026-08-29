@@ -1,0 +1,3 @@
+This directory contains header code that is used by the OFX Support library example plugins to perform basic processing functions.
+
+The code in this directory is not so much a skin on the base OFX classes, but code used in implementing specific image processing algorithms. As such it does not sit in the support include lib, but in its own include directory.

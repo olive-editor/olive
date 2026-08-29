@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,29 +23,33 @@
 
 #include "core.h"
 
-namespace olive {
-
-PixelSamplerPanel::PixelSamplerPanel() :
-  PanelWidget(QStringLiteral("PixelSamplerPanel"))
+namespace olive
 {
-  sampler_widget_ = new ManagedPixelSamplerWidget(this);
-  SetWidgetWithPadding(sampler_widget_);
 
-  connect(this, &PixelSamplerPanel::shown, Core::instance(), []{Core::instance()->RequestPixelSamplingInViewers(true);});
-  connect(this, &PixelSamplerPanel::hidden, Core::instance(), []{Core::instance()->RequestPixelSamplingInViewers(false);});
-  connect(Core::instance(), &Core::ColorPickerColorEmitted, this, &PixelSamplerPanel::SetValues);
+PixelSamplerPanel::PixelSamplerPanel()
+	: PanelWidget(QStringLiteral("PixelSamplerPanel"))
+{
+	sampler_widget_ = new ManagedPixelSamplerWidget(this);
+	SetWidgetWithPadding(sampler_widget_);
 
-  Retranslate();
+	connect(this, &PixelSamplerPanel::shown, Core::instance(),
+			[] { Core::instance()->RequestPixelSamplingInViewers(true); });
+	connect(this, &PixelSamplerPanel::hidden, Core::instance(),
+			[] { Core::instance()->RequestPixelSamplingInViewers(false); });
+	connect(Core::instance(), &Core::ColorPickerColorEmitted, this,
+			&PixelSamplerPanel::SetValues);
+
+	Retranslate();
 }
 
 void PixelSamplerPanel::SetValues(const Color &reference, const Color &display)
 {
-  sampler_widget_->SetValues(reference, display);
+	sampler_widget_->SetValues(reference, display);
 }
 
 void PixelSamplerPanel::Retranslate()
 {
-  SetTitle(tr("Pixel Sampler"));
+	SetTitle(tr("Pixel Sampler"));
 }
 
 }

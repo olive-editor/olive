@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,134 +28,176 @@
 #include "common/xmlutils.h"
 #include "node/project/serializer/typeserializer.h"
 
-namespace olive {
+namespace olive
+{
 
 bool FootageDescription::Load(const QString &filename)
 {
-  // Reset self
-  *this = FootageDescription();
+	// Reset self
+	*this = FootageDescription();
 
-  QFile file(filename);
+	QFile file(filename);
 
-  if (file.open(QFile::ReadOnly)) {
-    QXmlStreamReader reader(&file);
+	if (file.open(QFile::ReadOnly)) {
+		QXmlStreamReader reader(&file);
 
-    while (XMLReadNextStartElement(&reader)) {
-      if (reader.name() == QStringLiteral("streamcache")) {
-        // Default to first version of metadata (which wasn't versioned at all)
-        unsigned version = 1;
+		bool found_streamcache = false;
 
-        {
-          XMLAttributeLoop((&reader), attr) {
-            if (attr.name() == QStringLiteral("version")) {
-              version = attr.value().toUInt();
-            }
-          }
-        }
+		while (XMLReadNextStartElement(&reader)) {
+			if (reader.name() == QStringLiteral("streamcache")) {
+				found_streamcache = true;
+				// Default to first version of metadata (which wasn't versioned at all)
+				unsigned version = 1;
 
-        if (version != kFootageMetaVersion) {
-          // If this is a different version, discard so we can probe new data
-          return false;
-        }
+				{
+					XMLAttributeLoop((&reader), attr)
+					{
+						if (attr.name() == QStringLiteral("version")) {
+							version = attr.value().toUInt();
+						}
+					}
+				}
 
-        while (XMLReadNextStartElement(&reader)) {
-          if (reader.name() == QStringLiteral("decoder")) {
-            decoder_ = reader.readElementText();
-          } else if (reader.name() == QStringLiteral("streams")) {
-            {
-              XMLAttributeLoop((&reader), attr) {
-                if (attr.name() == QStringLiteral("count")) {
-                  total_stream_count_ = attr.value().toInt();
-                }
-              }
-            }
+				if (version != kFootageMetaVersion) {
+					// If this is a different version, discard so we can probe new data
+					return false;
+				}
 
-            while (XMLReadNextStartElement(&reader)) {
-              if (reader.name() == QStringLiteral("video")) {
-                VideoParams vp;
-                vp.Load(&reader);
-                AddVideoStream(vp);
-              } else if (reader.name() == QStringLiteral("audio")) {
-                AudioParams ap = TypeSerializer::LoadAudioParams(&reader);
-                AddAudioStream(ap);
-              } else if (reader.name() == QStringLiteral("subtitle")) {
-                SubtitleParams sp;
-                sp.Load(&reader);
-                AddSubtitleStream(sp);
-              } else {
-                reader.skipCurrentElement();
-              }
-            }
-          } else {
-            reader.skipCurrentElement();
-          }
-        }
-      } else {
-        reader.skipCurrentElement();
-      }
-    }
+				while (XMLReadNextStartElement(&reader)) {
+					if (reader.name() == QStringLiteral("decoder")) {
+						decoder_ = reader.readElementText();
+					} else if (reader.name() ==
+							   QStringLiteral("sourcestarttime")) {
+						QString source;
+						{
+							XMLAttributeLoop((&reader), attr)
+							{
+								if (attr.name() == QStringLiteral("source")) {
+									source = attr.value().toString();
+								}
+							}
+						}
 
-    file.close();
+						const QStringList split =
+							reader.readElementText().split('/');
+						if (split.size() == 2) {
+							SetSourceStartTime(rational(split.at(0).toInt(),
+														split.at(1).toInt()),
+											   source);
+						}
+					} else if (reader.name() == QStringLiteral("streams")) {
+						{
+							XMLAttributeLoop((&reader), attr)
+							{
+								if (attr.name() == QStringLiteral("count")) {
+									total_stream_count_ = attr.value().toInt();
+								}
+							}
+						}
 
-    if (reader.hasError()) {
-      qWarning() << "Failed to load footage description for" << filename << reader.errorString();
-    } else {
-      return true;
-    }
-  }
+						while (XMLReadNextStartElement(&reader)) {
+							if (reader.name() == QStringLiteral("video")) {
+								VideoParams vp;
+								vp.Load(&reader);
+								AddVideoStream(vp);
+							} else if (reader.name() ==
+									   QStringLiteral("audio")) {
+								AudioParams ap =
+									TypeSerializer::LoadAudioParams(&reader);
+								AddAudioStream(ap);
+							} else if (reader.name() ==
+									   QStringLiteral("subtitle")) {
+								SubtitleParams sp;
+								sp.Load(&reader);
+								AddSubtitleStream(sp);
+							} else {
+								reader.skipCurrentElement();
+							}
+						}
+					} else {
+						reader.skipCurrentElement();
+					}
+				}
+			} else {
+				reader.skipCurrentElement();
+			}
+		}
 
-  return false;
+		file.close();
+
+		if (reader.hasError()) {
+			qWarning() << "Failed to load footage description for" << filename
+					   << reader.errorString();
+		} else {
+			// Only accept files whose root element is the one Save() writes
+			return found_streamcache;
+		}
+	}
+
+	return false;
 }
 
 bool FootageDescription::Save(const QString &filename) const
 {
-  QFile file(filename);
+	QFile file(filename);
 
-  if (!file.open(QFile::WriteOnly)) {
-    return false;
-  }
+	if (!file.open(QFile::WriteOnly)) {
+		return false;
+	}
 
-  QXmlStreamWriter writer(&file);
+	QXmlStreamWriter writer(&file);
 
-  writer.writeStartDocument();
+	writer.writeStartDocument();
 
-  writer.writeStartElement(QStringLiteral("streamcache"));
+	writer.writeStartElement(QStringLiteral("streamcache"));
 
-  writer.writeAttribute(QStringLiteral("version"), QString::number(kFootageMetaVersion));
+	writer.writeAttribute(QStringLiteral("version"),
+						  QString::number(kFootageMetaVersion));
 
-  writer.writeTextElement(QStringLiteral("decoder"), decoder_);
+	writer.writeTextElement(QStringLiteral("decoder"), decoder_);
 
-  writer.writeStartElement(QStringLiteral("streams"));
+	if (has_source_start_time_) {
+		writer.writeStartElement(QStringLiteral("sourcestarttime"));
+		writer.writeAttribute(QStringLiteral("source"),
+							  source_start_time_source_);
+		writer.writeCharacters(QStringLiteral("%1/%2").arg(
+			QString::number(source_start_time_.numerator()),
+			QString::number(source_start_time_.denominator())));
+		writer.writeEndElement();
+	}
 
-  writer.writeAttribute(QStringLiteral("count"), QString::number(total_stream_count_));
+	writer.writeStartElement(QStringLiteral("streams"));
 
-  foreach (const VideoParams& vp, video_streams_) {
-    writer.writeStartElement(QStringLiteral("video"));
-    vp.Save(&writer);
-    writer.writeEndElement(); // video
-  }
+	writer.writeAttribute(QStringLiteral("count"),
+						  QString::number(total_stream_count_));
 
-  foreach (const AudioParams& ap, audio_streams_) {
-    writer.writeStartElement(QStringLiteral("audio"));
-    TypeSerializer::SaveAudioParams(&writer, ap);
-    writer.writeEndElement(); // audio
-  }
+	foreach (const VideoParams &vp, video_streams_) {
+		writer.writeStartElement(QStringLiteral("video"));
+		vp.Save(&writer);
+		writer.writeEndElement(); // video
+	}
 
-  foreach (const SubtitleParams& sp, subtitle_streams_) {
-    writer.writeStartElement(QStringLiteral("subtitle"));
-    sp.Save(&writer);
-    writer.writeEndElement(); // audio
-  }
+	foreach (const AudioParams &ap, audio_streams_) {
+		writer.writeStartElement(QStringLiteral("audio"));
+		TypeSerializer::SaveAudioParams(&writer, ap);
+		writer.writeEndElement(); // audio
+	}
 
-  writer.writeEndElement(); // streams
+	foreach (const SubtitleParams &sp, subtitle_streams_) {
+		writer.writeStartElement(QStringLiteral("subtitle"));
+		sp.Save(&writer);
+		writer.writeEndElement(); // audio
+	}
 
-  writer.writeEndElement(); // streamcache
+	writer.writeEndElement(); // streams
 
-  writer.writeEndDocument();
+	writer.writeEndElement(); // streamcache
 
-  file.close();
+	writer.writeEndDocument();
 
-  return true;
+	file.close();
+
+	return true;
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,96 +28,97 @@
 #include <QLabel>
 
 #include "node/node.h"
-#include "widget/colorbutton/colorbutton.h"
-#include "widget/menu/menushared.h"
-#include "ui/colorcoding.h"
 
-namespace olive {
+namespace olive
+{
 
 PreferencesAppearanceTab::PreferencesAppearanceTab()
 {
-  QVBoxLayout* layout = new QVBoxLayout(this);
+	QVBoxLayout *layout = new QVBoxLayout(this);
 
-  QGridLayout* appearance_layout = new QGridLayout();
-  layout->addLayout(appearance_layout);
+	QGridLayout *appearance_layout = new QGridLayout();
+	layout->addLayout(appearance_layout);
 
-  int row = 0;
+	int row = 0;
 
-  // Appearance -> Theme
-  appearance_layout->addWidget(new QLabel(tr("Theme")), row, 0);
+	// Appearance -> Theme
+	appearance_layout->addWidget(new QLabel(tr("Theme")), row, 0);
 
-  style_combobox_ = new QComboBox();
+	style_combobox_ = new QComboBox();
 
-  {
-    const QMap<QString, QString>& themes = StyleManager::available_themes();
-    QMap<QString, QString>::const_iterator i;
-    for (i=themes.cbegin(); i!=themes.cend(); i++) {
-      style_combobox_->addItem(i.value(), i.key());
+	{
+		const QMap<QString, QString> &themes = StyleManager::available_themes();
+		QMap<QString, QString>::const_iterator i;
+		for (i = themes.cbegin(); i != themes.cend(); i++) {
+			style_combobox_->addItem(i.value(), i.key());
 
-      if (StyleManager::GetStyle() == i.key()) {
-        style_combobox_->setCurrentIndex(style_combobox_->count()-1);
-      }
-    }
-  }
+			if (StyleManager::GetStyle() == i.key()) {
+				style_combobox_->setCurrentIndex(style_combobox_->count() - 1);
+			}
+		}
+	}
 
-  appearance_layout->addWidget(style_combobox_, row, 1);
+	appearance_layout->addWidget(style_combobox_, row, 1);
 
-  row++;
+	row++;
 
-  {
-    QGroupBox* color_group = new QGroupBox();
-    color_group->setTitle(tr("Default Node Colors"));
+	{
+		QGroupBox *color_group = new QGroupBox();
+		color_group->setTitle(tr("Default Node Colors"));
 
-    QGridLayout* color_layout = new QGridLayout(color_group);
+		QGridLayout *color_layout = new QGridLayout(color_group);
 
-    for (int i=0; i<Node::kCategoryCount; i++) {
-      QString cat_name = Node::GetCategoryName(static_cast<Node::CategoryID>(i));
-      color_layout->addWidget(new QLabel(cat_name), i, 0);
+		for (int i = 0; i < Node::kCategoryCount; i++) {
+			QString cat_name =
+				Node::GetCategoryName(static_cast<Node::CategoryID>(i));
+			color_layout->addWidget(new QLabel(cat_name), i, 0);
 
-      ColorCodingComboBox* ccc = new ColorCodingComboBox();
-      ccc->SetColor(OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)).toInt());
-      color_layout->addWidget(ccc, i, 1);
-      color_btns_.append(ccc);
-    }
+			ColorCodingComboBox *ccc = new ColorCodingComboBox();
+			ccc->SetColor(
+				OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)).toInt());
+			color_layout->addWidget(ccc, i, 1);
+			color_btns_.append(ccc);
+		}
 
-    appearance_layout->addWidget(color_group, row, 0, 1, 2);
-  }
+		appearance_layout->addWidget(color_group, row, 0, 1, 2);
+	}
 
-  row++;
-  {
-    QGroupBox* marker_group = new QGroupBox();
-    marker_group->setTitle(tr("Miscellaneous"));
+	row++;
+	{
+		QGroupBox *marker_group = new QGroupBox();
+		marker_group->setTitle(tr("Miscellaneous"));
 
-    QGridLayout* marker_layout = new QGridLayout(marker_group);
+		QGridLayout *marker_layout = new QGridLayout(marker_group);
 
-    marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
+		marker_layout->addWidget(new QLabel("Default Marker Color"), 0, 0);
 
-    marker_btn_ = new ColorCodingComboBox();
-    marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
-    marker_layout->addWidget(marker_btn_, 0, 1);
+		marker_btn_ = new ColorCodingComboBox();
+		marker_btn_->SetColor(OLIVE_CONFIG("MarkerColor").toInt());
+		marker_layout->addWidget(marker_btn_, 0, 1);
 
-    appearance_layout->addWidget(marker_group, row, 0, 1, 2);
-  }
+		appearance_layout->addWidget(marker_group, row, 0, 1, 2);
+	}
 
-  layout->addStretch();
+	layout->addStretch();
 }
 
 void PreferencesAppearanceTab::Accept(MultiUndoCommand *command)
 {
-  Q_UNUSED(command)
+	Q_UNUSED(command)
 
-  QString style_path = style_combobox_->currentData().toString();
+	QString style_path = style_combobox_->currentData().toString();
 
-  if (style_path != StyleManager::GetStyle()) {
-    StyleManager::SetStyle(style_path);
-    OLIVE_CONFIG("Style") = style_path;
-  }
+	if (style_path != StyleManager::GetStyle()) {
+		StyleManager::SetStyle(style_path);
+		OLIVE_CONFIG("Style") = style_path;
+	}
 
-  for (int i=0; i<color_btns_.size(); i++) {
-    OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)) = color_btns_.at(i)->GetSelectedColor();
-  }
+	for (int i = 0; i < color_btns_.size(); i++) {
+		OLIVE_CONFIG_STR(QStringLiteral("CatColor%1").arg(i)) =
+			color_btns_.at(i)->GetSelectedColor();
+	}
 
-  OLIVE_CONFIG("MarkerColor") = marker_btn_->GetSelectedColor();
+	OLIVE_CONFIG("MarkerColor") = marker_btn_->GetSelectedColor();
 }
 
 }

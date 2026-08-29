@@ -25,11 +25,12 @@ add_subdirectory(footageproperties)
 add_subdirectory(footagerelink)
 add_subdirectory(keyframeproperties)
 add_subdirectory(markerproperties)
-if(OpenTimelineIO_FOUND)
-  add_subdirectory(otioproperties)
-endif()
+if (OpenTimelineIO_FOUND)
+    add_subdirectory(otioproperties)
+endif ()
 add_subdirectory(preferences)
 add_subdirectory(progress)
+add_subdirectory(proxy)
 add_subdirectory(projectproperties)
 add_subdirectory(rendercancel)
 add_subdirectory(sequence)
@@ -38,6 +39,6 @@ add_subdirectory(task)
 add_subdirectory(text)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

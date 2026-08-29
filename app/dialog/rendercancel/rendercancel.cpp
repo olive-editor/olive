@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,63 +21,67 @@
 
 #include "rendercancel.h"
 
-namespace olive {
+namespace olive
+{
 
-RenderCancelDialog::RenderCancelDialog(QWidget *parent) :
-  ProgressDialog(tr("Waiting for workers to finish..."), tr("Renderer"), parent),
-  busy_workers_(0),
-  total_workers_(0)
+RenderCancelDialog::RenderCancelDialog(QWidget *parent)
+	: ProgressDialog(tr("Waiting for workers to finish..."), tr("Renderer"),
+					 parent)
+	, busy_workers_(0)
+	, total_workers_(0)
 {
 }
 
 void RenderCancelDialog::RunIfWorkersAreBusy()
 {
-  if (busy_workers_ > 0) {
-    waiting_workers_ = busy_workers_;
+	if (busy_workers_ > 0) {
+		waiting_workers_ = busy_workers_;
 
-    exec();
-  }
+		exec();
+	}
 }
 
 void RenderCancelDialog::SetWorkerCount(int count)
 {
-  total_workers_ = count;
+	total_workers_ = count;
 
-  UpdateProgress();
+	UpdateProgress();
 }
 
 void RenderCancelDialog::WorkerStarted()
 {
-  busy_workers_++;
+	busy_workers_++;
 
-  UpdateProgress();
+	UpdateProgress();
 }
 
 void RenderCancelDialog::WorkerDone()
 {
-  busy_workers_--;
+	busy_workers_--;
 
-  UpdateProgress();
+	UpdateProgress();
 }
 
 void RenderCancelDialog::showEvent(QShowEvent *event)
 {
-  QDialog::showEvent(event);
-  
-  UpdateProgress();
+	QDialog::showEvent(event);
+
+	UpdateProgress();
 }
 
 void RenderCancelDialog::UpdateProgress()
 {
-  if (!total_workers_ || !isVisible()) {
-    return;
-  }
+	if (!total_workers_ || !isVisible()) {
+		return;
+	}
 
-  SetProgress(qRound(100.0 * static_cast<double>(waiting_workers_ - busy_workers_) / static_cast<double>(waiting_workers_)));
+	SetProgress(
+		qRound(100.0 * static_cast<double>(waiting_workers_ - busy_workers_) /
+			   static_cast<double>(waiting_workers_)));
 
-  if (busy_workers_ == 0) {
-    accept();
-  }
+	if (busy_workers_ == 0) {
+		accept();
+	}
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,46 +26,62 @@
 #include "render/colorprocessor.h"
 #include "widget/manageddisplay/manageddisplay.h"
 
-namespace olive {
-
-class ScopeBase : public ManagedDisplayWidget
+namespace olive
 {
-public:
-  ScopeBase(QWidget* parent = nullptr);
 
-  MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ScopeBase)
+class ScopeBase : public ManagedDisplayWidget {
+public:
+	ScopeBase(QWidget *parent = nullptr);
+
+	MANAGEDDISPLAYWIDGET_DEFAULT_DESTRUCTOR(ScopeBase)
 
 public slots:
-  void SetBuffer(TexturePtr frame);
+	void SetBuffer(TexturePtr frame);
 
 protected slots:
-  virtual void OnInit() override;
+	virtual void OnInit() override;
 
-  virtual void OnPaint() override;
+	virtual void OnPaint() override;
 
-  virtual void OnDestroy() override;
+	virtual void OnDestroy() override;
 
 protected:
-  virtual void showEvent(QShowEvent* e) override;
+	virtual void showEvent(QShowEvent *e) override;
 
-  virtual ShaderCode GenerateShaderCode() = 0;
+	virtual ShaderCode GenerateShaderCode() = 0;
 
-  /**
-   * @brief Draw function
+	/**
+   * @brief GPU-accelerated draw function used on OpenGL backends.
    *
    * Override this if your sub-class scope needs extra drawing.
    */
-  virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline);
+	virtual void DrawScope(TexturePtr managed_tex, QVariant pipeline);
+
+	/**
+   * @brief Software draw function used on backend-neutral paths (e.g. Vulkan).
+   *
+   * Implementations receive an 8-bit sRGB/display-ready image and should draw
+   * the scope visualization with QPainter.
+   */
+	virtual void DrawScopeSoftware(QPainter &p, const QImage &image) = 0;
 
 private:
-  QVariant pipeline_;
+	void UpdateSoftwareImage();
 
-  TexturePtr texture_;
+	QVariant pipeline_;
 
-  TexturePtr managed_tex_;
+	TexturePtr texture_;
 
-  bool managed_tex_up_to_date_;
+	TexturePtr managed_tex_;
 
+	bool managed_tex_up_to_date_;
+
+	TexturePtr software_tex_;
+	QByteArray software_buffer_;
+	QImage software_image_;
+	bool software_image_up_to_date_;
+
+	TexturePtr local_texture_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,49 +26,52 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class ViewerSafeMarginInfo {
 public:
-  ViewerSafeMarginInfo() :
-    enabled_(false)
-  {
-  }
+	ViewerSafeMarginInfo()
+		: enabled_(false)
+		, ratio_(0.0)
+	{
+	}
 
-  ViewerSafeMarginInfo(bool enabled, double ratio = 0) :
-    enabled_(enabled),
-    ratio_(ratio)
-  {
-  }
+	ViewerSafeMarginInfo(bool enabled, double ratio = 0)
+		: enabled_(enabled)
+		, ratio_(ratio)
+	{
+	}
 
-  bool is_enabled() const
-  {
-    return enabled_;
-  }
+	bool is_enabled() const
+	{
+		return enabled_;
+	}
 
-  bool custom_ratio() const
-  {
-    return (ratio_ > 0);
-  }
+	bool custom_ratio() const
+	{
+		return (ratio_ > 0);
+	}
 
-  double ratio() const
-  {
-    return ratio_;
-  }
+	double ratio() const
+	{
+		return ratio_;
+	}
 
-  bool operator==(const ViewerSafeMarginInfo& rhs) const {
-    return (enabled_ == rhs.enabled_ && qFuzzyCompare(ratio_, rhs.ratio_));
-  }
+	bool operator==(const ViewerSafeMarginInfo &rhs) const
+	{
+		return (enabled_ == rhs.enabled_ && qFuzzyCompare(ratio_, rhs.ratio_));
+	}
 
-  bool operator!=(const ViewerSafeMarginInfo& rhs) const {
-    return (enabled_ != rhs.enabled_ || !qFuzzyCompare(ratio_, rhs.ratio_));
-  }
+	bool operator!=(const ViewerSafeMarginInfo &rhs) const
+	{
+		return (enabled_ != rhs.enabled_ || !qFuzzyCompare(ratio_, rhs.ratio_));
+	}
 
 private:
-  bool enabled_;
+	bool enabled_;
 
-  double ratio_;
-
+	double ratio_;
 };
 
 }

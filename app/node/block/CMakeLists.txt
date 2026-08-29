@@ -20,8 +20,8 @@ add_subdirectory(subtitle)
 add_subdirectory(transition)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/block/block.h
-  node/block/block.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/block/block.h
+        node/block/block.cpp
+        PARENT_SCOPE
 )

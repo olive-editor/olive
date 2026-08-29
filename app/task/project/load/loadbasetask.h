@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,37 +25,36 @@
 #include "node/project.h"
 #include "task/task.h"
 
-namespace olive {
-
-class ProjectLoadBaseTask : public Task
+namespace olive
 {
-  Q_OBJECT
+
+class ProjectLoadBaseTask : public Task {
+	Q_OBJECT
 public:
-  ProjectLoadBaseTask(const QString& filename);
+	ProjectLoadBaseTask(const QString &filename);
 
-  Project* GetLoadedProject() const
-  {
-    return project_;
-  }
+	Project *GetLoadedProject() const
+	{
+		return project_;
+	}
 
-  const QString& GetFilename() const
-  {
-    return filename_;
-  }
+	const QString &GetFilename() const
+	{
+		return filename_;
+	}
 
-  const MainWindowLayoutInfo &GetLoadedLayout() const
-  {
-    return layout_;
-  }
+	const MainWindowLayoutInfo &GetLoadedLayout() const
+	{
+		return layout_;
+	}
 
 protected:
-  Project* project_;
+	Project *project_;
 
-  MainWindowLayoutInfo layout_;
+	MainWindowLayoutInfo layout_;
 
 private:
-  QString filename_;
-
+	QString filename_;
 };
 
 }

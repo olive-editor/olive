@@ -15,18 +15,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/preferences/tabs/preferencesgeneraltab.h
-  dialog/preferences/tabs/preferencesgeneraltab.cpp
-  dialog/preferences/tabs/preferencesbehaviortab.h
-  dialog/preferences/tabs/preferencesbehaviortab.cpp
-  dialog/preferences/tabs/preferencesdisktab.h
-  dialog/preferences/tabs/preferencesdisktab.cpp
-  dialog/preferences/tabs/preferencesappearancetab.h
-  dialog/preferences/tabs/preferencesappearancetab.cpp
-  dialog/preferences/tabs/preferencesaudiotab.h
-  dialog/preferences/tabs/preferencesaudiotab.cpp
-  dialog/preferences/tabs/preferenceskeyboardtab.h
-  dialog/preferences/tabs/preferenceskeyboardtab.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/preferences/tabs/preferencesgeneraltab.h
+        dialog/preferences/tabs/preferencesgeneraltab.cpp
+        dialog/preferences/tabs/preferencesbehaviortab.h
+        dialog/preferences/tabs/preferencesbehaviortab.cpp
+        dialog/preferences/tabs/preferencesdisktab.h
+        dialog/preferences/tabs/preferencesdisktab.cpp
+        dialog/preferences/tabs/preferencesluttab.h
+        dialog/preferences/tabs/preferencesluttab.cpp
+        dialog/preferences/tabs/preferencesappearancetab.h
+        dialog/preferences/tabs/preferencesappearancetab.cpp
+        dialog/preferences/tabs/preferencesaudiotab.h
+        dialog/preferences/tabs/preferencesaudiotab.cpp
+        dialog/preferences/tabs/preferenceskeyboardtab.h
+        dialog/preferences/tabs/preferenceskeyboardtab.cpp
+        PARENT_SCOPE
 )

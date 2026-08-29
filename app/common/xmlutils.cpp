@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,23 +24,24 @@
 #include "node/block/block.h"
 #include "node/factory.h"
 
-namespace olive {
+namespace olive
+{
 
 bool XMLReadNextStartElement(QXmlStreamReader *reader, CancelAtom *cancel_atom)
 {
-  QXmlStreamReader::TokenType token;
+	QXmlStreamReader::TokenType token;
 
-  while ((token = reader->readNext()) != QXmlStreamReader::Invalid
-         && token != QXmlStreamReader::EndDocument
-         && (!cancel_atom || !cancel_atom->IsCancelled())) {
-    if (reader->isEndElement()) {
-      return false;
-    } else if (reader->isStartElement()) {
-      return true;
-    }
-  }
+	while ((token = reader->readNext()) != QXmlStreamReader::Invalid &&
+		   token != QXmlStreamReader::EndDocument &&
+		   (!cancel_atom || !cancel_atom->IsCancelled())) {
+		if (reader->isEndElement()) {
+			return false;
+		} else if (reader->isStartElement()) {
+			return true;
+		}
+	}
 
-  return false;
+	return false;
 }
 
 }

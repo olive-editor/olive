@@ -20,15 +20,15 @@ add_subdirectory(icons)
 add_subdirectory(style)
 
 set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  PARENT_SCOPE
+        ${OLIVE_RESOURCES}
+        PARENT_SCOPE
 )
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  ui/colorcoding.cpp
-  ui/colorcoding.h
-  ui/humanstrings.cpp
-  ui/humanstrings.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        ui/colorcoding.cpp
+        ui/colorcoding.h
+        ui/humanstrings.cpp
+        ui/humanstrings.h
+        PARENT_SCOPE
 )

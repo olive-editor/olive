@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,53 +25,56 @@
 #include "node/gizmo/point.h"
 #include "node/node.h"
 
-namespace olive {
-
-class TileDistortNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class TileDistortNode : public Node {
+	Q_OBJECT
 public:
-  TileDistortNode();
+	TileDistortNode();
 
-  NODE_DEFAULT_FUNCTIONS(TileDistortNode)
+	NODE_DEFAULT_FUNCTIONS(TileDistortNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals) override;
 
-  static const QString kTextureInput;
-  static const QString kScaleInput;
-  static const QString kPositionInput;
-  static const QString kAnchorInput;
-  static const QString kMirrorXInput;
-  static const QString kMirrorYInput;
+	static const QString kTextureInput;
+	static const QString kScaleInput;
+	static const QString kPositionInput;
+	static const QString kAnchorInput;
+	static const QString kMirrorXInput;
+	static const QString kMirrorYInput;
 
 protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+	virtual void GizmoDragMove(double x, double y,
+							   const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  enum Anchor {
-    kTopLeft,
-    kTopCenter,
-    kTopRight,
-    kMiddleLeft,
-    kMiddleCenter,
-    kMiddleRight,
-    kBottomLeft,
-    kBottomCenter,
-    kBottomRight
-  };
+	enum Anchor {
+		kTopLeft,
+		kTopCenter,
+		kTopRight,
+		kMiddleLeft,
+		kMiddleCenter,
+		kMiddleRight,
+		kBottomLeft,
+		kBottomCenter,
+		kBottomRight
+	};
 
-  PointGizmo *gizmo_;
-
+	PointGizmo *gizmo_;
 };
 
 }

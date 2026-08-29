@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,41 +27,40 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class TimelineWorkArea : public QObject
-{
-  Q_OBJECT
+class TimelineWorkArea : public QObject {
+	Q_OBJECT
 public:
-  TimelineWorkArea(QObject* parent = nullptr);
+	TimelineWorkArea(QObject *parent = nullptr);
 
-  bool enabled() const;
-  void set_enabled(bool e);
+	bool enabled() const;
+	void set_enabled(bool e);
 
-  const rational& in() const;
-  const rational& out() const;
-  const rational& length() const;
-  const TimeRange& range() const;
-  void set_range(const TimeRange& range);
+	const rational &in() const;
+	const rational &out() const;
+	const rational &length() const;
+	const TimeRange &range() const;
+	void set_range(const TimeRange &range);
 
-  bool load(QXmlStreamReader *reader);
-  void save(QXmlStreamWriter *writer) const;
+	bool load(QXmlStreamReader *reader);
+	void save(QXmlStreamWriter *writer) const;
 
-  static const rational kResetIn;
-  static const rational kResetOut;
+	static const rational kResetIn;
+	static const rational kResetOut;
 
 signals:
-  void EnabledChanged(bool e);
+	void EnabledChanged(bool e);
 
-  void RangeChanged(const TimeRange& r);
+	void RangeChanged(const TimeRange &r);
 
 private:
-  bool workarea_enabled_;
+	bool workarea_enabled_;
 
-  TimeRange workarea_range_;
-
+	TimeRange workarea_range_;
 };
 
 }

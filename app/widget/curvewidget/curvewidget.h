@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,100 +33,101 @@
 #include "widget/nodetreeview/nodetreeview.h"
 #include "widget/timebased/timebasedwidget.h"
 
-namespace olive {
-
-class CurveWidget : public TimeBasedWidget, public TimeTargetObject
+namespace olive
 {
-  Q_OBJECT
+
+class CurveWidget : public TimeBasedWidget, public TimeTargetObject {
+	Q_OBJECT
 public:
-  CurveWidget(QWidget* parent = nullptr);
+	CurveWidget(QWidget *parent = nullptr);
 
-  const double& GetVerticalScale();
-  void SetVerticalScale(const double& vscale);
+	const double &GetVerticalScale();
+	void SetVerticalScale(const double &vscale);
 
-  void DeleteSelected();
+	void DeleteSelected();
 
-  void SelectAll()
-  {
-    view_->SelectAll();
-  }
+	void SelectAll()
+	{
+		view_->SelectAll();
+	}
 
-  void DeselectAll()
-  {
-    view_->DeselectAll();
-  }
+	void DeselectAll()
+	{
+		view_->DeselectAll();
+	}
 
-  Node *GetSelectedNodeWithID(const QString &id);
+	Node *GetSelectedNodeWithID(const QString &id);
 
-  virtual bool CopySelected(bool cut) override;
+	virtual bool CopySelected(bool cut) override;
 
-  virtual bool Paste() override;
+	virtual bool Paste() override;
 
 public slots:
-  void SetNodes(const QVector<Node *> &nodes);
+	void SetNodes(const QVector<Node *> &nodes);
 
 protected:
-  virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void ScaleChangedEvent(const double &) override;
+	virtual void TimebaseChangedEvent(const rational &) override;
+	virtual void ScaleChangedEvent(const double &) override;
 
-  virtual void TimeTargetChangedEvent(ViewerOutput *target) override;
+	virtual void TimeTargetChangedEvent(ViewerOutput *target) override;
 
-  virtual void ConnectedNodeChangeEvent(ViewerOutput* n) override;
+	virtual void ConnectedNodeChangeEvent(ViewerOutput *n) override;
 
-  virtual const QVector<KeyframeViewInputConnection*> *GetSnapKeyframes() const override
-  {
-    return &view_->GetKeyframeTracks();
-  }
+	virtual const QVector<KeyframeViewInputConnection *> *
+	GetSnapKeyframes() const override
+	{
+		return &view_->GetKeyframeTracks();
+	}
 
-  virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
-  {
-    return view_;
-  }
+	virtual const TimeTargetObject *GetKeyframeTimeTarget() const override
+	{
+		return view_;
+	}
 
-  virtual const std::vector<NodeKeyframe*> *GetSnapIgnoreKeyframes() const override
-  {
-    return &view_->GetSelectedKeyframes();
-  }
+	virtual const std::vector<NodeKeyframe *> *
+	GetSnapIgnoreKeyframes() const override
+	{
+		return &view_->GetSelectedKeyframes();
+	}
 
 private:
-  void SetKeyframeButtonEnabled(bool enable);
+	void SetKeyframeButtonEnabled(bool enable);
 
-  void SetKeyframeButtonChecked(bool checked);
+	void SetKeyframeButtonChecked(bool checked);
 
-  void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
+	void SetKeyframeButtonCheckedFromType(NodeKeyframe::Type type);
 
-  void ConnectInput(Node *node, const QString &input, int element);
+	void ConnectInput(Node *node, const QString &input, int element);
 
-  void ConnectInputInternal(Node *node, const QString &input, int element);
+	void ConnectInputInternal(Node *node, const QString &input, int element);
 
-  QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
+	QHash<NodeKeyframeTrackReference, QColor> keyframe_colors_;
 
-  NodeTreeView* tree_view_;
+	NodeTreeView *tree_view_;
 
-  QPushButton* linear_button_;
+	QPushButton *linear_button_;
 
-  QPushButton* bezier_button_;
+	QPushButton *bezier_button_;
 
-  QPushButton* hold_button_;
+	QPushButton *hold_button_;
 
-  CurveView* view_;
+	CurveView *view_;
 
-  NodeParamViewKeyframeControl* key_control_;
+	NodeParamViewKeyframeControl *key_control_;
 
-  QVector<Node*> nodes_;
+	QVector<Node *> nodes_;
 
-  QVector<NodeKeyframeTrackReference> selected_tracks_;
+	QVector<NodeKeyframeTrackReference> selected_tracks_;
 
 private slots:
-  void SelectionChanged();
+	void SelectionChanged();
 
-  void KeyframeTypeButtonTriggered(bool checked);
+	void KeyframeTypeButtonTriggered(bool checked);
 
-  void InputSelectionChanged(const NodeKeyframeTrackReference& ref);
+	void InputSelectionChanged(const NodeKeyframeTrackReference &ref);
 
-  void KeyframeViewDragged(int x, int y);
-  void KeyframeViewReleased();
-
+	void KeyframeViewDragged(int x, int y);
+	void KeyframeViewReleased();
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,26 +24,27 @@
 #include "core.h"
 #include "window/mainwindow/mainwindow.h"
 
-namespace olive {
+namespace olive
+{
 
 void OpenSequenceCommand::redo()
 {
-  Core::instance()->main_window()->OpenSequence(sequence_);
+	Core::instance()->main_window()->OpenSequence(sequence_);
 }
 
 void OpenSequenceCommand::undo()
 {
-  Core::instance()->main_window()->CloseSequence(sequence_);
+	Core::instance()->main_window()->CloseSequence(sequence_);
 }
 
 void CloseSequenceCommand::redo()
 {
-  Core::instance()->main_window()->CloseSequence(sequence_);
+	Core::instance()->main_window()->CloseSequence(sequence_);
 }
 
 void CloseSequenceCommand::undo()
 {
-  Core::instance()->main_window()->OpenSequence(sequence_);
+	Core::instance()->main_window()->OpenSequence(sequence_);
 }
 
 }

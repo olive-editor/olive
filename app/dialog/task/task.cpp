@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,85 +21,96 @@
 
 #include "task.h"
 
-#include <QtConcurrent/QtConcurrent>
+#include <QFutureWatcher>
+#include <QtConcurrent>
 
-namespace olive {
+namespace olive
+{
 
 #define super ProgressDialog
 
-TaskDialog::TaskDialog(Task* task, const QString& title, QWidget *parent) :
-  super(task->GetTitle(), title, parent),
-  task_(task),
-  destroy_on_close_(true),
-  already_shown_(false)
+TaskDialog::TaskDialog(Task *task, const QString &title, QWidget *parent)
+	: super(task->GetTitle(), title, parent)
+	, task_(task)
+	, destroy_on_close_(true)
+	, already_shown_(false)
+	, task_finished_(false)
 {
-  // Clear task when this dialog is destroyed
-  task_->setParent(this);
+	// Clear task when this dialog is destroyed
+	task_->setParent(this);
 
-  // Connect the save manager progress signal to the progress bar update on the dialog
-  connect(task_, &Task::ProgressChanged, this, &TaskDialog::SetProgress, Qt::QueuedConnection);
+	// Connect the save manager progress signal to the progress bar update on the dialog
+	connect(task_, &Task::ProgressChanged, this, &TaskDialog::SetProgress,
+			Qt::QueuedConnection);
 
-  // Connect cancel signal (must be a direct connection or it'll be queued after the task has
-  // already finished)
-  connect(this, &TaskDialog::Cancelled, task_, &Task::Cancel, Qt::DirectConnection);
+	// Connect cancel signal (must be a direct connection or it'll be queued after the task has
+	// already finished)
+	connect(this, &TaskDialog::Cancelled, task_, &Task::Cancel,
+			Qt::DirectConnection);
 }
 
 void TaskDialog::showEvent(QShowEvent *e)
 {
-  super::showEvent(e);
+	super::showEvent(e);
 
-  if (!already_shown_) {
-    // Create watcher for when the task finishes
-    QFutureWatcher<bool>* task_watcher = new QFutureWatcher<bool>();
+	if (!already_shown_) {
+		// Create watcher for when the task finishes
+		QFutureWatcher<bool> *task_watcher = new QFutureWatcher<bool>();
 
-    // Listen for when the task finishes
-    connect(task_watcher, &QFutureWatcher<bool>::finished,
-            this, &TaskDialog::TaskFinished, Qt::QueuedConnection);
+		// Listen for when the task finishes
+		connect(task_watcher, &QFutureWatcher<bool>::finished, this,
+				&TaskDialog::TaskFinished, Qt::QueuedConnection);
 
-    // Run task in another thread with QtConcurrent
-    task_watcher->setFuture(
+		// Run task in another thread with QtConcurrent
+		task_watcher->setFuture(
 #if QT_VERSION_MAJOR >= 6
-          QtConcurrent::run(&Task::Start, task_)
+			QtConcurrent::run(&Task::Start, task_)
 #else
-          QtConcurrent::run(task_, &Task::Start)
+			QtConcurrent::run(task_, &Task::Start)
 #endif
-          );
+		);
 
-    already_shown_ = true;
-  }
+		already_shown_ = true;
+	}
 }
 
 void TaskDialog::closeEvent(QCloseEvent *e)
 {
-  // Cancel task if it is running
-  task_->Cancel();
+	// Cancel task if it is running
+	task_->Cancel();
 
-  // Standard close function
-  super::closeEvent(e);
+	// Standard close function
+	super::closeEvent(e);
 
-  // Reset shown
-  already_shown_ = false;
+	// Reset shown
+	already_shown_ = false;
 
-  // Clean up this task and dialog
-  if (destroy_on_close_) {
-    deleteLater();
-  }
+	// Clean up this task and dialog, but only if the task has actually finished.
+	// If the user closes the window while the task is still running, deleting now
+	// would destroy the Task object out from under the worker thread and crash
+	// when the task later touches its own members (e.g. ExportTask::encoder_).
+	if (destroy_on_close_ && task_finished_) {
+		deleteLater();
+	}
 }
 
 void TaskDialog::TaskFinished()
 {
-  QFutureWatcher<bool>* task_watcher = static_cast<QFutureWatcher<bool>*>(sender());
+	QFutureWatcher<bool> *task_watcher =
+		static_cast<QFutureWatcher<bool> *>(sender());
 
-  if (task_watcher->result()) {
-    emit TaskSucceeded(task_);
-  } else {
-    ShowErrorMessage(tr("Task Failed"), task_->GetError());
-    emit TaskFailed(task_);
-  }
+	task_finished_ = true;
 
-  task_watcher->deleteLater();
+	if (task_watcher->result()) {
+		emit TaskSucceeded(task_);
+	} else {
+		ShowErrorMessage(tr("Task Failed"), task_->GetError());
+		emit TaskFailed(task_);
+	}
 
-  close();
+	task_watcher->deleteLater();
+
+	close();
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,28 +28,39 @@
 #include "node/value.h"
 #include "render/job/acceleratedjob.h"
 
-namespace olive {
-
-class CacheJob : public AcceleratedJob
+namespace olive
 {
+
+class CacheJob : public AcceleratedJob {
 public:
-  CacheJob() = default;
-  CacheJob(const QString &filename, const NodeValue &fallback = NodeValue())
-  {
-    filename_ = filename;
-  }
+	CacheJob() = default;
+	CacheJob(const QString &filename, const NodeValue &fallback = NodeValue())
+	{
+		filename_ = filename;
+	}
 
-  const QString &GetFilename() const { return filename_; }
-  void SetFilename(const QString &s) { filename_ = s; }
+	const QString &GetFilename() const
+	{
+		return filename_;
+	}
+	void SetFilename(const QString &s)
+	{
+		filename_ = s;
+	}
 
-  const NodeValue &GetFallback() const { return fallback_; }
-  void SetFallback(const NodeValue &val) { fallback_ = val; }
+	const NodeValue &GetFallback() const
+	{
+		return fallback_;
+	}
+	void SetFallback(const NodeValue &val)
+	{
+		fallback_ = val;
+	}
 
 private:
-  QString filename_;
+	QString filename_;
 
-  NodeValue fallback_;
-
+	NodeValue fallback_;
 };
 
 }

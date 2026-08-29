@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,30 +24,31 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class FlipDistortNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class FlipDistortNode : public Node {
+	Q_OBJECT
 public:
-  FlipDistortNode();
+	FlipDistortNode();
 
-  NODE_DEFAULT_FUNCTIONS(FlipDistortNode)
+	NODE_DEFAULT_FUNCTIONS(FlipDistortNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kTextureInput;
-  static const QString kHorizontalInput;
-  static const QString kVerticalInput;
-
+	static const QString kTextureInput;
+	static const QString kHorizontalInput;
+	static const QString kVerticalInput;
 };
 
 }

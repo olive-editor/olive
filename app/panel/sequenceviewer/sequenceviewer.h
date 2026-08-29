@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,20 +24,19 @@
 
 #include "panel/viewer/viewer.h"
 
-namespace olive {
-
-class SequenceViewerPanel : public ViewerPanel
+namespace olive
 {
-  Q_OBJECT
+
+class SequenceViewerPanel : public ViewerPanel {
+	Q_OBJECT
 public:
-  SequenceViewerPanel();
+	SequenceViewerPanel();
 
 public slots:
-  void StartCapture(const TimeRange &time, const Track::Reference &track);
+	void StartCapture(const TimeRange &time, const Track::Reference &track);
 
 protected:
-  virtual void Retranslate() override;
-
+	virtual void Retranslate() override;
 };
 
 }

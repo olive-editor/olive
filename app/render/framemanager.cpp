@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,107 +24,109 @@
 #include <QDateTime>
 #include <QDebug>
 
-namespace olive {
+namespace olive
+{
 
-FrameManager* FrameManager::instance_ = nullptr;
+FrameManager *FrameManager::instance_ = nullptr;
 const int FrameManager::kFrameLifetime = 5000;
 
 void FrameManager::CreateInstance()
 {
-  instance_ = new FrameManager();
+	instance_ = new FrameManager();
 }
 
 void FrameManager::DestroyInstance()
 {
-  delete instance_;
-  instance_ = nullptr;
+	delete instance_;
+	instance_ = nullptr;
 }
 
 FrameManager *FrameManager::instance()
 {
-  return instance_;
+	return instance_;
 }
 
 char *FrameManager::Allocate(int size)
 {
-  if (instance()) {
-    return instance()->AllocateFromPool(size);
-  } else {
-    return new char[size];
-  }
+	if (instance()) {
+		return instance()->AllocateFromPool(size);
+	} else {
+		return new char[size];
+	}
 }
 
 void FrameManager::Deallocate(int size, char *buffer)
 {
-  if (instance()) {
-    instance()->DeallocateToPool(size, buffer);
-  } else {
-    delete [] buffer;
-  }
+	if (instance()) {
+		instance()->DeallocateToPool(size, buffer);
+	} else {
+		delete[] buffer;
+	}
 }
 
 FrameManager::FrameManager()
 {
-  clear_timer_.setInterval(kFrameLifetime);
-  connect(&clear_timer_, &QTimer::timeout, this, &FrameManager::GarbageCollection);
-  clear_timer_.start();
+	clear_timer_.setInterval(kFrameLifetime);
+	connect(&clear_timer_, &QTimer::timeout, this,
+			&FrameManager::GarbageCollection);
+	clear_timer_.start();
 }
 
 char *FrameManager::AllocateFromPool(int size)
 {
-  QMutexLocker locker(&mutex_);
+	QMutexLocker locker(&mutex_);
 
-  std::list<Buffer>& buffer_list = pool_[size];
-  char* buf = nullptr;
+	std::list<Buffer> &buffer_list = pool_[size];
+	char *buf = nullptr;
 
-  if (buffer_list.empty()) {
-    buf = new char[size];
-  } else {
-    // Take this buffer from the list
-    buf = buffer_list.front().data;
-    buffer_list.pop_front();
-  }
+	if (buffer_list.empty()) {
+		buf = new char[size];
+	} else {
+		// Take this buffer from the list
+		buf = buffer_list.front().data;
+		buffer_list.pop_front();
+	}
 
-  return buf;
+	return buf;
 }
 
 void FrameManager::DeallocateToPool(int size, char *buffer)
 {
-  QMutexLocker locker(&mutex_);
+	QMutexLocker locker(&mutex_);
 
-  std::list<Buffer>& buffer_list = pool_[size];
+	std::list<Buffer> &buffer_list = pool_[size];
 
-  buffer_list.push_back({QDateTime::currentMSecsSinceEpoch(), buffer});
+	buffer_list.push_back({ QDateTime::currentMSecsSinceEpoch(), buffer });
 }
 
 void FrameManager::GarbageCollection()
 {
-  QMutexLocker locker(&mutex_);
+	QMutexLocker locker(&mutex_);
 
-  qint64 min_life = QDateTime::currentMSecsSinceEpoch() - kFrameLifetime;
+	qint64 min_life = QDateTime::currentMSecsSinceEpoch() - kFrameLifetime;
 
-  for (auto it=pool_.begin(); it!=pool_.end(); it++) {
-    std::list<Buffer>& list = it->second;
+	for (auto it = pool_.begin(); it != pool_.end(); it++) {
+		std::list<Buffer> &list = it->second;
 
-    while (list.size() > 0 && list.front().time < min_life) {
-      delete [] list.front().data;
-      list.pop_front();
-    }
-  }
+		while (list.size() > 0 && list.front().time < min_life) {
+			delete[] list.front().data;
+			list.pop_front();
+		}
+	}
 }
 
 FrameManager::~FrameManager()
 {
-  QMutexLocker locker(&mutex_);
+	QMutexLocker locker(&mutex_);
 
-  for (auto it=pool_.begin(); it!=pool_.end(); it++) {
-    std::list<Buffer>& list = it->second;
-    for (auto jt=list.begin(); jt!=list.end(); jt++) {
-      delete [] (*jt).data;
-    }
-  }
+	for (auto it = pool_.begin(); it != pool_.end(); it++) {
+		std::list<Buffer> &list = it->second;
+		for (auto jt = list.begin(); jt != list.end(); jt++) {
+			delete[] (*jt).data;
+		}
+	}
 
-  pool_.clear();
+	pool_.clear();
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +31,8 @@
 #include "nodeviewcommon.h"
 #include "nodeviewitemconnector.h"
 
-namespace olive {
+namespace olive
+{
 
 class NodeViewItem;
 class NodeViewEdge;
@@ -42,195 +44,201 @@ class NodeViewEdge;
  *
  * To retrieve the NodeViewItem for a certain Node, use NodeView::NodeToUIObject().
  */
-class NodeViewItem : public QObject, public QGraphicsRectItem
-{
-  Q_OBJECT
+class NodeViewItem : public QObject, public QGraphicsRectItem {
+	Q_OBJECT
 public:
-  NodeViewItem(Node *node, const QString &input, int element, Node *context, QGraphicsItem* parent = nullptr);
-  NodeViewItem(Node *node, Node *context, QGraphicsItem* parent = nullptr) :
-    NodeViewItem(node, QString(), -1, context, parent)
-  {
-  }
+	NodeViewItem(Node *node, const QString &input, int element, Node *context,
+				 QGraphicsItem *parent = nullptr);
+	NodeViewItem(Node *node, Node *context, QGraphicsItem *parent = nullptr)
+		: NodeViewItem(node, QString(), -1, context, parent)
+	{
+	}
 
-  virtual ~NodeViewItem() override;
+	virtual ~NodeViewItem() override;
 
-  Node::Position GetNodePositionData() const;
-  QPointF GetNodePosition() const;
-  void SetNodePosition(const QPointF& pos);
-  void SetNodePosition(const Node::Position& pos);
+	Node::Position GetNodePositionData() const;
+	QPointF GetNodePosition() const;
+	void SetNodePosition(const QPointF &pos);
+	void SetNodePosition(const Node::Position &pos);
 
-  QVector<NodeViewEdge*> GetAllEdgesRecursively() const;
+	QVector<NodeViewEdge *> GetAllEdgesRecursively() const;
 
-  /**
+	/**
    * @brief Get currently attached node
    */
-  Node* GetNode() const
-  {
-    return node_;
-  }
+	Node *GetNode() const
+	{
+		return node_;
+	}
 
-  NodeInput GetInput() const
-  {
-    return NodeInput(node_, input_, element_);
-  }
+	NodeInput GetInput() const
+	{
+		return NodeInput(node_, input_, element_);
+	}
 
-  Node *GetContext() const
-  {
-    return context_;
-  }
+	Node *GetContext() const
+	{
+		return context_;
+	}
 
-  /**
+	/**
    * @brief Get expanded state
    */
-  bool IsExpanded() const
-  {
-    return expanded_;
-  }
+	bool IsExpanded() const
+	{
+		return expanded_;
+	}
 
-  const QVector<NodeViewEdge*> &edges() const
-  {
-    return edges_;
-  }
+	const QVector<NodeViewEdge *> &edges() const
+	{
+		return edges_;
+	}
 
-  /**
+	/**
    * @brief Set expanded state
    */
-  void SetExpanded(bool e, bool hide_titlebar = false);
-  void ToggleExpanded();
+	void SetExpanded(bool e, bool hide_titlebar = false);
+	void ToggleExpanded();
 
-  QPointF GetInputPoint() const;
-  QPointF GetOutputPoint() const;
+	QPointF GetInputPoint() const;
+	QPointF GetOutputPoint() const;
 
-  /**
+	/**
    * @brief Sets the direction nodes are flowing
    */
-  void SetFlowDirection(NodeViewCommon::FlowDirection dir);
+	void SetFlowDirection(NodeViewCommon::FlowDirection dir);
 
-  NodeViewCommon::FlowDirection GetFlowDirection() const
-  {
-    return flow_dir_;
-  }
+	NodeViewCommon::FlowDirection GetFlowDirection() const
+	{
+		return flow_dir_;
+	}
 
-  static int DefaultTextPadding();
+	static int DefaultTextPadding();
 
-  static int DefaultItemHeight();
+	static int DefaultItemHeight();
 
-  static int DefaultItemWidth();
+	static int DefaultItemWidth();
 
-  static int DefaultItemBorder();
+	static int DefaultItemBorder();
 
-  static QPointF NodeToScreenPoint(QPointF p, NodeViewCommon::FlowDirection direction);
-  static QPointF ScreenToNodePoint(QPointF p, NodeViewCommon::FlowDirection direction);
+	static QPointF NodeToScreenPoint(QPointF p,
+									 NodeViewCommon::FlowDirection direction);
+	static QPointF ScreenToNodePoint(QPointF p,
+									 NodeViewCommon::FlowDirection direction);
 
-  static qreal DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir);
-  static qreal DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir);
-  qreal DefaultItemHorizontalPadding() const;
-  qreal DefaultItemVerticalPadding() const;
+	static qreal
+	DefaultItemHorizontalPadding(NodeViewCommon::FlowDirection dir);
+	static qreal DefaultItemVerticalPadding(NodeViewCommon::FlowDirection dir);
+	qreal DefaultItemHorizontalPadding() const;
+	qreal DefaultItemVerticalPadding() const;
 
-  void AddEdge(NodeViewEdge* edge);
-  void RemoveEdge(NodeViewEdge* edge);
+	void AddEdge(NodeViewEdge *edge);
+	void RemoveEdge(NodeViewEdge *edge);
 
-  bool IsLabelledAsOutputOfContext() const
-  {
-    return label_as_output_;
-  }
+	bool IsLabelledAsOutputOfContext() const
+	{
+		return label_as_output_;
+	}
 
-  void SetLabelAsOutput(bool e);
+	void SetLabelAsOutput(bool e);
 
-  void SetHighlighted(bool e);
+	void SetHighlighted(bool e);
 
-  NodeViewItem *GetItemForInput(NodeInput input);
+	NodeViewItem *GetItemForInput(NodeInput input);
 
-  bool IsOutputItem() const
-  {
-    return input_.isEmpty();
-  }
+	bool IsOutputItem() const
+	{
+		return input_.isEmpty();
+	}
 
-  void ReadjustAllEdges();
+	void ReadjustAllEdges();
 
-  void UpdateFlowDirectionOfInputItem(NodeViewItem *child);
+	void UpdateFlowDirectionOfInputItem(NodeViewItem *child);
 
-  bool CanBeExpanded() const;
+	bool CanBeExpanded() const;
 
 protected:
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = nullptr) override;
+	virtual void paint(QPainter *painter,
+					   const QStyleOptionGraphicsItem *option,
+					   QWidget *widget = nullptr) override;
 
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
-  virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value) override;
+	virtual QVariant itemChange(QGraphicsItem::GraphicsItemChange change,
+								const QVariant &value) override;
 
 private:
-  void UpdateContextRect();
+	void UpdateContextRect();
 
-  void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect, Qt::Alignment vertical_align, int icon_full_size);
+	void DrawNodeTitle(QPainter *painter, QString text, const QRectF &rect,
+					   Qt::Alignment vertical_align, int icon_full_size);
 
-  int DrawExpandArrow(QPainter *painter);
+	int DrawExpandArrow(QPainter *painter);
 
-  /**
+	/**
    * @brief Internal update function when logical position changes
    */
-  void UpdateNodePosition();
+	void UpdateNodePosition();
 
-  void UpdateInputConnectorPosition();
-  void UpdateOutputConnectorPosition();
+	void UpdateInputConnectorPosition();
+	void UpdateOutputConnectorPosition();
 
-  bool IsInputValid(const QString &input);
+	bool IsInputValid(const QString &input);
 
-  void SetRectSize(int height_units = 1);
+	void SetRectSize(int height_units = 1);
 
-  void UpdateChildrenPositions();
+	void UpdateChildrenPositions();
 
-  int GetLogicalHeightWithChildren() const;
+	int GetLogicalHeightWithChildren() const;
 
-  /**
+	/**
    * @brief Reference to attached Node
    */
-  Node *node_;
-  QString input_;
-  int element_;
+	Node *node_;
+	QString input_;
+	int element_;
 
-  Node *context_;
+	Node *context_;
 
-  /**
+	/**
    * @brief Cached list of node inputs
    */
-  QVector<NodeViewItem*> children_;
+	QVector<NodeViewItem *> children_;
 
-  /// Sizing variables to use when drawing
-  int node_border_width_;
+	/// Sizing variables to use when drawing
+	int node_border_width_;
 
-  /**
+	/**
    * @brief Expanded state
    */
-  bool expanded_;
+	bool expanded_;
 
-  bool highlighted_;
+	bool highlighted_;
 
-  NodeViewCommon::FlowDirection flow_dir_;
+	NodeViewCommon::FlowDirection flow_dir_;
 
-  QVector<NodeViewEdge*> edges_;
+	QVector<NodeViewEdge *> edges_;
 
-  QPointF cached_node_pos_;
+	QPointF cached_node_pos_;
 
-  QRect last_arrow_rect_;
-  bool arrow_click_;
+	QRect last_arrow_rect_;
+	bool arrow_click_;
 
-  NodeViewItemConnector *input_connector_;
-  NodeViewItemConnector *output_connector_;
+	NodeViewItemConnector *input_connector_;
+	NodeViewItemConnector *output_connector_;
 
-  bool has_connectable_inputs_;
+	bool has_connectable_inputs_;
 
-  bool label_as_output_;
+	bool label_as_output_;
 
 private slots:
-  void NodeAppearanceChanged();
+	void NodeAppearanceChanged();
 
-  void RepopulateInputs();
+	void RepopulateInputs();
 
-  void InputArraySizeChanged(const QString &input);
-
+	void InputArraySizeChanged(const QString &input);
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,145 +30,142 @@
 #include "common/define.h"
 #include "node/project.h"
 
-namespace olive {
-
-class DiskCacheFolder : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class DiskCacheFolder : public QObject {
+	Q_OBJECT
 public:
-  DiskCacheFolder(const QString& path, QObject* parent = nullptr);
+	DiskCacheFolder(const QString &path, QObject *parent = nullptr);
 
-  virtual ~DiskCacheFolder() override;
+	virtual ~DiskCacheFolder() override;
 
-  bool ClearCache();
+	bool ClearCache();
 
-  void Accessed(const QString& filename);
+	void Accessed(const QString &filename);
 
-  void CreatedFile(const QString& filename);
+	void CreatedFile(const QString &filename);
 
-  const QString& GetPath() const
-  {
-    return path_;
-  }
+	const QString &GetPath() const
+	{
+		return path_;
+	}
 
-  void SetPath(const QString& path);
+	void SetPath(const QString &path);
 
-  qint64 GetLimit() const
-  {
-    return limit_;
-  }
+	qint64 GetLimit() const
+	{
+		return limit_;
+	}
 
-  bool GetClearOnClose() const
-  {
-    return clear_on_close_;
-  }
+	bool GetClearOnClose() const
+	{
+		return clear_on_close_;
+	}
 
-  void SetLimit(qint64 l)
-  {
-    limit_ = l;
-  }
+	void SetLimit(qint64 l)
+	{
+		limit_ = l;
+	}
 
-  void SetClearOnClose(bool e)
-  {
-    clear_on_close_ = e;
-  }
+	void SetClearOnClose(bool e)
+	{
+		clear_on_close_ = e;
+	}
 
-  bool DeleteSpecificFile(const QString &f);
+	bool DeleteSpecificFile(const QString &f);
 
 signals:
-  void DeletedFrame(const QString& path, const QString& filename);
+	void DeletedFrame(const QString &path, const QString &filename);
 
 private:
-  struct HashTime {
-    qint64 file_size;
-    qint64 access_time;
-  };
+	struct HashTime {
+		qint64 file_size;
+		qint64 access_time;
+	};
 
-  bool DeleteFileInternal(QMap<QString, HashTime>::iterator hash_to_delete);
+	bool DeleteFileInternal(QMap<QString, HashTime>::iterator hash_to_delete);
 
-  bool DeleteLeastRecent();
+	bool DeleteLeastRecent();
 
-  void CloseCacheFolder();
+	void CloseCacheFolder();
 
-  QString path_;
+	QString path_;
 
-  QString index_path_;
+	QString index_path_;
 
-  QMap<QString, HashTime> disk_data_;
+	QMap<QString, HashTime> disk_data_;
 
-  qint64 consumption_;
+	qint64 consumption_;
 
-  qint64 limit_;
+	qint64 limit_;
 
-  bool clear_on_close_;
+	bool clear_on_close_;
 
-  QTimer save_timer_;
+	QTimer save_timer_;
 
 private slots:
-  void SaveDiskCacheIndex();
-
+	void SaveDiskCacheIndex();
 };
 
-class DiskManager : public QObject
-{
-  Q_OBJECT
+class DiskManager : public QObject {
+	Q_OBJECT
 public:
-  static void CreateInstance();
+	static void CreateInstance();
 
-  static void DestroyInstance();
+	static void DestroyInstance();
 
-  static DiskManager* instance();
+	static DiskManager *instance();
 
-  bool ClearDiskCache(const QString& cache_folder);
+	bool ClearDiskCache(const QString &cache_folder);
 
-  DiskCacheFolder* GetDefaultCacheFolder() const
-  {
-    // The first folder will always be the default
-    return open_folders_.first();
-  }
+	DiskCacheFolder *GetDefaultCacheFolder() const
+	{
+		// The first folder will always be the default
+		return open_folders_.first();
+	}
 
-  const QString& GetDefaultCachePath() const
-  {
-    return GetDefaultCacheFolder()->GetPath();
-  }
+	const QString &GetDefaultCachePath() const
+	{
+		return GetDefaultCacheFolder()->GetPath();
+	}
 
-  DiskCacheFolder* GetOpenFolder(const QString& path);
+	DiskCacheFolder *GetOpenFolder(const QString &path);
 
-  const QVector<DiskCacheFolder*>& GetOpenFolders() const
-  {
-    return open_folders_;
-  }
+	const QVector<DiskCacheFolder *> &GetOpenFolders() const
+	{
+		return open_folders_;
+	}
 
-  static bool ShowDiskCacheChangeConfirmationDialog(QWidget* parent);
+	static bool ShowDiskCacheChangeConfirmationDialog(QWidget *parent);
 
-  static QString GetDefaultDiskCacheConfigFile();
+	static QString GetDefaultDiskCacheConfigFile();
 
-  static QString GetDefaultDiskCachePath();
+	static QString GetDefaultDiskCachePath();
 
-  void ShowDiskCacheSettingsDialog(DiskCacheFolder* folder, QWidget* parent);
-  void ShowDiskCacheSettingsDialog(const QString& path, QWidget* parent);
+	void ShowDiskCacheSettingsDialog(DiskCacheFolder *folder, QWidget *parent);
+	void ShowDiskCacheSettingsDialog(const QString &path, QWidget *parent);
 
 public slots:
-  void Accessed(const QString& cache_folder, const QString& filename);
+	void Accessed(const QString &cache_folder, const QString &filename);
 
-  void CreatedFile(const QString& cache_folder, const QString& filename);
+	void CreatedFile(const QString &cache_folder, const QString &filename);
 
-  void DeleteSpecificFile(const QString &filename);
+	void DeleteSpecificFile(const QString &filename);
 
 signals:
-  void DeletedFrame(const QString& path, const QString& filename);
+	void DeletedFrame(const QString &path, const QString &filename);
 
-  void InvalidateProject(Project* p);
+	void InvalidateProject(Project *p);
 
 private:
-  DiskManager();
+	DiskManager();
 
-  virtual ~DiskManager() override;
+	virtual ~DiskManager() override;
 
-  static DiskManager* instance_;
+	static DiskManager *instance_;
 
-  QVector<DiskCacheFolder*> open_folders_;
-
+	QVector<DiskCacheFolder *> open_folders_;
 };
 
 }

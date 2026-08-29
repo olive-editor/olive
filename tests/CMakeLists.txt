@@ -1,5 +1,6 @@
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2022 Olive Team
+# Modifications Copyright (C) 2025 mikesolar
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,12 +40,14 @@ function(olive_add_test GROUP NAME SOURCE)
   string(APPEND TEST_FILE_CONTENT "\n${TEST_BODY}")
   file(WRITE "${OUTPUT_FILE}" "${TEST_FILE_CONTENT}")
 
-  add_executable(${NAME} ${OUTPUT_FILE} $<TARGET_OBJECTS:libolive-editor>)
+  add_executable(${NAME} ${OUTPUT_FILE} $<TARGET_OBJECTS:libolive-editor> $<TARGET_OBJECTS:olive-version-obj>)
   target_include_directories(
     ${NAME}
     PRIVATE
     ${CMAKE_SOURCE_DIR}/app
     ${CMAKE_SOURCE_DIR}/tests
+    ${CMAKE_SOURCE_DIR}/third_party/openfx/include
+    ${CMAKE_SOURCE_DIR}/third_party/openfx/HostSupport/include
     ${OLIVE_INCLUDE_DIRS}
   )
   target_link_libraries(
@@ -66,9 +69,28 @@ function(olive_add_test GROUP NAME SOURCE)
     add_test("Olive.${GROUP}.${NAME}" ${NAME})
   else()
     add_test(${NAME} ${NAME})
-endif()
+  endif()
+
+  if (WIN32)
+    # Windows has no RPATH: ffmpeg_bridge.dll must sit next to the executable
+    add_custom_command(TARGET ${NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:ffmpeg_bridge> $<TARGET_FILE_DIR:${NAME}>)
+  endif()
 endfunction()
+
+include(FetchContent)
+find_package(GTest QUIET)
+if (NOT GTest_FOUND)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+  )
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)
+endif()
 
 add_subdirectory(compositing)
 add_subdirectory(general)
 add_subdirectory(timeline)
+add_subdirectory(gtest)

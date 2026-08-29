@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,122 +25,124 @@
 #include "panel/panel.h"
 #include "widget/timebased/timebasedwidget.h"
 
-namespace olive {
-
-class TimeBasedPanel : public PanelWidget
+namespace olive
 {
-  Q_OBJECT
+
+class TimeBasedPanel : public PanelWidget {
+	Q_OBJECT
 public:
-  TimeBasedPanel(const QString& object_name);
+	TimeBasedPanel(const QString &object_name);
 
-  virtual ~TimeBasedPanel() override;
+	virtual ~TimeBasedPanel() override;
 
-  void ConnectViewerNode(ViewerOutput *node);
+	void ConnectViewerNode(ViewerOutput *node);
 
-  void DisconnectViewerNode()
-  {
-    ConnectViewerNode(nullptr);
-  }
+	void DisconnectViewerNode()
+	{
+		ConnectViewerNode(nullptr);
+	}
 
-  // Get the timebase of this panels widget
-  const rational& timebase();
+	// Get the timebase of this panels widget
+	const rational &timebase();
 
-  ViewerOutput *GetConnectedViewer() const
-  {
-    return widget_->GetConnectedNode();
-  }
+	ViewerOutput *GetConnectedViewer() const
+	{
+		return widget_->GetConnectedNode();
+	}
 
-  TimeRuler* ruler() const
-  {
-    return widget_->ruler();
-  }
+	TimeRuler *ruler() const
+	{
+		return widget_->ruler();
+	}
 
-  virtual void ZoomIn() override;
+	virtual void ZoomIn() override;
 
-  virtual void ZoomOut() override;
+	virtual void ZoomOut() override;
 
-  virtual void GoToStart() override;
+	virtual void GoToStart() override;
 
-  virtual void PrevFrame() override;
+	virtual void PrevFrame() override;
 
-  virtual void NextFrame() override;
+	virtual void NextFrame() override;
 
-  virtual void GoToEnd() override;
+	virtual void GoToEnd() override;
 
-  virtual void GoToPrevCut() override;
+	virtual void GoToPrevCut() override;
 
-  virtual void GoToNextCut() override;
+	virtual void GoToNextCut() override;
 
-  virtual void PlayPause() override;
+	virtual void PlayPause() override;
 
-  virtual void PlayInToOut() override;
+	virtual void PlayInToOut() override;
 
-  virtual void ShuttleLeft() override;
+	virtual void ShuttleLeft() override;
 
-  virtual void ShuttleStop() override;
+	virtual void ShuttleStop() override;
 
-  virtual void ShuttleRight() override;
+	virtual void ShuttleRight() override;
 
-  virtual void SetIn() override;
+	virtual void SetIn() override;
 
-  virtual void SetOut() override;
+	virtual void SetOut() override;
 
-  virtual void ResetIn() override;
+	virtual void ResetIn() override;
 
-  virtual void ResetOut() override;
+	virtual void ResetOut() override;
 
-  virtual void ClearInOut() override;
+	virtual void ClearInOut() override;
 
-  virtual void SetMarker() override;
+	virtual void SetMarker() override;
 
-  virtual void ToggleShowAll() override;
+	virtual void ToggleShowAll() override;
 
-  virtual void GoToIn() override;
+	virtual void GoToIn() override;
 
-  virtual void GoToOut() override;
+	virtual void GoToOut() override;
 
-  virtual void DeleteSelected() override;
+	virtual void DeleteSelected() override;
 
-  virtual void CutSelected() override;
+	virtual void CutSelected() override;
 
-  virtual void CopySelected() override;
+	virtual void CopySelected() override;
 
-  virtual void Paste() override;
+	virtual void Paste() override;
 
-  TimeBasedWidget* GetTimeBasedWidget() const { return widget_; }
+	TimeBasedWidget *GetTimeBasedWidget() const
+	{
+		return widget_;
+	}
 
 public slots:
-  void SetTimebase(const rational& timebase);
+	void SetTimebase(const rational &timebase);
 
 signals:
-  void PlayPauseRequested();
+	void PlayPauseRequested();
 
-  void PlayInToOutRequested();
+	void PlayInToOutRequested();
 
-  void ShuttleLeftRequested();
+	void ShuttleLeftRequested();
 
-  void ShuttleStopRequested();
+	void ShuttleStopRequested();
 
-  void ShuttleRightRequested();
+	void ShuttleRightRequested();
 
 protected:
-  void SetTimeBasedWidget(TimeBasedWidget* widget);
+	void SetTimeBasedWidget(TimeBasedWidget *widget);
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  void SetShowAndRaiseOnConnect()
-  {
-    show_and_raise_on_connect_ = true;
-  }
+	void SetShowAndRaiseOnConnect()
+	{
+		show_and_raise_on_connect_ = true;
+	}
 
 private:
-  TimeBasedWidget* widget_;
+	TimeBasedWidget *widget_;
 
-  bool show_and_raise_on_connect_;
+	bool show_and_raise_on_connect_;
 
 private slots:
-  void ConnectedNodeChanged(ViewerOutput* old, ViewerOutput* now);
-
+	void ConnectedNodeChanged(ViewerOutput *old, ViewerOutput *now);
 };
 
 }

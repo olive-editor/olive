@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,42 +28,42 @@
 #include "common/debug.h"
 #include "widget/taskview/elapsedcounterwidget.h"
 
-namespace olive {
-
-class ProgressDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class ProgressDialog : public QDialog {
+	Q_OBJECT
 public:
-  ProgressDialog(const QString &message, const QString &title, QWidget* parent = nullptr);
+	ProgressDialog(const QString &message, const QString &title,
+				   QWidget *parent = nullptr);
 
 protected:
-  virtual void showEvent(QShowEvent* e) override;
+	virtual void showEvent(QShowEvent *e) override;
 
-  virtual void closeEvent(QCloseEvent *) override;
+	virtual void closeEvent(QCloseEvent *) override;
 
 public slots:
-  void SetProgress(double value);
+	void SetProgress(double value);
 
 signals:
-  void Cancelled();
+	void Cancelled();
 
 protected:
-  void ShowErrorMessage(const QString& title, const QString& message);
+	void ShowErrorMessage(const QString &title, const QString &message);
 
 private:
-  QProgressBar* bar_;
+	QProgressBar *bar_;
 
-  ElapsedCounterWidget* elapsed_timer_lbl_;
+	ElapsedCounterWidget *elapsed_timer_lbl_;
 
-  bool show_progress_;
+	bool show_progress_;
 
-  bool first_show_;
+	bool first_show_;
 
 private slots:
-  void DisableSenderWidget();
+	void DisableSenderWidget();
 
-  void DisableProgressWidgets();
-
+	void DisableProgressWidgets();
 };
 
 }

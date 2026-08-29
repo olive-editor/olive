@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 #include "timeinput.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super Node
 
@@ -30,31 +32,29 @@ TimeInput::TimeInput()
 
 QString TimeInput::Name() const
 {
-  return tr("Time");
+	return tr("Time");
 }
 
 QString TimeInput::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.time");
+	return QStringLiteral("org.olivevideoeditor.Olive.time");
 }
 
 QVector<Node::CategoryID> TimeInput::Category() const
 {
-  return {kCategoryTime};
+	return { kCategoryTime };
 }
 
 QString TimeInput::Description() const
 {
-  return tr("Generates the time (in seconds) at this frame.");
+	return tr("Generates the time (in seconds) at this frame.");
 }
 
-void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void TimeInput::Value(const NodeValueRow &value, const NodeGlobals &globals,
+					  NodeValueTable *table) const
 {
-  table->Push(NodeValue::kFloat,
-              globals.time().in().toDouble(),
-              this,
-              false,
-              QStringLiteral("time"));
+	table->Push(NodeValue::kFloat, globals.time().in().toDouble(), this, false,
+				QStringLiteral("time"));
 }
 
 }

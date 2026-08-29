@@ -16,50 +16,53 @@
 
 # Create crash handler executable
 add_executable(
-  olive-crashhandler
-  crashhandler.cpp
-  crashhandler.h
-  $<TARGET_OBJECTS:olive-version-obj>
+        olive-crashhandler
+        crashhandler.cpp
+        crashhandler.h
+        $<TARGET_OBJECTS:olive-version-obj>
 )
+
+# Rename the generated binary to oak-crashhandler so it matches the Oak branding.
+set_target_properties(olive-crashhandler PROPERTIES OUTPUT_NAME "oak-crashhandler")
 
 # Disable console appearing on crash handler dialog
 set_target_properties(olive-crashhandler PROPERTIES
-  WIN32_EXECUTABLE TRUE
+        WIN32_EXECUTABLE TRUE
 )
 
 # Set crash handler includes
 target_include_directories(
-  olive-crashhandler
-  PRIVATE
-  ${CMAKE_SOURCE_DIR}/app
-  ${CRASHPAD_INCLUDE_DIRS}
+        olive-crashhandler
+        PRIVATE
+        ${CMAKE_SOURCE_DIR}/app
+        ${CRASHPAD_INCLUDE_DIRS}
 )
 
 # Set crash handler libs
 target_link_libraries(
-  olive-crashhandler
-  PRIVATE
-  Qt${QT_VERSION_MAJOR}::Core
-  Qt${QT_VERSION_MAJOR}::Gui
-  Qt${QT_VERSION_MAJOR}::Widgets
-  Qt${QT_VERSION_MAJOR}::Network
-  ${CRASHPAD_LIBRARIES}
+        olive-crashhandler
+        PRIVATE
+        Qt${QT_VERSION_MAJOR}::Core
+        Qt${QT_VERSION_MAJOR}::Gui
+        Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Network
+        ${CRASHPAD_LIBRARIES}
 )
 
 set(CRASHPAD_HANDLER "crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}")
 set(MINIDUMP_STACKWALK "minidump_stackwalk${CMAKE_EXECUTABLE_SUFFIX}")
 
-if(APPLE)
-  # Move crash handler executables inside Mac app bundle
-  add_custom_command(TARGET olive-crashhandler POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different olive-crashhandler $<TARGET_FILE_DIR:olive-editor>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:olive-editor>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:olive-editor>
-  )
-elseif(UNIX)
-  install(TARGETS olive-crashhandler RUNTIME DESTINATION bin)
-  install(PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} DESTINATION bin)
-  install(PROGRAMS ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} DESTINATION bin)
-endif()
+if (APPLE)
+    # Move crash handler executables inside Mac app bundle
+    add_custom_command(TARGET olive-crashhandler POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:olive-crashhandler> $<TARGET_FILE_DIR:olive-editor>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} $<TARGET_FILE_DIR:olive-editor>
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} $<TARGET_FILE_DIR:olive-editor>
+    )
+elseif (UNIX)
+    install(TARGETS olive-crashhandler RUNTIME DESTINATION bin)
+    install(PROGRAMS ${CRASHPAD_LIBRARY_DIRS}/${CRASHPAD_HANDLER} DESTINATION bin)
+    install(PROGRAMS ${BREAKPAD_BIN_DIR}/${MINIDUMP_STACKWALK} DESTINATION bin)
+endif ()
 
 target_compile_definitions(olive-crashhandler PRIVATE ${OLIVE_DEFINITIONS})

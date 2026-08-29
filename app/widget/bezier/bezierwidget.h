@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,48 +28,65 @@
 
 #include "widget/slider/floatslider.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class BezierWidget : public QWidget
-{
-  Q_OBJECT
+class BezierWidget : public QWidget {
+	Q_OBJECT
 public:
-  explicit BezierWidget(QWidget *parent = nullptr);
+	explicit BezierWidget(QWidget *parent = nullptr);
 
-  Bezier GetValue() const;
+	Bezier GetValue() const;
 
-  void SetValue(const Bezier &b);
+	void SetValue(const Bezier &b);
 
-  FloatSlider *x_slider() const { return x_slider_; }
+	FloatSlider *x_slider() const
+	{
+		return x_slider_;
+	}
 
-  FloatSlider *y_slider() const { return y_slider_; }
+	FloatSlider *y_slider() const
+	{
+		return y_slider_;
+	}
 
-  FloatSlider *cp1_x_slider() const { return cp1_x_slider_; }
+	FloatSlider *cp1_x_slider() const
+	{
+		return cp1_x_slider_;
+	}
 
-  FloatSlider *cp1_y_slider() const { return cp1_y_slider_; }
+	FloatSlider *cp1_y_slider() const
+	{
+		return cp1_y_slider_;
+	}
 
-  FloatSlider *cp2_x_slider() const { return cp2_x_slider_; }
+	FloatSlider *cp2_x_slider() const
+	{
+		return cp2_x_slider_;
+	}
 
-  FloatSlider *cp2_y_slider() const { return cp2_y_slider_; }
+	FloatSlider *cp2_y_slider() const
+	{
+		return cp2_y_slider_;
+	}
 
 signals:
-  void ValueChanged();
+	void ValueChanged();
 
 private:
-  FloatSlider *x_slider_;
+	FloatSlider *x_slider_;
 
-  FloatSlider *y_slider_;
+	FloatSlider *y_slider_;
 
-  FloatSlider *cp1_x_slider_;
+	FloatSlider *cp1_x_slider_;
 
-  FloatSlider *cp1_y_slider_;
+	FloatSlider *cp1_y_slider_;
 
-  FloatSlider *cp2_x_slider_;
+	FloatSlider *cp2_x_slider_;
 
-  FloatSlider *cp2_y_slider_;
-
+	FloatSlider *cp2_y_slider_;
 };
 
 }

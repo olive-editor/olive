@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,56 +31,61 @@
 #include "node/node.h"
 #include "node/inputdragger.h"
 
-namespace olive {
-
-class PolygonGenerator : public GeneratorWithMerge
+namespace olive
 {
-  Q_OBJECT
+
+class PolygonGenerator : public GeneratorWithMerge {
+	Q_OBJECT
 public:
-  PolygonGenerator();
+	PolygonGenerator();
 
-  NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
+	NODE_DEFAULT_FUNCTIONS(PolygonGenerator)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const override;
+	virtual void GenerateFrame(FramePtr frame,
+							   const GenerateJob &job) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals) override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  static const QString kPointsInput;
-  static const QString kColorInput;
+	static const QString kPointsInput;
+	static const QString kColorInput;
 
 protected:
-  ShaderJob GetGenerateJob(const NodeValueRow &value, const VideoParams &params) const;
+	ShaderJob GetGenerateJob(const NodeValueRow &value,
+							 const VideoParams &params) const;
 
 protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+	virtual void GizmoDragMove(double x, double y,
+							   const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  static void AddPointToPath(QPainterPath *path, const Bezier &before, const Bezier &after);
+	static void AddPointToPath(QPainterPath *path, const Bezier &before,
+							   const Bezier &after);
 
-  static QPainterPath GeneratePath(const NodeValueArray &points, int size);
+	static QPainterPath GeneratePath(const NodeValueArray &points, int size);
 
-  template<typename T>
-  void ValidateGizmoVectorSize(QVector<T*> &vec, int new_sz);
+	template <typename T>
+	void ValidateGizmoVectorSize(QVector<T *> &vec, int new_sz);
 
-  template<typename T>
-  NodeGizmo *CreateAppropriateGizmo();
+	template <typename T> NodeGizmo *CreateAppropriateGizmo();
 
-  PathGizmo *poly_gizmo_;
-  QVector<PointGizmo*> gizmo_position_handles_;
-  QVector<PointGizmo*> gizmo_bezier_handles_;
-  QVector<LineGizmo*> gizmo_bezier_lines_;
-
+	PathGizmo *poly_gizmo_;
+	QVector<PointGizmo *> gizmo_position_handles_;
+	QVector<PointGizmo *> gizmo_bezier_handles_;
+	QVector<LineGizmo *> gizmo_bezier_lines_;
 };
 
 }

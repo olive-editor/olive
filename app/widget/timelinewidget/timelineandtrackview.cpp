@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,54 +24,60 @@
 #include <QHBoxLayout>
 #include <QScrollBar>
 
-namespace olive {
-
-TimelineAndTrackView::TimelineAndTrackView(Qt::Alignment vertical_alignment, QWidget *parent) :
-  QWidget(parent)
+namespace olive
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setSpacing(0);
-  layout->setContentsMargins(0, 0, 0, 0);
 
-  splitter_ = new QSplitter(Qt::Horizontal);
-  splitter_->setChildrenCollapsible(false);
-  layout->addWidget(splitter_);
+TimelineAndTrackView::TimelineAndTrackView(Qt::Alignment vertical_alignment,
+										   QWidget *parent)
+	: QWidget(parent)
+{
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->setSpacing(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-  track_view_ = new TrackView(vertical_alignment);
-  splitter_->addWidget(track_view_);
+	splitter_ = new QSplitter(Qt::Horizontal);
+	splitter_->setChildrenCollapsible(false);
+	layout->addWidget(splitter_);
 
-  view_ = new TimelineView(vertical_alignment);
-  splitter_->addWidget(view_);
+	track_view_ = new TrackView(vertical_alignment);
+	splitter_->addWidget(track_view_);
 
-  connect(view_->verticalScrollBar(), &QScrollBar::valueChanged, this, &TimelineAndTrackView::ViewValueChanged);
-  connect(track_view_->verticalScrollBar(), &QScrollBar::valueChanged, this, &TimelineAndTrackView::TracksValueChanged);
+	view_ = new TimelineView(vertical_alignment);
+	splitter_->addWidget(view_);
 
-  splitter_->setSizes({1, width()});
+	connect(view_->verticalScrollBar(), &QScrollBar::valueChanged, this,
+			&TimelineAndTrackView::ViewValueChanged);
+	connect(track_view_->verticalScrollBar(), &QScrollBar::valueChanged, this,
+			&TimelineAndTrackView::TracksValueChanged);
+
+	splitter_->setSizes({ 1, width() });
 }
 
 QSplitter *TimelineAndTrackView::splitter() const
 {
-  return splitter_;
+	return splitter_;
 }
 
 TimelineView *TimelineAndTrackView::view() const
 {
-  return view_;
+	return view_;
 }
 
 TrackView *TimelineAndTrackView::track_view() const
 {
-  return track_view_;
+	return track_view_;
 }
 
 void TimelineAndTrackView::ViewValueChanged(int v)
 {
-  track_view_->verticalScrollBar()->setValue(v - view_->verticalScrollBar()->minimum());
+	track_view_->verticalScrollBar()->setValue(
+		v - view_->verticalScrollBar()->minimum());
 }
 
 void TimelineAndTrackView::TracksValueChanged(int v)
 {
-  view_->verticalScrollBar()->setValue(view_->verticalScrollBar()->minimum() + v);
+	view_->verticalScrollBar()->setValue(view_->verticalScrollBar()->minimum() +
+										 v);
 }
 
 }

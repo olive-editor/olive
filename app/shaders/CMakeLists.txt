@@ -16,14 +16,14 @@
 
 file(GLOB_RECURSE SHADER_RESOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.frag *.vert)
 set(QRC_BODY "")
-foreach(SHADER_FILE ${SHADER_RESOURCES})
-  string(APPEND QRC_BODY "<file>${SHADER_FILE}</file>\n")
-  configure_file(${SHADER_FILE} ${SHADER_FILE} COPYONLY)
-endforeach()
+foreach (SHADER_FILE ${SHADER_RESOURCES})
+    string(APPEND QRC_BODY "<file>${SHADER_FILE}</file>\n")
+    configure_file(${SHADER_FILE} ${SHADER_FILE} COPYONLY)
+endforeach ()
 configure_file(shaders.qrc.in shaders.qrc @ONLY)
 
 set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  ${CMAKE_CURRENT_BINARY_DIR}/shaders.qrc
-  PARENT_SCOPE
+        ${OLIVE_RESOURCES}
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders.qrc
+        PARENT_SCOPE
 )

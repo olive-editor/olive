@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,140 +24,144 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class NodeGroup : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class NodeGroup : public Node {
+	Q_OBJECT
 public:
-  NodeGroup();
+	NodeGroup();
 
-  NODE_DEFAULT_FUNCTIONS(NodeGroup)
+	NODE_DEFAULT_FUNCTIONS(NodeGroup)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
-  virtual void PostLoadEvent(SerializedData *data) override;
+	virtual bool LoadCustom(QXmlStreamReader *reader,
+							SerializedData *data) override;
+	virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+	virtual void PostLoadEvent(SerializedData *data) override;
 
-  QString AddInputPassthrough(const NodeInput &input, const QString &force_id = QString());
+	QString AddInputPassthrough(const NodeInput &input,
+								const QString &force_id = QString());
 
-  void RemoveInputPassthrough(const NodeInput &input);
+	void RemoveInputPassthrough(const NodeInput &input);
 
-  Node *GetOutputPassthrough() const
-  {
-    return output_passthrough_;
-  }
+	Node *GetOutputPassthrough() const
+	{
+		return output_passthrough_;
+	}
 
-  void SetOutputPassthrough(Node *node);
+	void SetOutputPassthrough(Node *node);
 
-  using InputPassthrough = QPair<QString, NodeInput>;
-  using InputPassthroughs = QVector<InputPassthrough>;
-  const InputPassthroughs &GetInputPassthroughs() const
-  {
-    return input_passthroughs_;
-  }
+	using InputPassthrough = QPair<QString, NodeInput>;
+	using InputPassthroughs = QVector<InputPassthrough>;
+	const InputPassthroughs &GetInputPassthroughs() const
+	{
+		return input_passthroughs_;
+	}
 
-  bool ContainsInputPassthrough(const NodeInput &input) const;
+	bool ContainsInputPassthrough(const NodeInput &input) const;
 
-  virtual QString GetInputName(const QString& id) const override;
+	virtual QString GetInputName(const QString &id) const override;
 
-  static NodeInput ResolveInput(NodeInput input);
-  static bool GetInner(NodeInput *input);
+	static NodeInput ResolveInput(NodeInput input);
+	static bool GetInner(NodeInput *input);
 
-  QString GetIDOfPassthrough(const NodeInput &input) const
-  {
-    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
-      if (it->second == input) {
-        return it->first;
-      }
-    }
-    return QString();
-  }
+	QString GetIDOfPassthrough(const NodeInput &input) const
+	{
+		for (auto it = input_passthroughs_.cbegin();
+			 it != input_passthroughs_.cend(); it++) {
+			if (it->second == input) {
+				return it->first;
+			}
+		}
+		return QString();
+	}
 
-  NodeInput GetInputFromID(const QString &id) const
-  {
-    for (auto it=input_passthroughs_.cbegin(); it!=input_passthroughs_.cend(); it++) {
-      if (it->first == id) {
-        return it->second;
-      }
-    }
-    return NodeInput();
-  }
+	NodeInput GetInputFromID(const QString &id) const
+	{
+		for (auto it = input_passthroughs_.cbegin();
+			 it != input_passthroughs_.cend(); it++) {
+			if (it->first == id) {
+				return it->second;
+			}
+		}
+		return NodeInput();
+	}
 
 signals:
-  void InputPassthroughAdded(olive::NodeGroup *group, const olive::NodeInput &input);
+	void InputPassthroughAdded(olive::NodeGroup *group,
+							   const olive::NodeInput &input);
 
-  void InputPassthroughRemoved(olive::NodeGroup *group, const olive::NodeInput &input);
+	void InputPassthroughRemoved(olive::NodeGroup *group,
+								 const olive::NodeInput &input);
 
-  void OutputPassthroughChanged(olive::NodeGroup *group, olive::Node *output);
+	void OutputPassthroughChanged(olive::NodeGroup *group, olive::Node *output);
 
 private:
-  InputPassthroughs input_passthroughs_;
+	InputPassthroughs input_passthroughs_;
 
-  Node *output_passthrough_;
-
+	Node *output_passthrough_;
 };
 
-class NodeGroupAddInputPassthrough : public UndoCommand
-{
+class NodeGroupAddInputPassthrough : public UndoCommand {
 public:
-  NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input, const QString &force_id = QString()) :
-    group_(group),
-    input_(input),
-    actually_added_(false)
-  {}
+	NodeGroupAddInputPassthrough(NodeGroup *group, const NodeInput &input,
+								 const QString &force_id = QString())
+		: group_(group)
+		, input_(input)
+		, actually_added_(false)
+	{
+	}
 
-  virtual Project * GetRelevantProject() const override
-  {
-    return group_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return group_->project();
+	}
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  NodeGroup *group_;
+	NodeGroup *group_;
 
-  NodeInput input_;
+	NodeInput input_;
 
-  QString force_id_;
+	QString force_id_;
 
-  bool actually_added_;
-
+	bool actually_added_;
 };
 
-class NodeGroupSetOutputPassthrough : public UndoCommand
-{
+class NodeGroupSetOutputPassthrough : public UndoCommand {
 public:
-  NodeGroupSetOutputPassthrough(NodeGroup *group, Node *output) :
-    group_(group),
-    new_output_(output)
-  {}
+	NodeGroupSetOutputPassthrough(NodeGroup *group, Node *output)
+		: group_(group)
+		, new_output_(output)
+	{
+	}
 
-  virtual Project * GetRelevantProject() const override
-  {
-    return group_->project();
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return group_->project();
+	}
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  NodeGroup *group_;
+	NodeGroup *group_;
 
-  Node *new_output_;
-  Node *old_output_;
-
+	Node *new_output_;
+	Node *old_output_;
 };
 
 }

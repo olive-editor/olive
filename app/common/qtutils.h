@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,76 +30,79 @@
 #include <QFrame>
 #include <QMessageBox>
 
-namespace olive {
+namespace olive
+{
 
 class QtUtils {
 public:
-  /**
+	/**
    * @brief Retrieves the width of a string according to certain QFontMetrics
    *
    * QFontMetrics::width() has been deprecatd in favor of QFontMetrics::horizontalAdvance(), but the
    * latter was only introduced in 5.11+. This function wraps the latter for 5.11+ and the former for
    * earlier.
    */
-  static int QFontMetricsWidth(QFontMetrics fm, const QString& s);
+	static int QFontMetricsWidth(QFontMetrics fm, const QString &s);
 
-  static QFrame* CreateHorizontalLine();
+	static QFrame *CreateHorizontalLine();
 
-  static QFrame* CreateVerticalLine();
+	static QFrame *CreateVerticalLine();
 
-  static int MsgBox(QWidget *parent, QMessageBox::Icon icon, const QString& title, const QString& message, QMessageBox::StandardButtons buttons = QMessageBox::Ok);
+	static int MsgBox(QWidget *parent, QMessageBox::Icon icon,
+					  const QString &title, const QString &message,
+					  QMessageBox::StandardButtons buttons = QMessageBox::Ok);
 
-  static QDateTime GetCreationDate(const QFileInfo &info);
+	static QDateTime GetCreationDate(const QFileInfo &info);
 
-  static QString GetFormattedDateTime(const QDateTime &dt);
+	static QString GetFormattedDateTime(const QDateTime &dt);
 
-  static QStringList WordWrapString(const QString &s, const QFontMetrics &fm, int bounding_width);
+	static QStringList WordWrapString(const QString &s, const QFontMetrics &fm,
+									  int bounding_width);
 
-  static Qt::KeyboardModifiers FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
+	static Qt::KeyboardModifiers
+	FlipControlAndShiftModifiers(Qt::KeyboardModifiers e);
 
-  static void SetComboBoxData(QComboBox *cb, int data);
-  static void SetComboBoxData(QComboBox *cb, const QString &data);
+	static void SetComboBoxData(QComboBox *cb, int data);
+	static void SetComboBoxData(QComboBox *cb, const QString &data);
 
-  template <typename T>
-  static T *GetParentOfType(const QObject *child)
-  {
-    QObject *t = child->parent();
+	template <typename T> static T *GetParentOfType(const QObject *child)
+	{
+		QObject *t = child->parent();
 
-    while (t) {
-      if (T *p = dynamic_cast<T*>(t)) {
-        return p;
-      }
-      t = t->parent();
-    }
+		while (t) {
+			if (T *p = dynamic_cast<T *>(t)) {
+				return p;
+			}
+			t = t->parent();
+		}
 
-    return nullptr;
-  }
+		return nullptr;
+	}
 
-  static QColor toQColor(const core::Color &c);
+	static QColor toQColor(const core::Color &c);
 
-  /**
+	/**
    * @brief Convert a pointer to a value that can be sent between NodeParams
    */
-  static QVariant PtrToValue(void* ptr)
-  {
-    return reinterpret_cast<quintptr>(ptr);
-  }
+	static QVariant PtrToValue(void *ptr)
+	{
+		return reinterpret_cast<quintptr>(ptr);
+	}
 
-  /**
+	/**
    * @brief Convert a NodeParam value to a pointer of any kind
    */
-  template<class T>
-  static T* ValueToPtr(const QVariant &ptr)
-  {
-    return reinterpret_cast<T*>(ptr.value<quintptr>());
-  }
-
+	template <class T> static T *ValueToPtr(const QVariant &ptr)
+	{
+		return reinterpret_cast<T *>(ptr.value<quintptr>());
+	}
 };
 
-namespace core {
+namespace core
+{
 
-uint qHash(const core::rational& r, uint seed = 0);
-uint qHash(const core::TimeRange& r, uint seed = 0);
+uint qHash(const core::rational &r, uint seed = 0);
+uint qHash(const core::TimeRange &r, uint seed = 0);
 
 }
 

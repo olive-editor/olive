@@ -15,16 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/slider/base/decimalsliderbase.h
-  widget/slider/base/decimalsliderbase.cpp
-  widget/slider/base/numericsliderbase.h
-  widget/slider/base/numericsliderbase.cpp
-  widget/slider/base/sliderbase.h
-  widget/slider/base/sliderbase.cpp
-  widget/slider/base/sliderlabel.h
-  widget/slider/base/sliderlabel.cpp
-  widget/slider/base/sliderladder.h
-  widget/slider/base/sliderladder.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/slider/base/decimalsliderbase.h
+        widget/slider/base/decimalsliderbase.cpp
+        widget/slider/base/numericsliderbase.h
+        widget/slider/base/numericsliderbase.cpp
+        widget/slider/base/sliderbase.h
+        widget/slider/base/sliderbase.cpp
+        widget/slider/base/sliderlabel.h
+        widget/slider/base/sliderlabel.cpp
+        widget/slider/base/sliderladder.h
+        widget/slider/base/sliderladder.cpp
+        PARENT_SCOPE
 )

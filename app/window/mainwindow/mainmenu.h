@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +28,8 @@
 #include "dialog/actionsearch/actionsearch.h"
 #include "widget/menu/menu.h"
 
-namespace olive {
+namespace olive
+{
 
 class MainWindow;
 
@@ -36,262 +38,261 @@ class MainWindow;
  *
  * Responsible for creating the menu, connecting signals/slots, and retranslating the items on a language change.
  */
-class MainMenu : public QMenuBar
-{
-  Q_OBJECT
+class MainMenu : public QMenuBar {
+	Q_OBJECT
 public:
-  MainMenu(MainWindow *parent);
+	MainMenu(MainWindow *parent);
 
 protected:
-  /**
+	/**
    * @brief changeEvent
    *
    * Qt changeEvent override to catch a QEvent::LanguageEvent.
    *
    * @param e
    */
-  virtual void changeEvent(QEvent* e);
+	virtual void changeEvent(QEvent *e);
 
 private slots:
-  /**
+	/**
    * @brief A slot for the Tool selection items
    *
    * Assumes a QAction* sender() and its data() is a member of enum Tool::Item. Uses the data() to signal a
    * Tool change throughout the rest of the application.
    */
-  void ToolItemTriggered();
+	void ToolItemTriggered();
 
-  /**
+	/**
    * @brief Slot triggered just before the File menu shows
    */
-  void FileMenuAboutToShow();
+	void FileMenuAboutToShow();
 
-  /**
+	/**
    * @brief Slot triggered just before the Edit menu shows
    */
-  void EditMenuAboutToShow();
-  void EditMenuAboutToHide();
+	void EditMenuAboutToShow();
+	void EditMenuAboutToHide();
 
-  /**
+	/**
    * @brief Slot triggered just before the View menu shows
    */
-  void ViewMenuAboutToShow();
+	void ViewMenuAboutToShow();
 
-  /**
+	/**
    * @brief Slot triggered just before the Tools menu shows
    */
-  void ToolsMenuAboutToShow();
+	void ToolsMenuAboutToShow();
 
-  /**
+	/**
    * @brief Slot triggered just before the Playback menu shows
    */
-  void PlaybackMenuAboutToShow();
+	void PlaybackMenuAboutToShow();
 
-  /**
+	/**
    * @brief Slot triggered just before the Sequence menu shows
    */
-  void SequenceMenuAboutToShow();
+	void SequenceMenuAboutToShow();
 
-  /**
+	/**
    * @brief Slot triggered just before the Window menu shows
    */
-  void WindowMenuAboutToShow();
+	void WindowMenuAboutToShow();
 
-  /**
+	/**
    * @brief Adds items to open recent menu
    */
-  void PopulateOpenRecent();
+	void PopulateOpenRecent();
 
-  void RepopulateOpenRecent();
+	void RepopulateOpenRecent();
 
-  /**
+	/**
    * @brief Clears open recent items when menu closes
    */
-  void CloseOpenRecentMenu();
+	void CloseOpenRecentMenu();
 
-  /**
+	/**
    * @brief Slot for zooming in
    *
    * Finds the currently focused panel and sends it a "zoom in" signal
    */
-  void ZoomInTriggered();
+	void ZoomInTriggered();
 
-  /**
+	/**
    * @brief Slot for zooming out
    *
    * Finds the currently focused panel and sends it a "zoom out" signal
    */
-  void ZoomOutTriggered();
+	void ZoomOutTriggered();
 
-  void IncreaseTrackHeightTriggered();
-  void DecreaseTrackHeightTriggered();
+	void IncreaseTrackHeightTriggered();
+	void DecreaseTrackHeightTriggered();
 
-  void GoToStartTriggered();
-  void PrevFrameTriggered();
+	void GoToStartTriggered();
+	void PrevFrameTriggered();
 
-  /**
+	/**
    * @brief Slot for play/pause
    *
    * Finds the currently focused panel and sends it a "play/pause" signal
    */
-  void PlayPauseTriggered();
+	void PlayPauseTriggered();
 
-  void PlayInToOutTriggered();
+	void PlayInToOutTriggered();
 
-  void LoopTriggered(bool enabled);
+	void LoopTriggered(bool enabled);
 
-  void NextFrameTriggered();
-  void GoToEndTriggered();
+	void NextFrameTriggered();
+	void GoToEndTriggered();
 
-  void SelectAllTriggered();
-  void DeselectAllTriggered();
+	void SelectAllTriggered();
+	void DeselectAllTriggered();
 
-  void InsertTriggered();
-  void OverwriteTriggered();
+	void InsertTriggered();
+	void OverwriteTriggered();
 
-  void RippleToInTriggered();
-  void RippleToOutTriggered();
-  void EditToInTriggered();
-  void EditToOutTriggered();
+	void RippleToInTriggered();
+	void RippleToOutTriggered();
+	void EditToInTriggered();
+	void EditToOutTriggered();
 
-  void NudgeLeftTriggered();
-  void NudgeRightTriggered();
-  void MoveInToPlayheadTriggered();
-  void MoveOutToPlayheadTriggered();
+	void NudgeLeftTriggered();
+	void NudgeRightTriggered();
+	void MoveInToPlayheadTriggered();
+	void MoveOutToPlayheadTriggered();
 
-  void ActionSearchTriggered();
+	void ActionSearchTriggered();
 
-  void ShuttleLeftTriggered();
-  void ShuttleStopTriggered();
-  void ShuttleRightTriggered();
+	void ShuttleLeftTriggered();
+	void ShuttleStopTriggered();
+	void ShuttleRightTriggered();
 
-  void GoToPrevCutTriggered();
-  void GoToNextCutTriggered();
+	void GoToPrevCutTriggered();
+	void GoToNextCutTriggered();
 
-  void SetMarkerTriggered();
+	void SetMarkerTriggered();
 
-  void FullScreenViewerTriggered();
+	void FullScreenViewerTriggered();
 
-  void ToggleShowAllTriggered();
+	void ToggleShowAllTriggered();
 
-  void DeleteInOutTriggered();
-  void RippleDeleteInOutTriggered();
+	void DeleteInOutTriggered();
+	void RippleDeleteInOutTriggered();
 
-  void GoToInTriggered();
-  void GoToOutTriggered();
+	void GoToInTriggered();
+	void GoToOutTriggered();
 
-  void OpenRecentItemTriggered();
+	void OpenRecentItemTriggered();
 
-  void SequenceCacheTriggered();
-  void SequenceCacheInOutTriggered();
-  void SequenceCacheClearTriggered();
+	void SequenceCacheTriggered();
+	void SequenceCacheInOutTriggered();
+	void SequenceCacheClearTriggered();
 
-  void HelpFeedbackTriggered();
+	void HelpFeedbackTriggered();
 
 private:
-  /**
+	/**
    * @brief Set strings based on the current application language.
    */
-  void Retranslate();
+	void Retranslate();
 
-  Menu* file_menu_;
-  Menu* file_new_menu_;
-  QAction* file_open_item_;
-  Menu* file_open_recent_menu_;
-  QAction* file_open_recent_separator_;
-  QAction* file_open_recent_clear_item_;
-  QAction* file_save_item_;
-  QAction* file_save_as_item_;
-  QAction* file_revert_item_;
-  QAction* file_import_item_;
-  Menu* file_export_menu_;
-  QAction* file_export_media_item_;
-  QAction* file_project_properties_item_;
-  QAction* file_exit_item_;
+	Menu *file_menu_;
+	Menu *file_new_menu_;
+	QAction *file_open_item_;
+	Menu *file_open_recent_menu_;
+	QAction *file_open_recent_separator_;
+	QAction *file_open_recent_clear_item_;
+	QAction *file_save_item_;
+	QAction *file_save_as_item_;
+	QAction *file_revert_item_;
+	QAction *file_import_item_;
+	Menu *file_export_menu_;
+	QAction *file_export_media_item_;
+	QAction *file_project_properties_item_;
+	QAction *file_exit_item_;
 
-  Menu* edit_menu_;
-  QAction* edit_undo_item_;
-  QAction* edit_redo_item_;
-  QAction* edit_delete2_item_;
-  QAction* edit_select_all_item_;
-  QAction* edit_deselect_all_item_;
-  QAction* edit_insert_item_;
-  QAction* edit_overwrite_item_;
-  QAction* edit_ripple_to_in_item_;
-  QAction* edit_ripple_to_out_item_;
-  QAction* edit_edit_to_in_item_;
-  QAction* edit_edit_to_out_item_;
-  QAction* edit_nudge_left_item_;
-  QAction* edit_nudge_right_item_;
-  QAction* edit_move_in_to_playhead_item_;
-  QAction* edit_move_out_to_playhead_item_;
-  QAction* edit_delete_inout_item_;
-  QAction* edit_ripple_delete_inout_item_;
-  QAction* edit_set_marker_item_;
+	Menu *edit_menu_;
+	QAction *edit_undo_item_;
+	QAction *edit_redo_item_;
+	QAction *edit_delete2_item_;
+	QAction *edit_select_all_item_;
+	QAction *edit_deselect_all_item_;
+	QAction *edit_insert_item_;
+	QAction *edit_overwrite_item_;
+	QAction *edit_ripple_to_in_item_;
+	QAction *edit_ripple_to_out_item_;
+	QAction *edit_edit_to_in_item_;
+	QAction *edit_edit_to_out_item_;
+	QAction *edit_nudge_left_item_;
+	QAction *edit_nudge_right_item_;
+	QAction *edit_move_in_to_playhead_item_;
+	QAction *edit_move_out_to_playhead_item_;
+	QAction *edit_delete_inout_item_;
+	QAction *edit_ripple_delete_inout_item_;
+	QAction *edit_set_marker_item_;
 
-  Menu* view_menu_;
-  QAction* view_zoom_in_item_;
-  QAction* view_zoom_out_item_;
-  QAction* view_increase_track_height_item_;
-  QAction* view_decrease_track_height_item_;
-  QAction* view_show_all_item_;
-  QAction* view_full_screen_item_;
-  QAction* view_full_screen_viewer_item_;
+	Menu *view_menu_;
+	QAction *view_zoom_in_item_;
+	QAction *view_zoom_out_item_;
+	QAction *view_increase_track_height_item_;
+	QAction *view_decrease_track_height_item_;
+	QAction *view_show_all_item_;
+	QAction *view_full_screen_item_;
+	QAction *view_full_screen_viewer_item_;
 
-  Menu* playback_menu_;
-  QAction* playback_gotostart_item_;
-  QAction* playback_prevframe_item_;
-  QAction* playback_playpause_item_;
-  QAction* playback_playinout_item_;
-  QAction* playback_nextframe_item_;
-  QAction* playback_gotoend_item_;
-  QAction* playback_prevcut_item_;
-  QAction* playback_nextcut_item_;
-  QAction* playback_gotoin_item_;
-  QAction* playback_gotoout_item_;
-  QAction* playback_shuttleleft_item_;
-  QAction* playback_shuttlestop_item_;
-  QAction* playback_shuttleright_item_;
-  QAction* playback_loop_item_;
+	Menu *playback_menu_;
+	QAction *playback_gotostart_item_;
+	QAction *playback_prevframe_item_;
+	QAction *playback_playpause_item_;
+	QAction *playback_playinout_item_;
+	QAction *playback_nextframe_item_;
+	QAction *playback_gotoend_item_;
+	QAction *playback_prevcut_item_;
+	QAction *playback_nextcut_item_;
+	QAction *playback_gotoin_item_;
+	QAction *playback_gotoout_item_;
+	QAction *playback_shuttleleft_item_;
+	QAction *playback_shuttlestop_item_;
+	QAction *playback_shuttleright_item_;
+	QAction *playback_loop_item_;
 
-  Menu* sequence_menu_;
-  QAction* sequence_cache_item_;
-  QAction* sequence_cache_in_to_out_item_;
-  QAction* sequence_disk_cache_clear_item_;
+	Menu *sequence_menu_;
+	QAction *sequence_cache_item_;
+	QAction *sequence_cache_in_to_out_item_;
+	QAction *sequence_disk_cache_clear_item_;
 
-  Menu* window_menu_;
-  QAction* window_menu_separator_;
-  QAction* window_maximize_panel_item_;
-  QAction* window_reset_layout_item_;
+	Menu *window_menu_;
+	QAction *window_menu_separator_;
+	QAction *window_maximize_panel_item_;
+	QAction *window_reset_layout_item_;
 
-  Menu* tools_menu_;
-  QActionGroup* tools_group_;
-  QAction* tools_pointer_item_;
-  QAction* tools_trackselect_item_;
-  QAction* tools_edit_item_;
-  QAction* tools_ripple_item_;
-  QAction* tools_rolling_item_;
-  QAction* tools_razor_item_;
-  QAction* tools_slip_item_;
-  QAction* tools_slide_item_;
-  QAction* tools_hand_item_;
-  QAction* tools_zoom_item_;
-  QAction* tools_transition_item_;
-  QAction* tools_add_item_;
-  QAction* tools_record_item_;
-  QAction* tools_snapping_item_;
-  QAction* tools_preferences_item_;
-  Menu *tools_add_item_menu_;
+	Menu *tools_menu_;
+	QActionGroup *tools_group_;
+	QAction *tools_pointer_item_;
+	QAction *tools_trackselect_item_;
+	QAction *tools_edit_item_;
+	QAction *tools_ripple_item_;
+	QAction *tools_rolling_item_;
+	QAction *tools_razor_item_;
+	QAction *tools_slip_item_;
+	QAction *tools_slide_item_;
+	QAction *tools_hand_item_;
+	QAction *tools_zoom_item_;
+	QAction *tools_transition_item_;
+	QAction *tools_add_item_;
+	QAction *tools_record_item_;
+	QAction *tools_snapping_item_;
+	QAction *tools_proxy_settings_item_;
+	QAction *tools_preferences_item_;
+	Menu *tools_add_item_menu_;
 
 #ifndef NDEBUG
-  QAction* tools_magic_item_;
+	QAction *tools_magic_item_;
 #endif
 
-  Menu* help_menu_;
-  QAction* help_action_search_item_;
-  QAction* help_feedback_item_;
-  QAction* help_about_item_;
-
+	Menu *help_menu_;
+	QAction *help_action_search_item_;
+	QAction *help_feedback_item_;
+	QAction *help_about_item_;
 };
 
 }

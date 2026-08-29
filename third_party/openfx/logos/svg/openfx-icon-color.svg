@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Olive Community Edition - Non-Linear Video Editor
+  - Copyright (C) 2025 Olive CE Team
+  -
+  - This program is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU General Public License as published by
+  - the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - This program is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU General Public License for more details.
+  -
+  - You should have received a copy of the GNU General Public License
+  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<svg id="AW" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 44.82">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        fill: #fff;
+      }
+
+      .cls-4 {
+        fill: #009cde;
+      }
+
+      .cls-4, .cls-2 {
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 1.61px;
+      }
+    </style>
+  </defs>
+  <g>
+    <g>
+      <path class="cls-2" d="M15.68,33.44H4.89c-1.69,0-3.07-1.38-3.07-3.07V5.02c0-1.69,1.38-3.07,3.07-3.07H39.92c1.69,0,3.07,1.38,3.07,3.07v3.37"/>
+      <polygon points="10.35 26.86 9.25 28.04 15.07 33.44 9.25 38.85 10.35 40.03 17.43 33.44 10.35 26.86"/>
+    </g>
+    <rect x="6.28" y="6.41" width="3.26" height="3.26" rx="1.63" ry="1.63"/>
+    <rect x="11.24" y="6.41" width="3.26" height="3.26" rx="1.63" ry="1.63"/>
+    <rect x="16.2" y="6.41" width="3.26" height="3.26" rx="1.63" ry="1.63"/>
+    <g>
+      <circle class="cls-4" cx="35.31" cy="26.46" r="16.8"/>
+      <circle class="cls-1" cx="35.3" cy="26.55" r="14.78"/>
+    </g>
+  </g>
+  <path class="cls-3" d="M27.8,33.49h-4.03v-14.86h8.94v3.22h-4.92v2.84h4.53v3.22h-4.53v5.58Z"/>
+  <path class="cls-3" d="M47.93,33.49h-4.82l-3.01-4.64-2.97,4.64h-4.71l5.11-7.6-4.81-7.26h4.62l2.78,4.59,2.68-4.59h4.76l-4.88,7.57,5.25,7.29Z"/>
+</svg>

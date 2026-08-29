@@ -18,8 +18,10 @@ add_subdirectory(colormanager)
 add_subdirectory(displaytransform)
 add_subdirectory(ociobase)
 add_subdirectory(ociogradingtransformlinear)
+add_subdirectory(ociolut)
+add_subdirectory(threewaycolor)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

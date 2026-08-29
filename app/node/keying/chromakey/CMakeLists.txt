@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/keying/chromakey/chromakey.h
-  node/keying/chromakey/chromakey.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/keying/chromakey/chromakey.h
+        node/keying/chromakey/chromakey.cpp
+        PARENT_SCOPE
 )

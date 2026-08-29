@@ -15,18 +15,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/export/codec/av1section.cpp
-  dialog/export/codec/av1section.h
-  dialog/export/codec/cineformsection.cpp
-  dialog/export/codec/cineformsection.h
-  dialog/export/codec/codecsection.cpp
-  dialog/export/codec/codecsection.h
-  dialog/export/codec/codecstack.cpp
-  dialog/export/codec/codecstack.h
-  dialog/export/codec/h264section.cpp
-  dialog/export/codec/h264section.h
-  dialog/export/codec/imagesection.cpp
-  dialog/export/codec/imagesection.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/export/codec/av1section.cpp
+        dialog/export/codec/av1section.h
+        dialog/export/codec/cineformsection.cpp
+        dialog/export/codec/cineformsection.h
+        dialog/export/codec/codecsection.cpp
+        dialog/export/codec/codecsection.h
+        dialog/export/codec/codecstack.cpp
+        dialog/export/codec/codecstack.h
+        dialog/export/codec/h264section.cpp
+        dialog/export/codec/h264section.h
+        dialog/export/codec/imagesection.cpp
+        dialog/export/codec/imagesection.h
+        PARENT_SCOPE
 )

@@ -15,12 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/generator/shape/generatorwithmerge.cpp
-  node/generator/shape/generatorwithmerge.h
-  node/generator/shape/shapenode.cpp
-  node/generator/shape/shapenode.h
-  node/generator/shape/shapenodebase.cpp
-  node/generator/shape/shapenodebase.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/generator/shape/generatorwithmerge.cpp
+        node/generator/shape/generatorwithmerge.h
+        node/generator/shape/shapenode.cpp
+        node/generator/shape/shapenode.h
+        node/generator/shape/shapenodebase.cpp
+        node/generator/shape/shapenodebase.h
+        PARENT_SCOPE
 )

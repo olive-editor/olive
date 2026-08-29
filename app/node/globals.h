@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,39 +27,62 @@
 #include "render/loopmode.h"
 #include "render/videoparams.h"
 
-namespace olive {
-
-class NodeGlobals
+namespace olive
 {
+
+class NodeGlobals {
 public:
-  NodeGlobals(){}
+	NodeGlobals()
+	{
+	}
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const TimeRange &time, LoopMode loop_mode) :
-    video_params_(vparam),
-    audio_params_(aparam),
-    time_(time),
-    loop_mode_(loop_mode)
-  {
-  }
+	NodeGlobals(const VideoParams &vparam, const AudioParams &aparam,
+				const TimeRange &time, LoopMode loop_mode)
+		: video_params_(vparam)
+		, audio_params_(aparam)
+		, time_(time)
+		, loop_mode_(loop_mode)
+	{
+	}
 
-  NodeGlobals(const VideoParams &vparam, const AudioParams &aparam, const rational &time, LoopMode loop_mode) :
-    NodeGlobals(vparam, aparam, TimeRange(time, time + vparam.frame_rate_as_time_base()), loop_mode)
-  {
-  }
+	NodeGlobals(const VideoParams &vparam, const AudioParams &aparam,
+				const rational &time, LoopMode loop_mode)
+		: NodeGlobals(vparam, aparam,
+					  TimeRange(time, time + vparam.frame_rate_as_time_base()),
+					  loop_mode)
+	{
+	}
 
-  QVector2D square_resolution() const { return video_params_.square_resolution(); }
-  QVector2D nonsquare_resolution() const { return video_params_.resolution(); }
-  const AudioParams &aparams() const { return audio_params_; }
-  const VideoParams &vparams() const { return video_params_; }
-  const TimeRange &time() const { return time_; }
-  LoopMode loop_mode() const { return loop_mode_; }
+	QVector2D square_resolution() const
+	{
+		return video_params_.square_resolution();
+	}
+	QVector2D nonsquare_resolution() const
+	{
+		return video_params_.resolution();
+	}
+	const AudioParams &aparams() const
+	{
+		return audio_params_;
+	}
+	const VideoParams &vparams() const
+	{
+		return video_params_;
+	}
+	const TimeRange &time() const
+	{
+		return time_;
+	}
+	LoopMode loop_mode() const
+	{
+		return loop_mode_;
+	}
 
 private:
-  VideoParams video_params_;
-  AudioParams audio_params_;
-  TimeRange time_;
-  LoopMode loop_mode_;
-
+	VideoParams video_params_;
+	AudioParams audio_params_;
+	TimeRange time_;
+	LoopMode loop_mode_;
 };
 
 }

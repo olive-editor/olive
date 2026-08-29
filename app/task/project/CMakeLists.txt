@@ -14,16 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-if(OpenTimelineIO_FOUND)
-  add_subdirectory(loadotio)
-  add_subdirectory(saveotio)
-endif()
+if (OpenTimelineIO_FOUND)
+    add_subdirectory(loadotio)
+    add_subdirectory(saveotio)
+endif ()
 
 add_subdirectory(import)
 add_subdirectory(load)
 add_subdirectory(save)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

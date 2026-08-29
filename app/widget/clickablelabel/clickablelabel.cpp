@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,30 +23,31 @@
 
 #include <QMouseEvent>
 
-namespace olive {
+namespace olive
+{
 
-ClickableLabel::ClickableLabel(const QString &text, QWidget *parent) :
-  QLabel(text, parent)
+ClickableLabel::ClickableLabel(const QString &text, QWidget *parent)
+	: QLabel(text, parent)
 {
 }
 
-ClickableLabel::ClickableLabel(QWidget *parent) :
-  QLabel(parent)
+ClickableLabel::ClickableLabel(QWidget *parent)
+	: QLabel(parent)
 {
 }
 
 void ClickableLabel::mouseReleaseEvent(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton && underMouse()) {
-    emit MouseClicked();
-  }
+	if (event->button() == Qt::LeftButton && underMouse()) {
+		emit MouseClicked();
+	}
 }
 
 void ClickableLabel::mouseDoubleClickEvent(QMouseEvent *event)
 {
-  if (event->button() == Qt::LeftButton) {
-    emit MouseDoubleClicked();
-  }
+	if (event->button() == Qt::LeftButton) {
+		emit MouseDoubleClicked();
+	}
 }
 
 }

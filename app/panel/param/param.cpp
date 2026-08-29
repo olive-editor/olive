@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,44 +23,48 @@
 
 #include "window/mainwindow/mainwindow.h"
 
-namespace olive {
-
-ParamPanel::ParamPanel() :
-  TimeBasedPanel(QStringLiteral("ParamPanel"))
+namespace olive
 {
-  NodeParamView* view = new NodeParamView(this);
-  connect(view, &NodeParamView::FocusedNodeChanged, this, &ParamPanel::FocusedNodeChanged);
-  connect(view, &NodeParamView::SelectedNodesChanged, this, &ParamPanel::SelectedNodesChanged);
-  connect(view, &NodeParamView::RequestViewerToStartEditingText, this, &ParamPanel::RequestViewerToStartEditingText);
-  connect(this, &ParamPanel::shown, view, &NodeParamView::UpdateElementY);
-  SetTimeBasedWidget(view);
 
-  Retranslate();
+ParamPanel::ParamPanel()
+	: TimeBasedPanel(QStringLiteral("ParamPanel"))
+{
+	NodeParamView *view = new NodeParamView(this);
+	connect(view, &NodeParamView::FocusedNodeChanged, this,
+			&ParamPanel::FocusedNodeChanged);
+	connect(view, &NodeParamView::SelectedNodesChanged, this,
+			&ParamPanel::SelectedNodesChanged);
+	connect(view, &NodeParamView::RequestViewerToStartEditingText, this,
+			&ParamPanel::RequestViewerToStartEditingText);
+	connect(this, &ParamPanel::shown, view, &NodeParamView::UpdateElementY);
+	SetTimeBasedWidget(view);
+
+	Retranslate();
 }
 
 void ParamPanel::DeleteSelected()
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeleteSelected();
+	static_cast<NodeParamView *>(GetTimeBasedWidget())->DeleteSelected();
 }
 
 void ParamPanel::SelectAll()
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SelectAll();
+	static_cast<NodeParamView *>(GetTimeBasedWidget())->SelectAll();
 }
 
 void ParamPanel::DeselectAll()
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->DeselectAll();
+	static_cast<NodeParamView *>(GetTimeBasedWidget())->DeselectAll();
 }
 
 void ParamPanel::SetContexts(const QVector<Node *> &contexts)
 {
-  static_cast<NodeParamView*>(GetTimeBasedWidget())->SetContexts(contexts);
+	static_cast<NodeParamView *>(GetTimeBasedWidget())->SetContexts(contexts);
 }
 
 void ParamPanel::Retranslate()
 {
-  SetTitle(tr("Parameter Editor"));
+	SetTitle(tr("Parameter Editor"));
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,53 +26,52 @@
 #include "panel/timebased/timebased.h"
 #include "widget/nodeparamview/nodeparamview.h"
 
-namespace olive {
-
-class ParamPanel : public TimeBasedPanel
+namespace olive
 {
-  Q_OBJECT
+
+class ParamPanel : public TimeBasedPanel {
+	Q_OBJECT
 public:
-  ParamPanel();
+	ParamPanel();
 
-  NodeParamView *GetParamView() const
-  {
-    return static_cast<NodeParamView *>(GetTimeBasedWidget());
-  }
+	NodeParamView *GetParamView() const
+	{
+		return static_cast<NodeParamView *>(GetTimeBasedWidget());
+	}
 
-  const QVector<Node*> &GetContexts() const
-  {
-    return GetParamView()->GetContexts();
-  }
+	const QVector<Node *> &GetContexts() const
+	{
+		return GetParamView()->GetContexts();
+	}
 
-  void CloseContextsBelongingToProject(Project *p)
-  {
-    GetParamView()->CloseContextsBelongingToProject(p);
-  }
+	void CloseContextsBelongingToProject(Project *p)
+	{
+		GetParamView()->CloseContextsBelongingToProject(p);
+	}
 
 public slots:
-  void SetSelectedNodes(const QVector<Node::ContextPair> &nodes)
-  {
-    GetParamView()->SetSelectedNodes(nodes, false);
-  }
+	void SetSelectedNodes(const QVector<Node::ContextPair> &nodes)
+	{
+		GetParamView()->SetSelectedNodes(nodes, false);
+	}
 
-  virtual void DeleteSelected() override;
+	virtual void DeleteSelected() override;
 
-  virtual void SelectAll() override;
+	virtual void SelectAll() override;
 
-  virtual void DeselectAll() override;
+	virtual void DeselectAll() override;
 
-  void SetContexts(const QVector<Node*> &contexts);
+	void SetContexts(const QVector<Node *> &contexts);
 
 signals:
-  void FocusedNodeChanged(Node* n);
+	void FocusedNodeChanged(Node *n);
 
-  void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
+	void SelectedNodesChanged(const QVector<Node::ContextPair> &nodes);
 
-  void RequestViewerToStartEditingText();
+	void RequestViewerToStartEditingText();
 
 protected:
-  virtual void Retranslate() override;
-
+	virtual void Retranslate() override;
 };
 
 }

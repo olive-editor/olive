@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,43 +27,46 @@
 
 #include "common/filefunctions.h"
 
-namespace olive {
-
-PathWidget::PathWidget(const QString &path, QWidget *parent) :
-  QWidget(parent)
+namespace olive
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
-  layout->setContentsMargins(0, 0, 0, 0);
 
-  path_edit_ = new QLineEdit();
-  path_edit_->setText(path);
-  layout->addWidget(path_edit_);
-  connect(path_edit_, &QLineEdit::textChanged, this, &PathWidget::LineEditChanged);
+PathWidget::PathWidget(const QString &path, QWidget *parent)
+	: QWidget(parent)
+{
+	QHBoxLayout *layout = new QHBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-  browse_btn_ = new QPushButton(tr("Browse"));
-  layout->addWidget(browse_btn_);
+	path_edit_ = new QLineEdit();
+	path_edit_->setText(path);
+	layout->addWidget(path_edit_);
+	connect(path_edit_, &QLineEdit::textChanged, this,
+			&PathWidget::LineEditChanged);
 
-  connect(browse_btn_, &QPushButton::clicked, this, &PathWidget::BrowseClicked);
+	browse_btn_ = new QPushButton(tr("Browse"));
+	layout->addWidget(browse_btn_);
+
+	connect(browse_btn_, &QPushButton::clicked, this,
+			&PathWidget::BrowseClicked);
 }
 
 void PathWidget::BrowseClicked()
 {
-  QString dir = QFileDialog::getExistingDirectory(static_cast<QWidget*>(parent()),
-                                                  tr("Browse for path"),
-                                                  path_edit_->text());
+	QString dir = QFileDialog::getExistingDirectory(
+		static_cast<QWidget *>(parent()), tr("Browse for path"),
+		path_edit_->text());
 
-  if (!dir.isEmpty()) {
-    path_edit_->setText(dir);
-  }
+	if (!dir.isEmpty()) {
+		path_edit_->setText(dir);
+	}
 }
 
 void PathWidget::LineEditChanged()
 {
-  if (FileFunctions::DirectoryIsValid(text(), false)) {
-    path_edit_->setStyleSheet(QString());
-  } else {
-    path_edit_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
-  }
+	if (FileFunctions::DirectoryIsValid(text(), false)) {
+		path_edit_->setStyleSheet(QString());
+	} else {
+		path_edit_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
+	}
 }
 
 }

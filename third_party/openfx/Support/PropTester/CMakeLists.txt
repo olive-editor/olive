@@ -1,0 +1,7 @@
+include(OpenFX)
+file(GLOB_RECURSE PLUGIN_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+set(TGT example-PropTester)
+add_ofx_plugin(${TGT} .)
+target_sources(${TGT} PUBLIC ${PLUGIN_SOURCES})
+target_link_libraries(${TGT} ${CONAN_LIBS} OfxSupport opengl::opengl)
+target_include_directories(${TGT} PUBLIC ${OFX_HEADER_DIR} ${OFX_SUPPORT_HEADER_DIR})

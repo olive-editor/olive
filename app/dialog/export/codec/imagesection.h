@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,50 +27,49 @@
 #include "codecsection.h"
 #include "widget/slider/rationalslider.h"
 
-namespace olive {
-
-class ImageSection : public CodecSection
+namespace olive
 {
-  Q_OBJECT
+
+class ImageSection : public CodecSection {
+	Q_OBJECT
 public:
-  ImageSection(QWidget* parent = nullptr);
+	ImageSection(QWidget *parent = nullptr);
 
-  bool IsImageSequenceChecked() const
-  {
-    return image_sequence_checkbox_->isChecked();
-  }
+	bool IsImageSequenceChecked() const
+	{
+		return image_sequence_checkbox_->isChecked();
+	}
 
-  void SetImageSequenceChecked(bool e)
-  {
-    image_sequence_checkbox_->setChecked(e);
-  }
+	void SetImageSequenceChecked(bool e)
+	{
+		image_sequence_checkbox_->setChecked(e);
+	}
 
-  void SetTimebase(const rational& r)
-  {
-    frame_slider_->SetTimebase(r);
-  }
+	void SetTimebase(const rational &r)
+	{
+		frame_slider_->SetTimebase(r);
+	}
 
-  rational GetTime() const
-  {
-    return frame_slider_->GetValue();
-  }
+	rational GetTime() const
+	{
+		return frame_slider_->GetValue();
+	}
 
-  void SetTime(const rational &t)
-  {
-    frame_slider_->SetValue(t);
-  }
+	void SetTime(const rational &t)
+	{
+		frame_slider_->SetValue(t);
+	}
 
 signals:
-  void TimeChanged(const rational &t);
+	void TimeChanged(const rational &t);
 
 private:
-  QCheckBox* image_sequence_checkbox_;
+	QCheckBox *image_sequence_checkbox_;
 
-  RationalSlider* frame_slider_;
+	RationalSlider *frame_slider_;
 
 private slots:
-  void ImageSequenceCheckBoxToggled(bool e);
-
+	void ImageSequenceCheckBoxToggled(bool e);
 };
 
 }

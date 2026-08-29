@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,50 +26,51 @@
 
 #include "nodeviewscene.h"
 
-namespace olive {
-
-class NodeViewMiniMap : public QGraphicsView
+namespace olive
 {
-  Q_OBJECT
+
+class NodeViewMiniMap : public QGraphicsView {
+	Q_OBJECT
 public:
-  NodeViewMiniMap(NodeViewScene *scene, QWidget *parent = nullptr);
+	NodeViewMiniMap(NodeViewScene *scene, QWidget *parent = nullptr);
 
 public slots:
-  void SetViewportRect(const QPolygonF &rect);
+	void SetViewportRect(const QPolygonF &rect);
 
 signals:
-  void Resized();
+	void Resized();
 
-  void MoveToScenePoint(const QPointF &pos);
+	void MoveToScenePoint(const QPointF &pos);
 
 protected:
-  virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
+	virtual void drawForeground(QPainter *painter, const QRectF &rect) override;
 
-  virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void resizeEvent(QResizeEvent *event) override;
 
-  virtual void mousePressEvent(QMouseEvent *event) override;
-  virtual void mouseMoveEvent(QMouseEvent *event) override;
-  virtual void mouseReleaseEvent(QMouseEvent *event) override;
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override{}
+	virtual void mousePressEvent(QMouseEvent *event) override;
+	virtual void mouseMoveEvent(QMouseEvent *event) override;
+	virtual void mouseReleaseEvent(QMouseEvent *event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override
+	{
+	}
 
 private slots:
-  void SceneChanged(const QRectF &bounding);
+	void SceneChanged(const QRectF &bounding);
 
-  void SetDefaultSize();
+	void SetDefaultSize();
 
 private:
-  bool MouseInsideResizeTriangle(QMouseEvent *event);
+	bool MouseInsideResizeTriangle(QMouseEvent *event);
 
-  void EmitMoveSignal(QMouseEvent *event);
+	void EmitMoveSignal(QMouseEvent *event);
 
-  int resize_triangle_sz_;
+	int resize_triangle_sz_;
 
-  QPolygonF viewport_rect_;
+	QPolygonF viewport_rect_;
 
-  bool resizing_;
+	bool resizing_;
 
-  QPoint resize_anchor_;
-
+	QPoint resize_anchor_;
 };
 
 }

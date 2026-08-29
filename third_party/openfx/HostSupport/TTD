@@ -1,0 +1,17 @@
+Things to do. This is a wish list of features to add to the host layer...
+
+Common Base Class for All Plugin Instances
+  - currently using a void * to pass instance pointers to components that do not
+    need to know about image effects (eg: interact base classes).
+  - Should have a base 'Plugin::Instance' class that ImageEffect::Instance and any
+    other kind of plugin instance should derive from.
+
+XML Resource Support
+  - have the host layer manage the external XML resource file and relabel things appropriately.
+
+Support for Custom Params
+  - not there yet
+  - should have the host layer manage most of the custom param animation stuff as well.
+
+
+

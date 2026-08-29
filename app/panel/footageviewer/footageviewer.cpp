@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,45 +21,46 @@
 
 #include "footageviewer.h"
 
-namespace olive {
+namespace olive
+{
 
 #define super ViewerPanelBase
 
-FootageViewerPanel::FootageViewerPanel() :
-  super(QStringLiteral("FootageViewerPanel"))
+FootageViewerPanel::FootageViewerPanel()
+	: super(QStringLiteral("FootageViewerPanel"))
 {
-  // Set ViewerWidget as the central widget
-  FootageViewerWidget* fvw = new FootageViewerWidget(this);
-  SetViewerWidget(fvw);
+	// Set ViewerWidget as the central widget
+	FootageViewerWidget *fvw = new FootageViewerWidget(this);
+	SetViewerWidget(fvw);
 
-  // Set strings
-  Retranslate();
+	// Set strings
+	Retranslate();
 
-  // Show and raise on connect
-  SetShowAndRaiseOnConnect();
+	// Show and raise on connect
+	SetShowAndRaiseOnConnect();
 }
 
 void FootageViewerPanel::OverrideWorkArea(const TimeRange &r)
 {
-  GetFootageViewerWidget()->OverrideWorkArea(r);
+	GetFootageViewerWidget()->OverrideWorkArea(r);
 }
 
 QVector<ViewerOutput *> FootageViewerPanel::GetSelectedFootage() const
 {
-  QVector<ViewerOutput *> list;
+	QVector<ViewerOutput *> list;
 
-  if (GetConnectedViewer()) {
-    list.append(GetConnectedViewer());
-  }
+	if (GetConnectedViewer()) {
+		list.append(GetConnectedViewer());
+	}
 
-  return list;
+	return list;
 }
 
 void FootageViewerPanel::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetTitle(tr("Footage Viewer"));
+	SetTitle(tr("Footage Viewer"));
 }
 
 }

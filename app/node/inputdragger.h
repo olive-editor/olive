@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,55 +26,55 @@
 #include "node/param.h"
 #include "undo/undocommand.h"
 
-namespace olive {
-
-class NodeInputDragger
+namespace olive
 {
+
+class NodeInputDragger {
 public:
-  NodeInputDragger();
+	NodeInputDragger();
 
-  bool IsStarted() const;
+	bool IsStarted() const;
 
-  void Start(const NodeKeyframeTrackReference& input, const rational& time, bool create_key_on_all_tracks = true);
+	void Start(const NodeKeyframeTrackReference &input, const rational &time,
+			   bool create_key_on_all_tracks = true);
 
-  void Drag(QVariant value);
+	void Drag(QVariant value);
 
-  void End(MultiUndoCommand *command);
+	void End(MultiUndoCommand *command);
 
-  static bool IsInputBeingDragged()
-  {
-    return input_being_dragged;
-  }
+	static bool IsInputBeingDragged()
+	{
+		return input_being_dragged;
+	}
 
-  const QVariant &GetStartValue() const
-  {
-    return start_value_;
-  }
+	const QVariant &GetStartValue() const
+	{
+		return start_value_;
+	}
 
-  const NodeKeyframeTrackReference &GetInput() const
-  {
-    return input_;
-  }
+	const NodeKeyframeTrackReference &GetInput() const
+	{
+		return input_;
+	}
 
-  const rational &GetTime() const
-  {
-    return time_;
-  }
+	const rational &GetTime() const
+	{
+		return time_;
+	}
 
 private:
-  NodeKeyframeTrackReference input_;
+	NodeKeyframeTrackReference input_;
 
-  rational time_;
+	rational time_;
 
-  QVariant start_value_;
+	QVariant start_value_;
 
-  QVariant end_value_;
+	QVariant end_value_;
 
-  NodeKeyframe* dragging_key_;
-  QVector<NodeKeyframe*> created_keys_;
+	NodeKeyframe *dragging_key_;
+	QVector<NodeKeyframe *> created_keys_;
 
-  static int input_being_dragged;
-
+	static int input_being_dragged;
 };
 
 }

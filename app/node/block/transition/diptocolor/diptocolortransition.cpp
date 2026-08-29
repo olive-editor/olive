@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,7 +21,8 @@
 
 #include "diptocolortransition.h"
 
-namespace olive {
+namespace olive
+{
 
 const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
 
@@ -28,46 +30,51 @@ const QString DipToColorTransition::kColorInput = QStringLiteral("color_in");
 
 DipToColorTransition::DipToColorTransition()
 {
-  AddInput(kColorInput, NodeValue::kColor, QVariant::fromValue(Color(0, 0, 0)));
+	AddInput(kColorInput, NodeValue::kColor,
+			 QVariant::fromValue(Color(0, 0, 0)));
 }
 
 QString DipToColorTransition::Name() const
 {
-  return tr("Dip To Color");
+	return tr("Dip To Color");
 }
 
 QString DipToColorTransition::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.diptocolor");
+	return QStringLiteral("org.olivevideoeditor.Olive.diptocolor");
 }
 
 QVector<Node::CategoryID> DipToColorTransition::Category() const
 {
-  return {kCategoryTransition};
+	return { kCategoryTransition };
 }
 
 QString DipToColorTransition::Description() const
 {
-  return tr("Transition between clips by dipping to a color.");
+	return tr("Transition between clips by dipping to a color.");
 }
 
-ShaderCode DipToColorTransition::GetShaderCode(const ShaderRequest &request) const
+ShaderCode
+DipToColorTransition::GetShaderCode(const ShaderRequest &request) const
 {
-  Q_UNUSED(request)
+	Q_UNUSED(request)
 
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"), QString());
+	return ShaderCode(
+		FileFunctions::ReadFileAsString(":/shaders/diptoblack.frag"),
+		QString());
 }
 
 void DipToColorTransition::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kColorInput, tr("Color"));
+	SetInputName(kColorInput, tr("Color"));
 }
 
-void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const
+void DipToColorTransition::ShaderJobEvent(const NodeValueRow &value,
+										  ShaderJob *job) const
 {
-  job->Insert(kColorInput, value);
+	job->Insert(kColorInput, value);
 }
 
 }

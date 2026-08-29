@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,35 +23,43 @@
 #define PREFERENCESDISKTAB_H
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QLineEdit>
 #include <QPushButton>
 
 #include "dialog/configbase/configdialogbase.h"
 #include "render/diskmanager.h"
 #include "widget/slider/floatslider.h"
+#include "widget/slider/integerslider.h"
 #include "widget/path/pathwidget.h"
 
-namespace olive {
-
-class PreferencesDiskTab : public ConfigDialogBaseTab
+namespace olive
 {
-  Q_OBJECT
+
+class PreferencesDiskTab : public ConfigDialogBaseTab {
+	Q_OBJECT
 public:
-  PreferencesDiskTab();
+	PreferencesDiskTab();
 
-  virtual bool Validate() override;
+	virtual bool Validate() override;
 
-  virtual void Accept(MultiUndoCommand* command) override;
+	virtual void Accept(MultiUndoCommand *command) override;
 
 private:
-  PathWidget* disk_cache_location_;
+	PathWidget *disk_cache_location_;
 
-  FloatSlider* cache_ahead_slider_;
+	FloatSlider *cache_ahead_slider_;
 
-  FloatSlider* cache_behind_slider_;
+	FloatSlider *cache_behind_slider_;
 
-  DiskCacheFolder* default_disk_cache_folder_;
+	DiskCacheFolder *default_disk_cache_folder_;
 
+	IntegerSlider *proxy_width_slider_;
+	IntegerSlider *proxy_height_slider_;
+	IntegerSlider *proxy_crf_slider_;
+	QComboBox *proxy_preset_combo_;
+	QCheckBox *proxy_include_audio_checkbox_;
+	QLineEdit *proxy_ffmpeg_path_edit_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -40,381 +41,389 @@
 #include "widget/timebased/timebasedwidget.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-namespace olive {
+namespace olive
+{
 
 class MulticamWidget;
 
 /**
  * @brief An OpenGL-based viewer widget with playback controls (a PlaybackControls widget).
  */
-class ViewerWidget : public TimeBasedWidget
-{
-  Q_OBJECT
+class ViewerWidget : public TimeBasedWidget {
+	Q_OBJECT
 public:
-  enum WaveformMode {
-    kWFAutomatic,
-    kWFViewerOnly,
-    kWFWaveformOnly,
-    kWFViewerAndWaveform
-  };
+	enum WaveformMode {
+		kWFAutomatic,
+		kWFViewerOnly,
+		kWFWaveformOnly,
+		kWFViewerAndWaveform
+	};
 
-  ViewerWidget(QWidget* parent = nullptr) :
-    ViewerWidget(new ViewerDisplayWidget(), parent)
-  {}
+	ViewerWidget(QWidget *parent = nullptr)
+		: ViewerWidget(new ViewerDisplayWidget(), parent)
+	{
+	}
 
-  virtual ~ViewerWidget() override;
+	virtual ~ViewerWidget() override;
 
-  void SetPlaybackControlsEnabled(bool enabled);
+	void SetPlaybackControlsEnabled(bool enabled);
 
-  void SetTimeRulerEnabled(bool enabled);
+	void SetTimeRulerEnabled(bool enabled);
 
-  void TogglePlayPause();
+	void TogglePlayPause();
 
-  bool IsPlaying() const;
+	bool IsPlaying() const;
 
-  /**
+	/**
    * @brief Enable or disable the color management menu
    *
    * While the Viewer is _always_ color managed, In some contexts, the color management may be controlled from an
    * external UI making the menu unnecessary.
    */
-  void SetColorMenuEnabled(bool enabled);
+	void SetColorMenuEnabled(bool enabled);
 
-  void SetMatrix(const QMatrix4x4& mat);
+	void SetMatrix(const QMatrix4x4 &mat);
 
-  /**
+	/**
    * @brief Creates a ViewerWindow widget and places it full screen on another screen
    *
    * If `screen` is nullptr, the screen will be automatically selected as whichever one contains the mouse cursor.
    */
-  void SetFullScreen(QScreen* screen = nullptr);
+	void SetFullScreen(QScreen *screen = nullptr);
 
-  ColorManager* color_manager() const
-  {
-    return display_widget_->color_manager();
-  }
+	ColorManager *color_manager() const
+	{
+		return display_widget_->color_manager();
+	}
 
-  void SetGizmos(Node* node);
+	void SetGizmos(Node *node);
 
-  void StartCapture(TimelineWidget *source, const TimeRange &time, const Track::Reference &track);
+	void StartCapture(TimelineWidget *source, const TimeRange &time,
+					  const Track::Reference &track);
 
-  void SetAudioScrubbingEnabled(bool e)
-  {
-    enable_audio_scrubbing_ = e;
-  }
+	void SetAudioScrubbingEnabled(bool e)
+	{
+		enable_audio_scrubbing_ = e;
+	}
 
-  void AddPlaybackDevice(ViewerDisplayWidget *vw)
-  {
-    playback_devices_.push_back(vw);
-  }
+	void AddPlaybackDevice(ViewerDisplayWidget *vw)
+	{
+		playback_devices_.push_back(vw);
+	}
 
-  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
-  {
-    timeline_selected_blocks_ = b;
+	void SetTimelineSelectedBlocks(const QVector<Block *> &b)
+	{
+		timeline_selected_blocks_ = b;
 
-    if (!IsPlaying()) {
-      // If is playing, this will happen by the next frame automatically
-      DetectMulticamNodeNow();
-      UpdateTextureFromNode();
-    }
-  }
+		if (!IsPlaying()) {
+			// If is playing, this will happen by the next frame automatically
+			DetectMulticamNodeNow();
+			UpdateTextureFromNode();
+		}
+	}
 
-  void SetNodeViewSelections(const QVector<Node*> &n)
-  {
-    node_view_selected_ = n;
+	void SetNodeViewSelections(const QVector<Node *> &n)
+	{
+		node_view_selected_ = n;
 
-    if (!IsPlaying()) {
-      // If is playing, this will happen by the next frame automatically
-      DetectMulticamNodeNow();
-      UpdateTextureFromNode();
-    }
-  }
+		if (!IsPlaying()) {
+			// If is playing, this will happen by the next frame automatically
+			DetectMulticamNodeNow();
+			UpdateTextureFromNode();
+		}
+	}
 
-  void ConnectMulticamWidget(MulticamWidget *p);
+	void ConnectMulticamWidget(MulticamWidget *p);
 
 public slots:
-  void Play(bool in_to_out_only);
+	void Play(bool in_to_out_only);
 
-  void Play();
+	void Play();
 
-  void Pause();
+	void Pause();
 
-  void ShuttleLeft();
+	void ShuttleLeft();
 
-  void ShuttleStop();
+	void ShuttleStop();
 
-  void ShuttleRight();
+	void ShuttleRight();
 
-  void SetColorTransform(const ColorTransform& transform);
+	void SetColorTransform(const ColorTransform &transform);
 
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::SetSignalCursorColorEnabled()
    */
-  void SetSignalCursorColorEnabled(bool e);
+	void SetSignalCursorColorEnabled(bool e);
 
-  void CacheEntireSequence();
+	void CacheEntireSequence();
 
-  void CacheSequenceInOut();
+	void CacheSequenceInOut();
 
-  void SetViewerResolution(int width, int height);
+	void SetViewerResolution(int width, int height);
 
-  void SetViewerPixelAspect(const rational& ratio);
+	void SetViewerPixelAspect(const rational &ratio);
 
-  void UpdateTextureFromNode();
+	void UpdateTextureFromNode();
 
-  void RequestStartEditingText()
-  {
-    display_widget_->RequestStartEditingText();
-  }
+	void RequestStartEditingText()
+	{
+		display_widget_->RequestStartEditingText();
+	}
 
 signals:
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::CursorColor()
    */
-  void CursorColor(const Color& reference, const Color& display);
+	void CursorColor(const Color &reference, const Color &display);
 
-  /**
+	/**
    * @brief Signal emitted when a new frame is loaded
    */
-  void TextureChanged(TexturePtr t);
+	void TextureChanged(TexturePtr t);
 
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
    */
-  void ColorProcessorChanged(ColorProcessorPtr processor);
+	void ColorProcessorChanged(ColorProcessorPtr processor);
 
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
-  void ColorManagerChanged(ColorManager* color_manager);
+	void ColorManagerChanged(ColorManager *color_manager);
 
 protected:
-  ViewerWidget(ViewerDisplayWidget *display, QWidget* parent = nullptr);
+	ViewerWidget(ViewerDisplayWidget *display, QWidget *parent = nullptr);
 
-  virtual void TimebaseChangedEvent(const rational &) override;
-  virtual void TimeChangedEvent(const rational &time) override;
+	virtual void TimebaseChangedEvent(const rational &) override;
+	virtual void TimeChangedEvent(const rational &time) override;
 
-  virtual void ConnectNodeEvent(ViewerOutput *) override;
-  virtual void DisconnectNodeEvent(ViewerOutput *) override;
-  virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
-  virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *) override;
-  virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *) override;
+	virtual void ConnectNodeEvent(ViewerOutput *) override;
+	virtual void DisconnectNodeEvent(ViewerOutput *) override;
+	virtual void ConnectedNodeChangeEvent(ViewerOutput *) override;
+	virtual void ConnectedWorkAreaChangeEvent(TimelineWorkArea *) override;
+	virtual void ConnectedMarkersChangeEvent(TimelineMarkerList *) override;
 
-  virtual void ScaleChangedEvent(const double& s) override;
+	virtual void ScaleChangedEvent(const double &s) override;
 
-  virtual void resizeEvent(QResizeEvent *event) override;
+	virtual void resizeEvent(QResizeEvent *event) override;
 
-  PlaybackControls* controls_;
+	PlaybackControls *controls_;
 
-  ViewerDisplayWidget* display_widget() const
-  {
-    return display_widget_;
-  }
+	ViewerDisplayWidget *display_widget() const
+	{
+		return display_widget_;
+	}
 
-  void IgnoreNextScrubEvent()
-  {
-    ignore_scrub_++;
-  }
+	void IgnoreNextScrubEvent()
+	{
+		ignore_scrub_++;
+	}
 
-  RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false);
+	RenderTicketPtr GetSingleFrame(const rational &t, bool dry = false);
 
-  void SetWaveformMode(WaveformMode wf);
+	void SetWaveformMode(WaveformMode wf);
 
 private:
-  int64_t GetTimestamp() const
-  {
-    return Timecode::time_to_timestamp(GetConnectedNode()->GetPlayhead(), timebase(), Timecode::kFloor);
-  }
+	int64_t GetTimestamp() const
+	{
+		return Timecode::time_to_timestamp(GetConnectedNode()->GetPlayhead(),
+										   timebase(), Timecode::kFloor);
+	}
 
-  void UpdateTimeInternal(int64_t i);
+	void UpdateTimeInternal(int64_t i);
 
-  void PlayInternal(int speed, bool in_to_out_only);
+	void PlayInternal(int speed, bool in_to_out_only);
 
-  void PauseInternal();
+	void PauseInternal();
 
-  void PushScrubbedAudio();
+	void PushScrubbedAudio();
 
-  void UpdateMinimumScale();
+	void UpdateMinimumScale();
 
-  void SetColorTransform(const ColorTransform& transform, ViewerDisplayWidget* sender);
+	void SetColorTransform(const ColorTransform &transform,
+						   ViewerDisplayWidget *sender);
 
-  QString GetCachedFilenameFromTime(const rational& time);
+	QString GetCachedFilenameFromTime(const rational &time);
 
-  bool FrameExistsAtTime(const rational& time);
+	bool FrameExistsAtTime(const rational &time);
 
-  bool ViewerMightBeAStill();
+	bool ViewerMightBeAStill();
 
-  void SetDisplayImage(RenderTicketPtr ticket);
+	void SetDisplayImage(RenderTicketPtr ticket);
 
-  RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
+	RenderTicketWatcher *RequestNextFrameForQueue(bool increment = true);
 
-  RenderTicketPtr GetFrame(const rational& t);
+	RenderTicketPtr GetFrame(const rational &t);
 
-  void FinishPlayPreprocess();
+	void FinishPlayPreprocess();
 
-  int DeterminePlaybackQueueSize();
+	int DeterminePlaybackQueueSize();
 
-  static FramePtr DecodeCachedImage(const QString &cache_path, const QUuid &cache_id, const int64_t& time);
+	static FramePtr DecodeCachedImage(const QString &cache_path,
+									  const QUuid &cache_id,
+									  const int64_t &time);
 
-  static void DecodeCachedImage(RenderTicketPtr ticket, const QString &cache_path, const QUuid &cache_id, const int64_t &time);
+	static void DecodeCachedImage(RenderTicketPtr ticket,
+								  const QString &cache_path,
+								  const QUuid &cache_id, const int64_t &time);
 
-  bool ShouldForceWaveform() const;
+	bool ShouldForceWaveform() const;
 
-  void SetEmptyImage();
+	void SetEmptyImage();
 
-  void UpdateAutoCacher();
+	void UpdateAutoCacher();
 
-  void DecrementPrequeuedAudio();
+	void DecrementPrequeuedAudio();
 
-  void ArmForRecording();
+	void ArmForRecording();
 
-  void DisarmRecording();
+	void DisarmRecording();
 
-  void CloseAudioProcessor();
+	void CloseAudioProcessor();
 
-  void DetectMulticamNode(const rational &time);
+	void DetectMulticamNode(const rational &time);
 
-  bool IsVideoVisible() const;
+	bool IsVideoVisible() const;
 
-  ViewerSizer* sizer_;
+	ViewerSizer *sizer_;
 
-  int playback_speed_;
+	int playback_speed_;
 
-  rational last_time_;
+	rational last_time_;
 
-  bool color_menu_enabled_;
+	bool color_menu_enabled_;
 
-  bool time_changed_from_timer_;
+	bool time_changed_from_timer_;
 
-  bool play_in_to_out_only_;
+	bool play_in_to_out_only_;
 
-  AudioWaveformView* waveform_view_;
+	AudioWaveformView *waveform_view_;
 
-  QHash<QScreen*, ViewerWindow*> windows_;
+	QHash<QScreen *, ViewerWindow *> windows_;
 
-  ViewerDisplayWidget* display_widget_;
+	ViewerDisplayWidget *display_widget_;
 
-  ViewerDisplayWidget* context_menu_widget_;
+	ViewerDisplayWidget *context_menu_widget_;
 
-  QTimer playback_backup_timer_;
+	QTimer playback_backup_timer_;
 
-  int64_t playback_queue_next_frame_;
-  int64_t dry_run_next_frame_;
-  QVector<ViewerDisplayWidget*> playback_devices_;
+	int64_t playback_queue_next_frame_;
+	int64_t dry_run_next_frame_;
+	QVector<ViewerDisplayWidget *> playback_devices_;
 
-  bool prequeuing_video_;
-  int prequeuing_audio_;
+	bool prequeuing_video_;
+	int prequeuing_audio_;
 
-  QList<RenderTicketWatcher*> nonqueue_watchers_;
+	QList<RenderTicketWatcher *> nonqueue_watchers_;
 
-  rational last_length_;
+	rational last_length_;
 
-  int prequeue_length_;
-  int prequeue_count_;
+	int prequeue_length_;
+	int prequeue_count_;
 
-  QVector<RenderTicketWatcher*> queue_watchers_;
+	QVector<RenderTicketWatcher *> queue_watchers_;
 
-  std::list<RenderTicketWatcher*> audio_playback_queue_;
-  rational audio_playback_queue_time_;
-  AudioProcessor audio_processor_;
-  QByteArray prequeued_audio_;
-  static const rational kAudioPlaybackInterval;
+	std::list<RenderTicketWatcher *> audio_playback_queue_;
+	rational audio_playback_queue_time_;
+	AudioProcessor audio_processor_;
+	QByteArray prequeued_audio_;
+	static const rational kAudioPlaybackInterval;
 
-  static QVector<ViewerWidget*> instances_;
+	static QVector<ViewerWidget *> instances_;
 
-  std::list<RenderTicketWatcher*> audio_scrub_watchers_;
+	std::list<RenderTicketWatcher *> audio_scrub_watchers_;
 
-  bool record_armed_;
-  bool recording_;
-  TimelineWidget *recording_callback_;
-  TimeRange recording_range_;
-  Track::Reference recording_track_;
-  QString recording_filename_;
+	bool record_armed_;
+	bool recording_;
+	TimelineWidget *recording_callback_;
+	TimeRange recording_range_;
+	Track::Reference recording_track_;
+	QString recording_filename_;
 
-  qint64 queue_starved_start_;
-  RenderTicketWatcher *first_requeue_watcher_;
+	qint64 queue_starved_start_;
+	RenderTicketWatcher *first_requeue_watcher_;
 
-  bool enable_audio_scrubbing_;
+	bool enable_audio_scrubbing_;
 
-  WaveformMode waveform_mode_;
+	WaveformMode waveform_mode_;
 
-  QVector<RenderTicketWatcher*> dry_run_watchers_;
+	QVector<RenderTicketWatcher *> dry_run_watchers_;
 
-  int ignore_scrub_;
+	int ignore_scrub_;
 
-  QVector<Block*> timeline_selected_blocks_;
-  QVector<Node*> node_view_selected_;
+	QVector<Block *> timeline_selected_blocks_;
+	QVector<Node *> node_view_selected_;
 
-  MulticamWidget *multicam_panel_;
+	MulticamWidget *multicam_panel_;
 
 private slots:
-  void PlaybackTimerUpdate();
+	void PlaybackTimerUpdate();
 
-  void LengthChangedSlot(const rational& length);
+	void LengthChangedSlot(const rational &length);
 
-  void InterlacingChangedSlot(VideoParams::Interlacing interlacing);
+	void InterlacingChangedSlot(VideoParams::Interlacing interlacing);
 
-  void UpdateRendererVideoParameters();
+	void UpdateRendererVideoParameters();
 
-  void UpdateRendererAudioParameters();
+	void UpdateRendererAudioParameters();
 
-  void ShowContextMenu(const QPoint& pos);
+	void ShowContextMenu(const QPoint &pos);
 
-  void SetZoomFromMenu(QAction* action);
+	void SetZoomFromMenu(QAction *action);
 
-  void UpdateWaveformViewFromMode();
+	void UpdateWaveformViewFromMode();
 
-  void ContextMenuSetFullScreen(QAction* action);
+	void ContextMenuSetFullScreen(QAction *action);
 
-  void ContextMenuSetPlaybackRes(QAction* action);
+	void ContextMenuSetPlaybackRes(QAction *action);
 
-  void ContextMenuDisableSafeMargins();
+	void ContextMenuDisableSafeMargins();
 
-  void ContextMenuSetSafeMargins();
+	void ContextMenuSetSafeMargins();
 
-  void ContextMenuSetCustomSafeMargins();
+	void ContextMenuSetCustomSafeMargins();
 
-  void WindowAboutToClose();
+	void WindowAboutToClose();
 
-  void RendererGeneratedFrame();
+	void RendererGeneratedFrame();
 
-  void RendererGeneratedFrameForQueue();
+	void RendererGeneratedFrameForQueue();
 
-  void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
+	void ViewerInvalidatedVideoRange(const olive::TimeRange &range);
 
-  void UpdateWaveformModeFromMenu(QAction *a);
+	void UpdateWaveformModeFromMenu(QAction *a);
 
-  void DragEntered(QDragEnterEvent* event);
+	void DragEntered(QDragEnterEvent *event);
 
-  void Dropped(QDropEvent* event);
+	void Dropped(QDropEvent *event);
 
-  void QueueNextAudioBuffer();
+	void QueueNextAudioBuffer();
 
-  void ReceivedAudioBufferForPlayback();
+	void ReceivedAudioBufferForPlayback();
 
-  void ReceivedAudioBufferForScrubbing();
+	void ReceivedAudioBufferForScrubbing();
 
-  void QueueStarved();
-  void QueueNoLongerStarved();
+	void QueueStarved();
+	void QueueNoLongerStarved();
 
-  void ForceRequeueFromCurrentTime();
+	void ForceRequeueFromCurrentTime();
+	void ForceRequeueFromCurrentTimeInternal();
 
-  void UpdateAudioProcessor();
+	void UpdateAudioProcessor();
 
-  void CreateAddableAt(const QRectF &f);
+	void CreateAddableAt(const QRectF &f);
 
-  void HandleFirstRequeueDestroy();
+	void HandleFirstRequeueDestroy();
 
-  void ShowSubtitleProperties();
+	void ShowSubtitleProperties();
 
-  void DryRunFinished();
+	void DryRunFinished();
 
-  void RequestNextDryRun();
+	void RequestNextDryRun();
 
-  void SaveFrameAsImage();
+	void SaveFrameAsImage();
 
-  void DetectMulticamNodeNow();
-
+	void DetectMulticamNodeNow();
 };
 
 }

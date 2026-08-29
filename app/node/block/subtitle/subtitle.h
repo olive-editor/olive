@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,34 +24,33 @@
 
 #include "node/block/clip/clip.h"
 
-namespace olive {
-
-class SubtitleBlock : public ClipBlock
+namespace olive
 {
-  Q_OBJECT
+
+class SubtitleBlock : public ClipBlock {
+	Q_OBJECT
 public:
-  SubtitleBlock();
+	SubtitleBlock();
 
-  NODE_DEFAULT_FUNCTIONS(SubtitleBlock)
+	NODE_DEFAULT_FUNCTIONS(SubtitleBlock)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  static const QString kTextIn;
+	static const QString kTextIn;
 
-  QString GetText() const
-  {
-    return GetStandardValue(kTextIn).toString();
-  }
+	QString GetText() const
+	{
+		return GetStandardValue(kTextIn).toString();
+	}
 
-  void SetText(const QString &text)
-  {
-    SetStandardValue(kTextIn, text);
-  }
-
+	void SetText(const QString &text)
+	{
+		SetStandardValue(kTextIn, text);
+	}
 };
 
 }

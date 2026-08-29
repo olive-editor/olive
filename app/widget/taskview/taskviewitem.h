@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,7 +31,8 @@
 #include "elapsedcounterwidget.h"
 #include "task/task.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A widget that visually represents the status of a Task
@@ -41,31 +43,29 @@ namespace olive {
  *
  * The main entry point is SetTask() after a Task and TaskViewItem objects are created.
  */
-class TaskViewItem : public QFrame
-{
-  Q_OBJECT
+class TaskViewItem : public QFrame {
+	Q_OBJECT
 public:
-  TaskViewItem(Task *task, QWidget* parent = nullptr);
+	TaskViewItem(Task *task, QWidget *parent = nullptr);
 
-  void Failed();
+	void Failed();
 
 signals:
-  void TaskCancelled(Task* t);
+	void TaskCancelled(Task *t);
 
 private:
-  QLabel* task_name_lbl_;
-  QProgressBar* progress_bar_;
-  QPushButton* cancel_btn_;
+	QLabel *task_name_lbl_;
+	QProgressBar *progress_bar_;
+	QPushButton *cancel_btn_;
 
-  QStackedWidget* status_stack_;
-  ElapsedCounterWidget* elapsed_timer_lbl_;
-  QLabel* task_error_lbl_;
+	QStackedWidget *status_stack_;
+	ElapsedCounterWidget *elapsed_timer_lbl_;
+	QLabel *task_error_lbl_;
 
-  Task* task_;
+	Task *task_;
 
 private slots:
-  void UpdateProgress(double d);
-
+	void UpdateProgress(double d);
 };
 
 }

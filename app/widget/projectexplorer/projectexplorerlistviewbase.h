@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,20 +26,20 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A QListView derivative that contains functionality used by both List view and Icon view (which are both based
  * on QListView)
  */
-class ProjectExplorerListViewBase : public QListView
-{
-  Q_OBJECT
+class ProjectExplorerListViewBase : public QListView {
+	Q_OBJECT
 public:
-  ProjectExplorerListViewBase(QWidget* parent);
+	ProjectExplorerListViewBase(QWidget *parent);
 
 protected:
-  /**
+	/**
    * @brief Double click event override
    *
    * Function that signals DoubleClickedView().
@@ -46,15 +47,15 @@ protected:
    * FIXME: This code is the same as the code in ProjectExplorerTreeView. Is there a way to merge these two through
    * subclassing?
    */
-  virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 signals:
-  /**
+	/**
    * @brief Unconditional double click signal
    *
    * Emits a signal when the view is double clicked but not on any particular item
    */
-  void DoubleClickedEmptyArea();
+	void DoubleClickedEmptyArea();
 };
 
 }

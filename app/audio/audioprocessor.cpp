@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,285 +21,188 @@
 
 #include "audioprocessor.h"
 
-extern "C" {
-#include <libavfilter/buffersrc.h>
-#include <libavfilter/buffersink.h>
-}
+#include <cstring>
 
 #include <QDebug>
 
 #include "common/ffmpegutils.h"
 
-namespace olive {
+namespace olive
+{
+
+/**
+ * @brief Ensure an AudioParams has a usable channel layout mask.
+ *
+ * The bridge's abuffer/aformat filters reject a channel layout mask of 0
+ * (e.g. when the user config or a source stream reports a mask of 0).
+ * If the mask is zero, fall back to a default layout derived from the
+ * channel count (stereo when unknown).
+ */
+static AudioParams FixChannelLayout(const AudioParams &params)
+{
+	AudioParams result = params;
+
+	if (params.channel_layout() == 0) {
+		int channels = params.channel_count();
+		if (channels <= 0) {
+			channels = 2;
+		}
+
+		qWarning() << "AudioProcessor: fixing unspecified channel layout"
+				   << "(channels=" << params.channel_count() << ") -> default"
+				   << channels << "channel layout";
+
+		result.set_channel_layout(fb_channel_layout_default(channels));
+	}
+
+	return result;
+}
 
 AudioProcessor::AudioProcessor()
 {
-  filter_graph_ = nullptr;
-  in_frame_ = nullptr;
-  out_frame_ = nullptr;
+	graph_ = nullptr;
+	out_frame_ = nullptr;
 }
 
 AudioProcessor::~AudioProcessor()
 {
-  Close();
+	Close();
 }
 
-bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to, double tempo)
+bool AudioProcessor::Open(const AudioParams &from, const AudioParams &to,
+						  double tempo)
 {
-  if (filter_graph_) {
-    qWarning() << "Tried to open a processor that was already open";
-    return false;
-  }
+	if (graph_) {
+		qWarning() << "Tried to open a processor that was already open";
+		return false;
+	}
 
-  filter_graph_ = avfilter_graph_alloc();
-  if (!filter_graph_) {
-    qCritical() << "Failed to allocate filter graph";
-    return false;
-  }
+	AudioParams from_fixed = FixChannelLayout(from);
+	AudioParams to_fixed = FixChannelLayout(to);
 
-  from_fmt_ = FFmpegUtils::GetFFmpegSampleFormat(from.format());
-  to_fmt_ = FFmpegUtils::GetFFmpegSampleFormat(to.format());
+	qDebug() << "AudioProcessor::Open: from sample_rate="
+			 << from_fixed.sample_rate() << "channels="
+			 << from_fixed.channel_count() << "layout_mask=0x" << Qt::hex
+			 << from_fixed.channel_layout() << "to sample_rate="
+			 << to_fixed.sample_rate() << "channels=" << to_fixed.channel_count()
+			 << "layout_mask=0x" << to_fixed.channel_layout() << Qt::dec;
 
-  // Set up audio buffer args
-  char filter_args[200];
-  snprintf(filter_args, 200, "time_base=%d/%d:sample_rate=%d:sample_fmt=%d:channel_layout=0x%" PRIx64,
-           1,
-           from.sample_rate(),
-           from.sample_rate(),
-           from_fmt_,
-           from.channel_layout());
+	FBAudioGraphConfig config;
+	memset(&config, 0, sizeof(config));
+	config.in_sample_rate = from_fixed.sample_rate();
+	config.in_channel_layout_mask = from_fixed.channel_layout();
+	config.in_sample_format =
+		FFmpegUtils::GetFFmpegSampleFormat(from_fixed.format());
+	config.in_channels = from_fixed.channel_count();
 
-  int r;
+	config.out_sample_rate = to_fixed.sample_rate();
+	config.out_channel_layout_mask = to_fixed.channel_layout();
+	config.out_sample_format =
+		FFmpegUtils::GetFFmpegSampleFormat(to_fixed.format());
+	config.out_channels = to_fixed.channel_count();
+	config.out_is_planar = to_fixed.format().is_planar() ? 1 : 0;
 
-  // Create buffersrc (input)
-  r = avfilter_graph_create_filter(&buffersrc_ctx_, avfilter_get_by_name("abuffer"), "in", filter_args, nullptr, filter_graph_);
-  if (r < 0) {
-    qCritical() << "Failed to create buffersrc:" << r;
-    Close();
-    return false;
-  }
+	config.tempo = tempo;
 
-  // Store "previous" filter for linking
-  AVFilterContext *previous_filter = buffersrc_ctx_;
+	graph_ = fb_audio_graph_create(&config);
+	if (!graph_) {
+		qCritical() << "Failed to create audio filter graph";
+		return false;
+	}
 
-  // Create tempo
-  bool create_tempo;
-  if ((create_tempo = !qFuzzyCompare(tempo, 1.0))) {
-    // Create audio tempo filters: FFmpeg's atempo can only be set between 0.5 and 2.0. If the requested speed is outside
-    // those boundaries, we need to daisychain more than one together.
-    double base = (tempo > 1.0) ? 2.0 : 0.5;
-    double speed_log = log(tempo) / log(base);
+	out_frame_ = fb_frame_alloc();
+	if (!out_frame_) {
+		qCritical() << "Failed to allocate output frame";
+		Close();
+		return false;
+	}
 
-    // This is the number of how many 0.5 or 2.0 tempos we need to daisychain
-    int whole = std::floor(speed_log);
+	from_ = from_fixed;
+	to_ = to_fixed;
 
-    // Set speed_log to the remainder
-    speed_log -= whole;
-
-    for (int i=0;i<=whole;i++) {
-      double filter_tempo = (i == whole) ? std::pow(base, speed_log) : base;
-
-      if (qFuzzyCompare(filter_tempo, 1.0)) {
-        // This filter would do nothing
-        continue;
-      }
-
-      previous_filter = CreateTempoFilter(filter_graph_,
-                                          previous_filter,
-                                          filter_tempo);
-
-      if (!previous_filter) {
-        qCritical() << "Failed to create audio tempo filter";
-        Close();
-        return false;
-      }
-    }
-  }
-
-  // Create conversion filter
-  if (from.sample_rate() != to.sample_rate() || from.channel_layout() != to.channel_layout() || from.format() != to.format()
-      || (to.format().is_planar() && create_tempo)) { // Tempo processor automatically converts to packed,
-                                                  // so if the desired output is planar, it'll need
-                                                  // to be converted
-    snprintf(filter_args, 200, "sample_fmts=%s:sample_rates=%d:channel_layouts=0x%" PRIx64,
-             av_get_sample_fmt_name(to_fmt_),
-             to.sample_rate(),
-             to.channel_layout());
-
-    AVFilterContext *c;
-    r = avfilter_graph_create_filter(&c, avfilter_get_by_name("aformat"), "fmt", filter_args, nullptr, filter_graph_);
-    if (r < 0) {
-      qCritical() << "Failed to create format conversion filter:" << r << filter_args;
-      Close();
-      return false;
-    }
-
-    r = avfilter_link(previous_filter, 0, c, 0);
-    if (r < 0) {
-      qCritical() << "Failed to link filters:" << r;
-      Close();
-      return false;
-    }
-
-    previous_filter = c;
-  }
-
-  // Create buffersink (output)
-  r = avfilter_graph_create_filter(&buffersink_ctx_, avfilter_get_by_name("abuffersink"), "out", nullptr, nullptr, filter_graph_);
-  if (r < 0) {
-    qCritical() << "Failed to create buffersink:" << r;
-    Close();
-    return false;
-  }
-
-  r = avfilter_link(previous_filter, 0, buffersink_ctx_, 0);
-  if (r < 0) {
-    qCritical() << "Failed to link filters:" << r;
-    Close();
-    return false;
-  }
-
-  r = avfilter_graph_config(filter_graph_, nullptr);
-  if (r < 0) {
-    qCritical() << "Failed to configure graph:" << r;
-    Close();
-    return false;
-  }
-
-  in_frame_ = av_frame_alloc();
-  if (in_frame_) {
-    in_frame_->sample_rate = from.sample_rate();
-    in_frame_->format = from_fmt_;
-    in_frame_->channel_layout = from.channel_layout();
-    in_frame_->channels = from.channel_count();
-    in_frame_->pts = 0;
-  } else {
-    qCritical() << "Failed to allocate input frame";
-    Close();
-    return false;
-  }
-
-  out_frame_ = av_frame_alloc();
-  if (!out_frame_) {
-    qCritical() << "Failed to allocate output frame";
-    Close();
-    return false;
-  }
-
-  from_ = from;
-  to_ = to;
-
-  return true;
+	return true;
 }
 
 void AudioProcessor::Close()
 {
-  if (filter_graph_) {
-    avfilter_graph_free(&filter_graph_);
-    filter_graph_ = nullptr;
-    buffersrc_ctx_ = nullptr;
-    buffersink_ctx_ = nullptr;
-  }
+	if (graph_) {
+		fb_audio_graph_free(&graph_);
+	}
 
-  if (in_frame_) {
-    av_frame_free(&in_frame_);
-    in_frame_ = nullptr;
-  }
-
-  if (out_frame_) {
-    av_frame_free(&out_frame_);
-    out_frame_ = nullptr;
-  }
+	if (out_frame_) {
+		fb_frame_free(&out_frame_);
+	}
 }
 
-int AudioProcessor::Convert(float **in, int nb_in_samples, AudioProcessor::Buffer *output)
+int AudioProcessor::Convert(float **in, int nb_in_samples,
+							AudioProcessor::Buffer *output)
 {
-  if (!IsOpen()) {
-    qCritical() << "Tried to convert on closed processor";
-    return -1;
-  }
+	if (!IsOpen()) {
+		qCritical() << "Tried to convert on closed processor";
+		return -1;
+	}
 
-  int r = 0;
+	int r = 0;
 
-  if (in && nb_in_samples) {
-    // Set frame parameters
-    in_frame_->nb_samples = nb_in_samples;
-    for (int i=0; i<from_.channel_count(); i++) {
-      in_frame_->data[i] = reinterpret_cast<uint8_t*>(in[i]);
-      in_frame_->linesize[i] = from_.samples_to_bytes(nb_in_samples);
-    }
+	if (in && nb_in_samples) {
+		r = fb_audio_graph_push(
+			graph_, reinterpret_cast<const uint8_t *const *>(in),
+			nb_in_samples);
+		if (r < 0) {
+			qCritical() << "Failed to add frame to buffersrc:" << r;
+			return r;
+		}
+	}
 
-    r = av_buffersrc_add_frame_flags(buffersrc_ctx_, in_frame_, AV_BUFFERSRC_FLAG_KEEP_REF);
-    if (r < 0) {
-      qCritical() << "Failed to add frame to buffersrc:" << r;
-      return r;
-    }
-  }
+	if (output) {
+		int nb_channels = to_.channel_count();
 
-  if (output) {
-    int nb_channels = to_.channel_count();
+		if (to_.format().is_packed()) {
+			nb_channels = 1;
+		}
 
-    if (to_.format().is_packed()) {
-      nb_channels = 1;
-    }
+		AudioProcessor::Buffer &result = *output;
+		result.resize(nb_channels);
 
-    AudioProcessor::Buffer &result = *output;
-    result.resize(nb_channels);
+		int byte_offset = 0;
 
-    int byte_offset = 0;
+		while (true) {
+			r = fb_audio_graph_pull(graph_, out_frame_);
+			if (r <= 0) {
+				if (r == 0) {
+					// No more output available right now
+					r = 0;
+				} else {
+					// Handle unexpected error
+					qCritical() << "Failed to pull from buffersink:" << r;
+				}
+				break;
+			}
 
-    while (true) {
-      av_frame_unref(out_frame_);
-      r = av_buffersink_get_frame(buffersink_ctx_, out_frame_);
-      if (r < 0) {
-        if (r == AVERROR(EAGAIN)) {
-          r = 0;
-        } else {
-          // Handle unexpected error
-          qCritical() << "Failed to pull from buffersink:" << r;
-        }
-        break;
-      }
+			int nb_bytes = fb_frame_get_nb_samples(out_frame_) *
+						   to_.bytes_per_sample_per_channel();
+			if (to_.format().is_packed()) {
+				nb_bytes *= to_.channel_count();
+			}
 
-      int nb_bytes = out_frame_->nb_samples * to_.bytes_per_sample_per_channel();
-      if (to_.format().is_packed()) {
-        nb_bytes *= to_.channel_count();
-      }
+			for (int i = 0; i < nb_channels; i++) {
+				result[i].resize(byte_offset + nb_bytes);
+				memcpy(result[i].data() + byte_offset,
+					   fb_frame_get_data(out_frame_, i), nb_bytes);
+			}
+			byte_offset += nb_bytes;
+		}
+	}
 
-      for (int i=0; i<nb_channels; i++) {
-        result[i].resize(byte_offset + nb_bytes);
-        memcpy(result[i].data() + byte_offset, out_frame_->data[i], nb_bytes);
-      }
-      byte_offset += nb_bytes;
-    }
-    av_frame_unref(out_frame_);
-  }
-
-  return r;
+	return r;
 }
 
 void AudioProcessor::Flush()
 {
-  int r = av_buffersrc_add_frame_flags(buffersrc_ctx_, nullptr, AV_BUFFERSRC_FLAG_KEEP_REF);
-  if (r < 0) {
-    qCritical() << "Failed to flush:" << r;
-  }
-}
-
-AVFilterContext *AudioProcessor::CreateTempoFilter(AVFilterGraph* graph, AVFilterContext* link, const double &tempo)
-{
-  // Set up tempo param, which is taken as a C string
-  char speed_param[20];
-  snprintf(speed_param, 20, "%f", tempo);
-
-  AVFilterContext* tempo_ctx = nullptr;
-
-  if (avfilter_graph_create_filter(&tempo_ctx, avfilter_get_by_name("atempo"), "atempo", speed_param, nullptr, graph) >= 0
-      && avfilter_link(link, 0, tempo_ctx, 0) == 0) {
-    return tempo_ctx;
-  }
-
-  return nullptr;
+	int r = fb_audio_graph_push(graph_, nullptr, 0);
+	if (r < 0) {
+		qCritical() << "Failed to flush:" << r;
+	}
 }
 
 }

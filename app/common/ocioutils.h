@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,12 +27,12 @@ namespace OCIO = OCIO_NAMESPACE;
 
 #include "render/videoparams.h"
 
-namespace olive {
-
-class OCIOUtils
+namespace olive
 {
+
+class OCIOUtils {
 public:
-  static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(PixelFormat format);
+	static OCIO::BitDepth GetOCIOBitDepthFromPixelFormat(PixelFormat format);
 };
 
 }

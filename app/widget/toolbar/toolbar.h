@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +28,8 @@
 #include "widget/toolbar/toolbarbutton.h"
 #include "tool/tool.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A widget containing buttons for all of Olive's application-wide tools.
@@ -40,11 +42,10 @@ namespace olive {
  * Toolbar updates the current tool application-wide, and is also automatically updated when the tool is changed
  * elsewhere.
  */
-class Toolbar : public QWidget
-{
-  Q_OBJECT
+class Toolbar : public QWidget {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief Toolbar Constructor
    *
    * Creates and connects all the Toolbar buttons
@@ -53,10 +54,10 @@ public:
    *
    * QWidget parent.
    */
-  Toolbar(QWidget* parent);
+	Toolbar(QWidget *parent);
 
 public slots:
-  /**
+	/**
    * @brief Set the tool to be displayed as "selected"
    *
    * This function does not set the application-wide tool, it only sets which tool show as selected in this widget.
@@ -67,9 +68,9 @@ public slots:
    *
    * Tool to show as selected
    */
-  void SetTool(const Tool::Item &tool);
+	void SetTool(const Tool::Item &tool);
 
-  /**
+	/**
    * @brief Set snapping checked value
    *
    * Similar to SetTool(), this does not set anything application-wide, it only changes the displayed button appearance.
@@ -77,56 +78,56 @@ public slots:
    *
    * @param snapping
    */
-  void SetSnapping(const bool &snapping);
+	void SetSnapping(const bool &snapping);
 
 protected:
-  /**
+	/**
    * @brief Qt changeEvent
    *
    * Overridden to catch language change events (see Retranslate())
    *
    * @param e
    */
-  virtual void changeEvent(QEvent* e) override;
+	virtual void changeEvent(QEvent *e) override;
 
-  virtual void resizeEvent(QResizeEvent *e) override;
+	virtual void resizeEvent(QResizeEvent *e) override;
 
 signals:
-  /**
+	/**
    * @brief Emitted whenever a tool is selected using this widget
    *
    * @param t
    *
    * Tool that was selected
    */
-  void ToolChanged(const Tool::Item& t);
+	void ToolChanged(const Tool::Item &t);
 
-  /**
+	/**
    * @brief Emitted whenever the snapping setting is changed
    *
    * @param b
    *
    * New snapping enabled setting
    */
-  void SnappingChanged(const bool& b);
+	void SnappingChanged(const bool &b);
 
-  /**
+	/**
    * @brief Emitted when the selected transition is changed from the transition tool menu
    */
-  void SelectedTransitionChanged(const QString& id);
+	void SelectedTransitionChanged(const QString &id);
 
 private:
-  /**
+	/**
    * @brief Reset all strings based on the currently selected language
    */
-  void Retranslate();
+	void Retranslate();
 
-  /**
+	/**
    * @brief Update icons after a style change
    */
-  void UpdateIcons();
+	void UpdateIcons();
 
-  /**
+	/**
    * @brief Internal convenience function for creating tool buttons quickly
    *
    * This function will create a ToolbarButton object, set the icon to `icon`, set its tool value to `tool`, add it to
@@ -139,9 +140,9 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateToolButton(const Tool::Item& tool);
+	ToolbarButton *CreateToolButton(const Tool::Item &tool);
 
-  /**
+	/**
    * @brief Internal convenience function for creating buttons quickly
    *
    * Similar to CreateToolButton() but doesn't add the button to toolbar_btns_ and doesn't connect the button to
@@ -152,39 +153,39 @@ private:
    *
    * The created ToolbarButton. The button parent is automatically set to `this`.
    */
-  ToolbarButton* CreateNonToolButton();
+	ToolbarButton *CreateNonToolButton();
 
-  /**
+	/**
    * @brief Internal layout used for buttons
    */
-  FlowLayout* layout_;
+	FlowLayout *layout_;
 
-  /**
+	/**
    * @brief Array/list of toolbar buttons
    *
    * This list is automatically appended by CreateToolButton(). It's used to iterate through the toolbar buttons
    * quickly with for loops, etc. See SetTool() for example usage.
    */
-  QList<ToolbarButton*> toolbar_btns_;
+	QList<ToolbarButton *> toolbar_btns_;
 
-  ToolbarButton* btn_pointer_tool_;
-  ToolbarButton* btn_trackselect_tool_;
-  ToolbarButton* btn_edit_tool_;
-  ToolbarButton* btn_ripple_tool_;
-  ToolbarButton* btn_rolling_tool_;
-  ToolbarButton* btn_razor_tool_;
-  ToolbarButton* btn_slip_tool_;
-  ToolbarButton* btn_slide_tool_;
-  ToolbarButton* btn_hand_tool_;
-  ToolbarButton* btn_transition_tool_;
-  ToolbarButton* btn_zoom_tool_;
-  ToolbarButton* btn_record_;
-  ToolbarButton* btn_add_;
+	ToolbarButton *btn_pointer_tool_;
+	ToolbarButton *btn_trackselect_tool_;
+	ToolbarButton *btn_edit_tool_;
+	ToolbarButton *btn_ripple_tool_;
+	ToolbarButton *btn_rolling_tool_;
+	ToolbarButton *btn_razor_tool_;
+	ToolbarButton *btn_slip_tool_;
+	ToolbarButton *btn_slide_tool_;
+	ToolbarButton *btn_hand_tool_;
+	ToolbarButton *btn_transition_tool_;
+	ToolbarButton *btn_zoom_tool_;
+	ToolbarButton *btn_record_;
+	ToolbarButton *btn_add_;
 
-  ToolbarButton* btn_snapping_toggle_;
+	ToolbarButton *btn_snapping_toggle_;
 
 private slots:
-  /**
+	/**
    * @brief Slot for a ToolbarButton being clicked
    *
    * ToolbarButtons created from CreateToolButton() are automatically connected to this slot.
@@ -192,9 +193,9 @@ private slots:
    * and emit a signal indicating that the tool has changed to the newly selected tool. This function static_casts
    * the sender to ToolbarButton so you should not connect any other class type to this slot.
    */
-  void ToolButtonClicked();
+	void ToolButtonClicked();
 
-  /**
+	/**
    * @brief Receiver for the snapping toggle button
    *
    * This function's primary purpose is to emit SnappingChanged() and should be connected to the ToolbarButton's
@@ -204,27 +205,26 @@ private slots:
    *
    * The new snapping value received from the sender's clicked signal
    */
-  void SnappingButtonClicked(bool b);
+	void SnappingButtonClicked(bool b);
 
-  /**
+	/**
    * @brief Receiver for the add button
    *
    * The add button pops up a list for which object to create.
    */
-  void AddButtonClicked();
+	void AddButtonClicked();
 
-  /**
+	/**
    * @brief Receiver for the transition button
    *
    * The transition button pops up a list for which transition to create.
    */
-  void TransitionButtonClicked();
+	void TransitionButtonClicked();
 
-  /**
+	/**
    * @brief Receiver for the menu created by TransitionButtonClicked()
    */
-  void TransitionMenuItemTriggered(QAction* a);
-
+	void TransitionMenuItemTriggered(QAction *a);
 };
 
 }

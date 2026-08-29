@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,34 +24,38 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class TimeRemapNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class TimeRemapNode : public Node {
+	Q_OBJECT
 public:
-  TimeRemapNode();
+	TimeRemapNode();
 
-  NODE_DEFAULT_FUNCTIONS(TimeRemapNode)
+	NODE_DEFAULT_FUNCTIONS(TimeRemapNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const override;
-  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const override;
+	virtual TimeRange InputTimeAdjustment(const QString &input, int element,
+										  const TimeRange &input_time,
+										  bool clamp) const override;
+	virtual TimeRange
+	OutputTimeAdjustment(const QString &input, int element,
+						 const TimeRange &input_time) const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kTimeInput;
-  static const QString kInputInput;
+	static const QString kTimeInput;
+	static const QString kInputInput;
 
 private:
-  rational GetRemappedTime(const rational& input) const;
-
+	rational GetRemappedTime(const rational &input) const;
 };
 
 }

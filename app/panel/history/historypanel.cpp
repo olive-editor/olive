@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Studios LLC
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,19 +23,20 @@
 
 #include "widget/history/historywidget.h"
 
-namespace olive {
-
-HistoryPanel::HistoryPanel() :
-  PanelWidget(QStringLiteral("HistoryPanel"))
+namespace olive
 {
-  SetWidgetWithPadding(new HistoryWidget(this));
 
-  Retranslate();
+HistoryPanel::HistoryPanel()
+	: PanelWidget(QStringLiteral("HistoryPanel"))
+{
+	SetWidgetWithPadding(new HistoryWidget(this));
+
+	Retranslate();
 }
 
 void HistoryPanel::Retranslate()
 {
-  SetTitle(tr("History"));
+	SetTitle(tr("History"));
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,53 +24,52 @@
 
 #include "base/decimalsliderbase.h"
 
-namespace olive {
-
-class FloatSlider : public DecimalSliderBase
+namespace olive
 {
-  Q_OBJECT
+
+class FloatSlider : public DecimalSliderBase {
+	Q_OBJECT
 public:
-  FloatSlider(QWidget* parent = nullptr);
+	FloatSlider(QWidget *parent = nullptr);
 
-  enum DisplayType {
-    kNormal,
-    kDecibel,
-    kPercentage
-  };
+	enum DisplayType { kNormal, kDecibel, kPercentage };
 
-  double GetValue() const;
+	double GetValue() const;
 
-  void SetValue(const double& d);
+	void SetValue(const double &d);
 
-  void SetDefaultValue(const double& d);
+	void SetDefaultValue(const double &d);
 
-  void SetMinimum(const double& d);
+	void SetMinimum(const double &d);
 
-  void SetMaximum(const double& d);
+	void SetMaximum(const double &d);
 
-  void SetDisplayType(const DisplayType& type);
+	void SetDisplayType(const DisplayType &type);
 
-  static double TransformValueToDisplay(double val, DisplayType display);
+	static double TransformValueToDisplay(double val, DisplayType display);
 
-  static double TransformDisplayToValue(double val, DisplayType display);
+	static double TransformDisplayToValue(double val, DisplayType display);
 
-  static QString ValueToString(double val, DisplayType display, int decimal_places, bool autotrim_decimal_places);
+	static QString ValueToString(double val, DisplayType display,
+								 int decimal_places,
+								 bool autotrim_decimal_places);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) const override;
+	virtual QString ValueToString(const QVariant &v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+	virtual QVariant StringToValue(const QString &s, bool *ok) const override;
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+	virtual QVariant
+	AdjustDragDistanceInternal(const QVariant &start,
+							   const double &drag) const override;
 
-  virtual void ValueSignalEvent(const QVariant &value) override;
+	virtual void ValueSignalEvent(const QVariant &value) override;
 
 signals:
-  void ValueChanged(double);
+	void ValueChanged(double);
 
 private:
-  DisplayType display_type_;
-
+	DisplayType display_type_;
 };
 
 }

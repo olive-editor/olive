@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,53 +25,59 @@
 #include "audio/audiovisualwaveform.h"
 #include "playbackcache.h"
 
-namespace olive {
-
-class AudioWaveformCache : public PlaybackCache
+namespace olive
 {
-  Q_OBJECT
+
+class AudioWaveformCache : public PlaybackCache {
+	Q_OBJECT
 public:
-  AudioWaveformCache(QObject *parent = nullptr);
+	AudioWaveformCache(QObject *parent = nullptr);
 
-  void WriteWaveform(const TimeRange &range, const TimeRangeList &valid_ranges, const AudioVisualWaveform *waveform);
+	void WriteWaveform(const TimeRange &range,
+					   const TimeRangeList &valid_ranges,
+					   const AudioVisualWaveform *waveform);
 
-  const AudioParams &GetParameters() const { return params_; }
-  void SetParameters(const AudioParams &p)
-  {
-    params_ = p;
-    waveforms_->set_channel_count(p.channel_count());
-  }
+	const AudioParams &GetParameters() const
+	{
+		return params_;
+	}
+	void SetParameters(const AudioParams &p)
+	{
+		params_ = p;
+		waveforms_->set_channel_count(p.channel_count());
+	}
 
-  void Draw(QPainter* painter, const QRect &rect, const double &scale, const rational &start_time) const;
+	void Draw(QPainter *painter, const QRect &rect, const double &scale,
+			  const rational &start_time) const;
 
-  AudioVisualWaveform::Sample GetSummaryFromTime(const rational &start, const rational &length) const;
+	AudioVisualWaveform::Sample
+	GetSummaryFromTime(const rational &start, const rational &length) const;
 
-  rational length() const;
+	rational length() const;
 
-  virtual void SetPassthrough(PlaybackCache *cache) override;
+	virtual void SetPassthrough(PlaybackCache *cache) override;
 
 protected:
-  virtual void InvalidateEvent(const TimeRange& range) override;
+	virtual void InvalidateEvent(const TimeRange &range) override;
 
 private:
-  using WaveformPtr = std::shared_ptr<AudioVisualWaveform>;
+	using WaveformPtr = std::shared_ptr<AudioVisualWaveform>;
 
-  WaveformPtr waveforms_;
+	WaveformPtr waveforms_;
 
-  AudioParams params_;
+	AudioParams params_;
 
-  class WaveformPassthrough : public TimeRange
-  {
-  public:
-    WaveformPassthrough(const TimeRange &r) :
-      TimeRange(r)
-    {}
+	class WaveformPassthrough : public TimeRange {
+	public:
+		WaveformPassthrough(const TimeRange &r)
+			: TimeRange(r)
+		{
+		}
 
-    WaveformPtr waveform;
-  };
+		WaveformPtr waveform;
+	};
 
-  std::vector<WaveformPassthrough> passthroughs_;
-
+	std::vector<WaveformPassthrough> passthroughs_;
 };
 
 }

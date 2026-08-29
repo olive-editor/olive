@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,48 +24,59 @@
 #include "node/color/colormanager/colormanager.h"
 #include "node/project.h"
 
-namespace olive {
+namespace olive
+{
 
 const QString OCIOBaseNode::kTextureInput = QStringLiteral("tex_in");
 
-OCIOBaseNode::OCIOBaseNode() :
-  manager_(nullptr),
-  processor_(nullptr)
+OCIOBaseNode::OCIOBaseNode()
+	: manager_(nullptr)
+	, processor_(nullptr)
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+	AddInput(kTextureInput, NodeValue::kTexture,
+			 InputFlags(kInputFlagNotKeyframable));
 
-  SetEffectInput(kTextureInput);
+	SetEffectInput(kTextureInput);
 
-  SetFlag(kVideoEffect);
+	SetFlag(kVideoEffect);
 }
 
 void OCIOBaseNode::AddedToGraphEvent(Project *p)
 {
-  manager_ = p->color_manager();
-  connect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
-  ConfigChanged();
+	manager_ = p->color_manager();
+	connect(manager_, &ColorManager::ConfigChanged, this,
+			&OCIOBaseNode::ConfigChanged);
+	ConfigChanged();
 }
 
 void OCIOBaseNode::RemovedFromGraphEvent(Project *p)
 {
-  if (manager_) {
-    disconnect(manager_, &ColorManager::ConfigChanged, this, &OCIOBaseNode::ConfigChanged);
-    manager_ = nullptr;
-  }
+	if (manager_) {
+		disconnect(manager_, &ColorManager::ConfigChanged, this,
+				   &OCIOBaseNode::ConfigChanged);
+		manager_ = nullptr;
+	}
 }
 
-void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const
+void OCIOBaseNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
+						 NodeValueTable *table) const
 {
-  auto tex_met = value[kTextureInput];
-  TexturePtr t = tex_met.toTexture();
-  if (t && processor_) {
-    ColorTransformJob job;
+	auto tex_met = value[kTextureInput];
+	TexturePtr t = tex_met.toTexture();
+	if (t) {
+		if (processor_) {
+			ColorTransformJob job;
 
-    job.SetColorProcessor(processor_);
-    job.SetInputTexture(tex_met);
+			job.SetColorProcessor(processor_);
+			job.SetInputTexture(tex_met);
 
-    table->Push(NodeValue::kTexture, t->toJob(job), this);
-  }
+			table->Push(NodeValue::kTexture, t->toJob(job), this);
+		} else {
+			// Processor isn't ready yet (e.g. still being generated
+			// asynchronously), pass the input through unchanged.
+			table->Push(NodeValue::kTexture, QVariant::fromValue(t), this);
+		}
+	}
 }
 
 }

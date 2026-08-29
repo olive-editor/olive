@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 
 #include "common/cancelableobject.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A base class for background tasks running in Olive.
@@ -47,113 +49,115 @@ namespace olive {
  *
  * Tasks support "dependency tasks", i.e. a Task that should be complete before another Task begins.
  */
-class Task : public QObject, public CancelableObject
-{
-  Q_OBJECT
+class Task : public QObject, public CancelableObject {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief Task Constructor
    */
-  Task() :
-    title_(tr("Task")),
-    error_(tr("Unknown error")),
-    start_time_(0)
-  {
-  }
+	Task()
+		: title_(tr("Task"))
+		, error_(tr("Unknown error"))
+		, start_time_(0)
+	{
+	}
 
-  /**
+	/**
    * @brief Retrieve the current title of this Task
    */
-  const QString& GetTitle() const
-  {
-    return title_;
-  }
+	const QString &GetTitle() const
+	{
+		return title_;
+	}
 
-  /**
+	/**
    * @brief Returns the error that occurred if Run() returns false
    */
-  const QString& GetError() const
-  {
-    return error_;
-  }
+	const QString &GetError() const
+	{
+		return error_;
+	}
 
-  const qint64& GetStartTime() const
-  {
-    return start_time_;
-  }
+	const qint64 &GetStartTime() const
+	{
+		return start_time_;
+	}
 
 public slots:
-  /**
+	/**
    * @brief Run this task
    *
    * @return True if the task completed successfully, false if not.
    *
    * \see GetError() if this returns false.
    */
-  bool Start()
-  {
-    start_time_ = QDateTime::currentMSecsSinceEpoch();
-    emit Started(start_time_);
+	bool Start()
+	{
+		start_time_ = QDateTime::currentMSecsSinceEpoch();
+		emit Started(start_time_);
 
-    bool ret = Run();
+		bool ret = Run();
 
-    // Print how long this task took for debugging purposes
-    qDebug() << this << "took" << (QDateTime::currentMSecsSinceEpoch() - start_time_);
+		// Print how long this task took for debugging purposes
+		qDebug() << this << "took"
+				 << (QDateTime::currentMSecsSinceEpoch() - start_time_);
 
-    emit Finished(this, ret);
+		emit Finished(this, ret);
 
-    return ret;
-  }
+		return ret;
+	}
 
-  /**
+	/**
    * @brief Reset state so that Run() can be called again.
    *
    * Override this if your class holds any persistent state that should be cleared/modified before
    * it's safe for Run() to run again.
    */
-  virtual void Reset(){}
+	virtual void Reset()
+	{
+	}
 
-  /**
+	/**
    * @brief Cancel the Task
    *
    * Sends a signal to the Task to stop as soon as possible. Always call this directly or connect
    * with Qt::DirectConnection, or else it'll be queued *after* the task has already finished.
    */
-  void Cancel()
-  {
-    CancelableObject::Cancel();
-  }
+	void Cancel()
+	{
+		CancelableObject::Cancel();
+	}
 
 protected:
-  virtual bool Run() = 0;
+	virtual bool Run() = 0;
 
-  /**
+	/**
    * @brief Set the error message
    *
    * It is recommended to use this if your Action() function ever returns FALSE to tell the user why the failure
    * occurred.
    */
-  void SetError(const QString& s)
-  {
-    error_ = s;
-  }
+	void SetError(const QString &s)
+	{
+		error_ = s;
+	}
 
-  /**
+	/**
    * @brief Set the Task title
    *
    * Used in the UI Task Manager to distinguish Tasks from each other. Generally this should be set in the constructor
    * and shouldn't need to change during the life of the Task. To show an error message, it's recommended to use
    * set_error() instead.
    */
-  void SetTitle(const QString& s)
-  {
-    title_ = s;
-  }
+	void SetTitle(const QString &s)
+	{
+		title_ = s;
+	}
 
 signals:
-  void Started(qint64 start_time);
+	void Started(qint64 start_time);
 
-  /**
+	/**
    * @brief Signal emitted whenever progress is made
    *
    * Emit this throughout Action() to update any attached ProgressBars on the progress of this Task.
@@ -162,22 +166,21 @@ signals:
    *
    * A progress value between 0.0 and 1.0.
    */
-  void ProgressChanged(double d);
+	void ProgressChanged(double d);
 
-  /**
+	/**
    * @brief Emitted when task is finished
    *
    * Do NOT delete immediately after this signal, call deleteLater() instead.
    */
-  void Finished(Task *task, bool succeeded);
+	void Finished(Task *task, bool succeeded);
 
 private:
-  QString title_;
+	QString title_;
 
-  QString error_;
+	QString error_;
 
-  qint64 start_time_;
-
+	qint64 start_time_;
 };
 
 }

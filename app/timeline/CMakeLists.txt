@@ -15,24 +15,24 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  timeline/timelinecommon.h
-  timeline/timelinecoordinate.h
-  timeline/timelinecoordinate.cpp
-  timeline/timelinemarker.h
-  timeline/timelinemarker.cpp
-  timeline/timelineundocommon.h
-  timeline/timelineundogeneral.cpp
-  timeline/timelineundogeneral.h
-  timeline/timelineundopointer.cpp
-  timeline/timelineundopointer.h
-  timeline/timelineundoripple.cpp
-  timeline/timelineundoripple.h
-  timeline/timelineundosplit.cpp
-  timeline/timelineundosplit.h
-  timeline/timelineundotrack.cpp
-  timeline/timelineundotrack.h
-  timeline/timelineworkarea.h
-  timeline/timelineworkarea.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        timeline/timelinecommon.h
+        timeline/timelinecoordinate.h
+        timeline/timelinecoordinate.cpp
+        timeline/timelinemarker.h
+        timeline/timelinemarker.cpp
+        timeline/timelineundocommon.h
+        timeline/timelineundogeneral.cpp
+        timeline/timelineundogeneral.h
+        timeline/timelineundopointer.cpp
+        timeline/timelineundopointer.h
+        timeline/timelineundoripple.cpp
+        timeline/timelineundoripple.h
+        timeline/timelineundosplit.cpp
+        timeline/timelineundosplit.h
+        timeline/timelineundotrack.cpp
+        timeline/timelineundotrack.h
+        timeline/timelineworkarea.h
+        timeline/timelineworkarea.cpp
+        PARENT_SCOPE
 )

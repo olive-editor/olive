@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,32 +23,33 @@
 
 #include "ui/colorcoding.h"
 
-namespace olive {
-
-ColorCodingComboBox::ColorCodingComboBox(QWidget *parent) :
-  QComboBox(parent)
+namespace olive
 {
-  SetColor(0);
+
+ColorCodingComboBox::ColorCodingComboBox(QWidget *parent)
+	: QComboBox(parent)
+{
+	SetColor(0);
 }
 
 void ColorCodingComboBox::showPopup()
 {
-  ColorLabelMenu menu(this);
+	ColorLabelMenu menu(this);
 
-  menu.setMinimumWidth(width());
+	menu.setMinimumWidth(width());
 
-  QAction* a = menu.exec(parentWidget()->mapToGlobal(pos()));
+	QAction *a = menu.exec(parentWidget()->mapToGlobal(pos()));
 
-  if (a) {
-    SetColor(a->data().toInt());
-  }
+	if (a) {
+		SetColor(a->data().toInt());
+	}
 }
 
 void ColorCodingComboBox::SetColor(int index)
 {
-  clear();
-  addItem(ColorCoding::GetColorName(index));
-  index_ = index;
+	clear();
+	addItem(ColorCoding::GetColorName(index));
+	index_ = index;
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,29 +23,30 @@
 
 #include "ui/icons/icons.h"
 
-namespace olive {
-
-CollapseButton::CollapseButton(QWidget *parent) :
-  QPushButton(parent)
+namespace olive
 {
-  setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-  setStyleSheet("border: none; background: none;");
-  setCheckable(true);
-  setChecked(true);
-  setIconSize(QSize(fontMetrics().height()/2, fontMetrics().height()/2));
 
-  connect(this, &CollapseButton::toggled, this, &CollapseButton::UpdateIcon);
+CollapseButton::CollapseButton(QWidget *parent)
+	: QPushButton(parent)
+{
+	setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+	setStyleSheet("border: none; background: none;");
+	setCheckable(true);
+	setChecked(true);
+	setIconSize(QSize(fontMetrics().height() / 2, fontMetrics().height() / 2));
 
-  UpdateIcon(isChecked());
+	connect(this, &CollapseButton::toggled, this, &CollapseButton::UpdateIcon);
+
+	UpdateIcon(isChecked());
 }
 
 void CollapseButton::UpdateIcon(bool e)
 {
-  if (e) {
-    setIcon(icon::TriDown);
-  } else {
-    setIcon(icon::TriRight);
-  }
+	if (e) {
+		setIcon(icon::TriDown);
+	} else {
+		setIcon(icon::TriRight);
+	}
 }
 
 }

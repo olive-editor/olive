@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,143 +22,170 @@
 #ifndef RENDERTEXTURE_H
 #define RENDERTEXTURE_H
 
+#include "common/avframeptr.h"
+
+#include <atomic>
 #include <memory>
 #include <QVariant>
 
 #include "render/videoparams.h"
 
-namespace olive {
+namespace olive
+{
 
 class AcceleratedJob;
 class Renderer;
+struct RendererLifetime {
+	std::atomic<bool> alive{ true };
+};
 
 class Texture;
 using TexturePtr = std::shared_ptr<Texture>;
 
-class Texture
-{
+class Texture {
 public:
-  enum Interpolation {
-    kNearest,
-    kLinear,
-    kMipmappedLinear
-  };
+	enum Interpolation { kNearest, kLinear, kMipmappedLinear };
 
-  static const Interpolation kDefaultInterpolation;
+	static const Interpolation kDefaultInterpolation;
 
-  /**
+	/**
    * @brief Construct a dummy texture with no renderer backend
    */
-  Texture(const VideoParams& param) :
-    renderer_(nullptr),
-    params_(param),
-    job_(nullptr)
-  {
-  }
+	Texture(const VideoParams &param)
+		: renderer_(nullptr)
+		, renderer_lifetime_(nullptr)
+		, params_(param)
+		, job_(nullptr)
+	{
+	}
 
-  template <typename T>
-  Texture(const VideoParams &p, const T &j) :
-    Texture(p)
-  {
-    job_ = new T(j);
-  }
+	template <typename T>
+	Texture(const VideoParams &p, const T &j)
+		: Texture(p)
+	{
+		job_ = new T(j);
+	}
 
-  /**
+	/**
    * @brief Construct a real texture linked to a renderer backend
    */
-  Texture(Renderer* renderer, const QVariant& native, const VideoParams& param) :
-    renderer_(renderer),
-    params_(param),
-    id_(native),
-    job_(nullptr)
-  {
-  }
+	Texture(Renderer *renderer, const QVariant &native,
+			const VideoParams &param,
+			std::shared_ptr<RendererLifetime> lifetime = nullptr)
+		: renderer_(renderer)
+		, renderer_lifetime_(lifetime)
+		, params_(param)
+		, id_(native)
+		, job_(nullptr)
+	{
+	}
 
-  ~Texture();
+	~Texture();
 
-  QVariant id() const
-  {
-    return id_;
-  }
+	QVariant id() const
+	{
+		return id_;
+	}
 
-  const VideoParams& params() const
-  {
-    return params_;
-  }
+	const VideoParams &params() const
+	{
+		return params_;
+	}
 
-  template <typename T>
-  static TexturePtr Job(const VideoParams &p, const T &j)
-  {
-    return std::make_shared<Texture>(p, j);
-  }
+	template <typename T>
+	static TexturePtr Job(const VideoParams &p, const T &j)
+	{
+		return std::make_shared<Texture>(p, j);
+	}
 
-  template <typename T>
-  TexturePtr toJob(const T &job)
-  {
-    return Texture::Job(params_, job);
-  }
+	template <typename T> TexturePtr toJob(const T &job)
+	{
+		return Texture::Job(params_, job);
+	}
 
-  void Upload(void* data, int linesize);
+	void Upload(void *data, int linesize);
 
-  void Download(void* data, int linesize);
+	void Download(void *data, int linesize);
 
-  bool IsDummy() const
-  {
-    return !renderer_;
-  }
+	bool IsDummy() const
+	{
+		return !renderer_;
+	}
 
-  int width() const
-  {
-    return params_.effective_width();
-  }
+	int width() const
+	{
+		return params_.effective_width();
+	}
 
-  int height() const
-  {
-    return params_.effective_height();
-  }
+	int height() const
+	{
+		return params_.effective_height();
+	}
 
-  QVector2D virtual_resolution() const
-  {
-    return QVector2D(params_.square_pixel_width(), params_.height());
-  }
+	QVector2D virtual_resolution() const
+	{
+		return QVector2D(params_.square_pixel_width(), params_.height());
+	}
 
-  PixelFormat format() const
-  {
-    return params_.format();
-  }
+	PixelFormat format() const
+	{
+		return params_.format();
+	}
 
-  int channel_count() const
-  {
-    return params_.channel_count();
-  }
+	int channel_count() const
+	{
+		return params_.channel_count();
+	}
 
-  int divider() const
-  {
-    return params_.divider();
-  }
+	int divider() const
+	{
+		return params_.divider();
+	}
 
-  const rational& pixel_aspect_ratio() const
-  {
-    return params_.pixel_aspect_ratio();
-  }
+	const rational &pixel_aspect_ratio() const
+	{
+		return params_.pixel_aspect_ratio();
+	}
 
-  Renderer* renderer() const
-  {
-    return renderer_;
-  }
+	Renderer *renderer() const
+	{
+		return renderer_;
+	}
 
-  bool IsJob() const { return job_; }
-  AcceleratedJob *job() const { return job_; }
+	bool IsJob() const
+	{
+		return job_;
+	}
+	AcceleratedJob *job() const
+	{
+		return job_;
+	}
+	void handleFrame(AVFramePtr ptr)
+	{
+		frame_ = ptr;
+	}
+	AVFramePtr frame()
+	{
+		return frame_;
+	}
 
 private:
-  Renderer* renderer_;
+	bool IsRendererAlive() const
+	{
+		return renderer_ &&
+			   (!renderer_lifetime_ || renderer_lifetime_->alive.load());
+	}
 
-  VideoParams params_;
+	Renderer *renderer_;
+	std::shared_ptr<RendererLifetime> renderer_lifetime_;
 
-  QVariant id_;
+	VideoParams params_;
 
-  AcceleratedJob *job_;
+	QVariant id_;
 
+	AcceleratedJob *job_;
+
+	AVFramePtr frame_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,73 +26,82 @@
 #include "render/playbackcache.h"
 #include "render/videoparams.h"
 
-namespace olive {
-
-class FrameHashCache : public PlaybackCache
+namespace olive
 {
-  Q_OBJECT
+
+class FrameHashCache : public PlaybackCache {
+	Q_OBJECT
 public:
-  FrameHashCache(QObject* parent = nullptr);
+	FrameHashCache(QObject *parent = nullptr);
 
-  const rational &GetTimebase() const { return timebase_; }
+	const rational &GetTimebase() const
+	{
+		return timebase_;
+	}
 
-  void SetTimebase(const rational& tb);
+	void SetTimebase(const rational &tb);
 
-  void ValidateTimestamp(const int64_t &ts);
-  void ValidateTime(const rational &time);
+	void ValidateTimestamp(const int64_t &ts);
+	void ValidateTime(const rational &time);
 
-  bool IsFrameCached(const rational &time) const
-  {
-    return GetValidatedRanges().contains(time);
-  }
+	bool IsFrameCached(const rational &time) const
+	{
+		return GetValidatedRanges().contains(time);
+	}
 
-  QString GetValidCacheFilename(const rational &time) const;
+	QString GetValidCacheFilename(const rational &time) const;
 
-  static bool SaveCacheFrame(const QString& filename, FramePtr frame);
-  bool SaveCacheFrame(const int64_t &time, FramePtr frame) const;
-  static bool SaveCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time, FramePtr frame);
-  static bool SaveCacheFrame(const QString& cache_path, const QUuid &uuid, const rational &time, const rational &tb, FramePtr frame);
-  static FramePtr LoadCacheFrame(const QString& cache_path, const QUuid &uuid, const int64_t &time);
-  FramePtr LoadCacheFrame(const int64_t &time) const;
-  static FramePtr LoadCacheFrame(const QString& fn);
+	static bool SaveCacheFrame(const QString &filename, FramePtr frame);
+	bool SaveCacheFrame(const int64_t &time, FramePtr frame) const;
+	static bool SaveCacheFrame(const QString &cache_path, const QUuid &uuid,
+							   const int64_t &time, FramePtr frame);
+	static bool SaveCacheFrame(const QString &cache_path, const QUuid &uuid,
+							   const rational &time, const rational &tb,
+							   FramePtr frame);
+	static FramePtr LoadCacheFrame(const QString &cache_path, const QUuid &uuid,
+								   const int64_t &time);
+	FramePtr LoadCacheFrame(const int64_t &time) const;
+	static FramePtr LoadCacheFrame(const QString &fn);
 
-  virtual void SetPassthrough(PlaybackCache *cache) override;
+	virtual void SetPassthrough(PlaybackCache *cache) override;
 
 protected:
-  virtual void LoadStateEvent(QDataStream &stream) override;
-  virtual void SaveStateEvent(QDataStream &stream) override;
+	virtual void LoadStateEvent(QDataStream &stream) override;
+	virtual void SaveStateEvent(QDataStream &stream) override;
 
 private:
-  rational ToTime(const int64_t &ts) const;
-  int64_t ToTimestamp(const rational &ts, Timecode::Rounding rounding = Timecode::kRound) const;
+	rational ToTime(const int64_t &ts) const;
+	int64_t ToTimestamp(const rational &ts,
+						Timecode::Rounding rounding = Timecode::kRound) const;
 
-  /**
+	/**
    * @brief Return the path of the cached image at this time
    */
-  QString CachePathName(const int64_t &time) const;
-  QString CachePathName(const rational &time) const;
+	QString CachePathName(const int64_t &time) const;
+	QString CachePathName(const rational &time) const;
 
-  static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const int64_t &time);
-  static QString CachePathName(const QString& cache_path, const QUuid &cache_id, const rational &time, const rational &tb);
+	static QString CachePathName(const QString &cache_path,
+								 const QUuid &cache_id, const int64_t &time);
+	static QString CachePathName(const QString &cache_path,
+								 const QUuid &cache_id, const rational &time,
+								 const rational &tb);
 
-  rational timebase_;
+	rational timebase_;
 
 private slots:
-  void HashDeleted(const QString &path, const QString &filename);
+	void HashDeleted(const QString &path, const QString &filename);
 
-  void ProjectInvalidated(Project* p);
-
+	void ProjectInvalidated(Project *p);
 };
 
-class ThumbnailCache : public FrameHashCache
-{
-  Q_OBJECT
+class ThumbnailCache : public FrameHashCache {
+	Q_OBJECT
 public:
-  ThumbnailCache(QObject* parent = nullptr) :
-    FrameHashCache(parent)
-  {
-    SetTimebase(rational(1, 10));
-  }
+	ThumbnailCache(QObject *parent = nullptr)
+		: FrameHashCache(parent)
+	{
+		SetTimebase(rational(1, 10));
+	}
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,18 +25,17 @@
 #include "acceleratedjob.h"
 #include "codec/frame.h"
 
-namespace olive {
-
-class GenerateJob : public AcceleratedJob
+namespace olive
 {
-public:
-  GenerateJob() = default;
-  GenerateJob(const NodeValueRow &row) :
-    GenerateJob()
-  {
-    Insert(row);
-  }
 
+class GenerateJob : public AcceleratedJob {
+public:
+	GenerateJob() = default;
+	GenerateJob(const NodeValueRow &row)
+		: GenerateJob()
+	{
+		Insert(row);
+	}
 };
 
 }

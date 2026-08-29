@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,33 +21,36 @@
 
 #include "draggable.h"
 
-namespace olive {
+namespace olive
+{
 
 DraggableGizmo::DraggableGizmo(QObject *parent)
-  : NodeGizmo{parent},
-    drag_value_behavior_(kAbsolute)
+	: NodeGizmo{ parent }
+	, drag_value_behavior_(kAbsolute)
 {
 }
 
-void DraggableGizmo::DragStart(const NodeValueRow &row, double abs_x, double abs_y, const rational &time)
+void DraggableGizmo::DragStart(const NodeValueRow &row, double abs_x,
+							   double abs_y, const rational &time)
 {
-  for (int i=0; i<draggers_.size(); i++) {
-    draggers_[i].Start(inputs_[i], time);
-  }
+	for (int i = 0; i < draggers_.size(); i++) {
+		draggers_[i].Start(inputs_[i], time);
+	}
 
-  emit HandleStart(row, abs_x, abs_y, time);
+	emit HandleStart(row, abs_x, abs_y, time);
 }
 
-void DraggableGizmo::DragMove(double x, double y, const Qt::KeyboardModifiers &modifiers)
+void DraggableGizmo::DragMove(double x, double y,
+							  const Qt::KeyboardModifiers &modifiers)
 {
-  emit HandleMovement(x, y, modifiers);
+	emit HandleMovement(x, y, modifiers);
 }
 
 void DraggableGizmo::DragEnd(MultiUndoCommand *command)
 {
-  for (int i=0; i<draggers_.size(); i++) {
-    draggers_[i].End(command);
-  }
+	for (int i = 0; i < draggers_.size(); i++) {
+		draggers_[i].End(command);
+	}
 }
 
 }

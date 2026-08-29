@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,53 +24,78 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QUrl>
 
 #include "ui/icons/icons.h"
 
-namespace olive {
-
-FileField::FileField(QWidget* parent) :
-  QWidget(parent),
-  directory_mode_(false)
+namespace olive
 {
-  QHBoxLayout* layout = new QHBoxLayout(this);
 
-  layout->setContentsMargins(0, 0, 0, 0);
+FileField::FileField(QWidget *parent)
+	: QWidget(parent)
+	, directory_mode_(false)
+{
+	QHBoxLayout *layout = new QHBoxLayout(this);
 
-  line_edit_ = new QLineEdit();
-  connect(line_edit_, &QLineEdit::textChanged, this, &FileField::LineEditChanged);
-  connect(line_edit_, &QLineEdit::textEdited, this, &FileField::FilenameChanged);
-  layout->addWidget(line_edit_);
+	layout->setContentsMargins(0, 0, 0, 0);
 
-  browse_btn_ = new QPushButton();
-  browse_btn_->setIcon(icon::Open);
-  connect(browse_btn_, &QPushButton::clicked, this, &FileField::BrowseBtnClicked);
-  layout->addWidget(browse_btn_);
+	line_edit_ = new QLineEdit();
+	connect(line_edit_, &QLineEdit::textChanged, this,
+			&FileField::LineEditChanged);
+	connect(line_edit_, &QLineEdit::textEdited, this,
+			&FileField::FilenameChanged);
+	layout->addWidget(line_edit_);
+
+	browse_btn_ = new QPushButton();
+	browse_btn_->setIcon(icon::Open);
+	connect(browse_btn_, &QPushButton::clicked, this,
+			&FileField::BrowseBtnClicked);
+	layout->addWidget(browse_btn_);
 }
 
 void FileField::BrowseBtnClicked()
 {
-  QString s;
+	QString s;
 
-  if (directory_mode_) {
-    s = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
-  } else {
-    s = QFileDialog::getOpenFileName(this, tr("Open File"));
-  }
+	if (sidebar_urls_.isEmpty()) {
+		if (directory_mode_) {
+			s = QFileDialog::getExistingDirectory(this, tr("Open Directory"));
+		} else {
+			s = QFileDialog::getOpenFileName(this, tr("Open File"), QString(),
+											 name_filter_);
+		}
+	} else {
+		// Sidebar URLs require the non-static dialog API
+		QFileDialog dialog(this, tr("Open File"));
+		dialog.setFileMode(directory_mode_ ? QFileDialog::Directory :
+											 QFileDialog::ExistingFile);
+		dialog.setAcceptMode(QFileDialog::AcceptOpen);
+		if (!directory_mode_ && !name_filter_.isEmpty()) {
+			dialog.setNameFilter(name_filter_);
+		}
+		dialog.setSidebarUrls(sidebar_urls_);
+		if (directory_mode_) {
+			dialog.setOption(QFileDialog::ShowDirsOnly, true);
+		}
 
-  if (!s.isEmpty()) {
-    line_edit_->setText(s);
-    emit FilenameChanged(s);
-  }
+		if (dialog.exec() == QDialog::Accepted && !dialog.selectedFiles().isEmpty()) {
+			s = dialog.selectedFiles().first();
+		}
+	}
+
+	if (!s.isEmpty()) {
+		line_edit_->setText(s);
+		emit FilenameChanged(s);
+	}
 }
 
-void FileField::LineEditChanged(const QString& text)
+void FileField::LineEditChanged(const QString &text)
 {
-  if (QFileInfo::exists(text) || text.isEmpty()) {
-    line_edit_->setStyleSheet(QString());
-  } else {
-    line_edit_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
-  }
+	if (QFileInfo::exists(text) || text.isEmpty()) {
+		line_edit_->setStyleSheet(QString());
+	} else {
+		line_edit_->setStyleSheet(QStringLiteral("QLineEdit {color: red;}"));
+	}
 }
 
 }

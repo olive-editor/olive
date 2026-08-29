@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,111 +23,126 @@
 #define PROJECTCOPIER_H
 
 #include "node/project.h"
+#include "node/project/footage/footage.h"
 
-namespace olive {
-
-class ProjectCopier : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class ProjectCopier : public QObject {
+	Q_OBJECT
 public:
-  ProjectCopier(QObject *parent = nullptr);
+	ProjectCopier(QObject *parent = nullptr);
 
-  void SetProject(Project *project);
+	void SetProject(Project *project);
 
-  template <typename T>
-  T *GetCopy(T *original)
-  {
-    return static_cast<T*>(copy_map_.value(original));
-  }
+	template <typename T> T *GetCopy(T *original)
+	{
+		return static_cast<T *>(copy_map_.value(original));
+	}
 
-  template <typename T>
-  T *GetOriginal(T *copy)
-  {
-    return static_cast<T*>(copy_map_.key(copy));
-  }
+	template <typename T> T *GetOriginal(T *copy)
+	{
+		return static_cast<T *>(copy_map_.key(copy));
+	}
 
-  Project *GetCopiedProject() const { return copy_; }
+	Project *GetCopiedProject() const
+	{
+		return copy_;
+	}
 
-  const QHash<Node*, Node*> &GetNodeMap() const { return copy_map_; }
+	const QHash<Node *, Node *> &GetNodeMap() const
+	{
+		return copy_map_;
+	}
 
-  const JobTime &GetGraphChangeTime() const { return graph_changed_time_; }
-  const JobTime &GetLastUpdateTime() const { return last_update_time_; }
+	const JobTime &GetGraphChangeTime() const
+	{
+		return graph_changed_time_;
+	}
+	const JobTime &GetLastUpdateTime() const
+	{
+		return last_update_time_;
+	}
 
-  bool HasUpdatesInQueue() const { return !graph_update_queue_.empty(); }
+	bool HasUpdatesInQueue() const
+	{
+		return !graph_update_queue_.empty();
+	}
 
-  /**
+	/**
    * @brief Process all changes to internal NodeGraph copy
    *
    * PreviewAutoCacher staggers updates to its internal NodeGraph copy, only applying them when the
    * RenderManager is not reading from it. This function is called when such an opportunity arises.
    */
-  void ProcessUpdateQueue();
+	void ProcessUpdateQueue();
 
 signals:
-  void AddedNode(Node *n);
-  void RemovedNode(Node *n);
+	void AddedNode(Node *n);
+	void RemovedNode(Node *n);
 
 private:
-  void DoNodeAdd(Node* node);
-  void DoNodeRemove(Node* node);
-  void DoEdgeAdd(Node *output, const NodeInput& input);
-  void DoEdgeRemove(Node *output, const NodeInput& input);
-  void DoValueChange(const NodeInput& input);
-  void DoValueHintChange(const NodeInput &input);
-  void DoProjectSettingChange(const QString &key, const QString &value);
+	void DoNodeAdd(Node *node);
+	void DoNodeRemove(Node *node);
+	void DoEdgeAdd(Node *output, const NodeInput &input);
+	void DoEdgeRemove(Node *output, const NodeInput &input);
+	void DoValueChange(const NodeInput &input);
+	void DoValueHintChange(const NodeInput &input);
+	void DoProjectSettingChange(const QString &key, const QString &value);
 
-  void InsertIntoCopyMap(Node* node, Node* copy);
+	void SyncFootageProxySettings(Footage *source);
 
-  void UpdateGraphChangeValue();
-  void UpdateLastSyncedValue();
+	void InsertIntoCopyMap(Node *node, Node *copy);
 
-  Project *original_;
-  Project *copy_;
+	void UpdateGraphChangeValue();
+	void UpdateLastSyncedValue();
 
-  class QueuedJob {
-  public:
-    enum Type {
-      kNodeAdded,
-      kNodeRemoved,
-      kEdgeAdded,
-      kEdgeRemoved,
-      kValueChanged,
-      kValueHintChanged,
-      kProjectSettingChanged
-    };
+	Project *original_;
+	Project *copy_;
 
-    Type type;
-    Node* node;
-    NodeInput input;
-    Node *output;
+	class QueuedJob {
+	public:
+		enum Type {
+			kNodeAdded,
+			kNodeRemoved,
+			kEdgeAdded,
+			kEdgeRemoved,
+			kValueChanged,
+			kValueHintChanged,
+			kProjectSettingChanged
+		};
 
-    QString key;
-    QString value;
-  };
+		Type type;
+		Node *node;
+		NodeInput input;
+		Node *output;
 
-  std::list<QueuedJob> graph_update_queue_;
-  QHash<Node*, Node*> copy_map_;
-  QHash<Project*, Project*> graph_map_;
-  QVector<Node*> created_nodes_;
+		QString key;
+		QString value;
+	};
 
-  JobTime graph_changed_time_;
-  JobTime last_update_time_;
+	std::list<QueuedJob> graph_update_queue_;
+	QHash<Node *, Node *> copy_map_;
+	QHash<Project *, Project *> graph_map_;
+	QVector<Node *> created_nodes_;
+
+	JobTime graph_changed_time_;
+	JobTime last_update_time_;
 
 private slots:
-  void QueueNodeAdd(Node* node);
+	void QueueNodeAdd(Node *node);
 
-  void QueueNodeRemove(Node* node);
+	void QueueNodeRemove(Node *node);
 
-  void QueueEdgeAdd(Node *output, const NodeInput& input);
+	void QueueEdgeAdd(Node *output, const NodeInput &input);
 
-  void QueueEdgeRemove(Node *output, const NodeInput& input);
+	void QueueEdgeRemove(Node *output, const NodeInput &input);
 
-  void QueueValueChange(const NodeInput& input);
+	void QueueValueChange(const NodeInput &input);
 
-  void QueueValueHintChange(const NodeInput &input);
+	void QueueValueHintChange(const NodeInput &input);
 
-  void QueueProjectSettingChange(const QString &key, const QString &value);
-
+	void QueueProjectSettingChange(const QString &key, const QString &value);
 };
 
 }

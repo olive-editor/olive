@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,19 +25,19 @@
 #include "projectexplorerlistviewbase.h"
 #include "projectexplorericonviewitemdelegate.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The view widget used when ProjectExplorer is in Icon View
  */
-class ProjectExplorerIconView : public ProjectExplorerListViewBase
-{
-  Q_OBJECT
+class ProjectExplorerIconView : public ProjectExplorerListViewBase {
+	Q_OBJECT
 public:
-  ProjectExplorerIconView(QWidget* parent);
+	ProjectExplorerIconView(QWidget *parent);
 
 private:
-  ProjectExplorerIconViewItemDelegate delegate_;
+	ProjectExplorerIconViewItemDelegate delegate_;
 };
 
 }

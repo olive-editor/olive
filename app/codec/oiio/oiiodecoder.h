@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,46 +27,52 @@
 
 #include "codec/decoder.h"
 
-namespace olive {
-
-class OIIODecoder : public Decoder
+namespace olive
 {
-  Q_OBJECT
+
+class OIIODecoder : public Decoder {
+	Q_OBJECT
 public:
-  OIIODecoder();
+	OIIODecoder();
 
-  DECODER_DEFAULT_DESTRUCTOR(OIIODecoder)
+	DECODER_DEFAULT_DESTRUCTOR(OIIODecoder)
 
-  virtual QString id() const override;
+	virtual QString id() const override;
 
-  virtual bool SupportsVideo() override{return true;}
+	virtual bool SupportsVideo() override
+	{
+		return true;
+	}
 
-  virtual FootageDescription Probe(const QString& filename, CancelAtom *cancelled) const override;
+	virtual FootageDescription Probe(const QString &filename,
+									 CancelAtom *cancelled) const override;
 
 protected:
-  virtual bool OpenInternal() override;
-  virtual TexturePtr RetrieveVideoInternal(const RetrieveVideoParams& p) override;
-  virtual void CloseInternal() override;
+	virtual bool OpenInternal() override;
+	virtual TexturePtr
+	RetrieveVideoInternal(const RetrieveVideoParams &p) override;
+	virtual FramePtr
+	RetrieveVideoFrameInternal(const RetrieveVideoParams &p) override;
+	virtual void CloseInternal() override;
 
 private:
-  std::unique_ptr<OIIO::ImageInput> image_;
+	std::unique_ptr<OIIO::ImageInput> image_;
 
-  static bool FileTypeIsSupported(const QString& fn);
+	static bool FileTypeIsSupported(const QString &fn);
 
-  bool OpenImageHandler(const QString& fn, int subimage);
+	bool OpenImageHandler(const QString &fn, int subimage);
 
-  void CloseImageHandle();
+	void CloseImageHandle();
 
-  static VideoParams GetVideoParamsFromImageSpec(const OIIO::ImageSpec &spec);
+	static VideoParams GetVideoParamsFromImageSpec(const OIIO::ImageSpec &spec);
 
-  PixelFormat pix_fmt_;
-  OIIO::TypeDesc::BASETYPE oiio_pix_fmt_;
+	PixelFormat pix_fmt_;
+	OIIO::TypeDesc::BASETYPE oiio_pix_fmt_;
 
-  Frame buffer_;
-  RetrieveVideoParams last_params_;
+	Frame buffer_;
+	RetrieveVideoParams last_params_;
 
-  static QStringList supported_formats_;
-
+	static QStringList supported_formats_;
 };
 
 }

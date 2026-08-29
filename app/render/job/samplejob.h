@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,44 +24,47 @@
 
 #include "acceleratedjob.h"
 
-namespace olive {
-
-class SampleJob : public AcceleratedJob
+namespace olive
 {
+
+class SampleJob : public AcceleratedJob {
 public:
-  SampleJob()
-  {
-  }
+	SampleJob()
+	{
+	}
 
-  SampleJob(const TimeRange &time, const NodeValue& value)
-  {
-    samples_ = value.toSamples();
-    time_ = time;
-  }
+	SampleJob(const TimeRange &time, const NodeValue &value)
+	{
+		samples_ = value.toSamples();
+		time_ = time;
+	}
 
-  SampleJob(const TimeRange &time, const QString& from, const NodeValueRow& row)
-  {
-    samples_ = row[from].toSamples();
-    time_ = time;
-  }
+	SampleJob(const TimeRange &time, const QString &from,
+			  const NodeValueRow &row)
+	{
+		samples_ = row[from].toSamples();
+		time_ = time;
+	}
 
-  const SampleBuffer &samples() const
-  {
-    return samples_;
-  }
+	const SampleBuffer &samples() const
+	{
+		return samples_;
+	}
 
-  bool HasSamples() const
-  {
-    return samples_.is_allocated();
-  }
+	bool HasSamples() const
+	{
+		return samples_.is_allocated();
+	}
 
-  const TimeRange &time() const { return time_; }
+	const TimeRange &time() const
+	{
+		return time_;
+	}
 
 private:
-  SampleBuffer samples_;
+	SampleBuffer samples_;
 
-  TimeRange time_;
-
+	TimeRange time_;
 };
 
 }

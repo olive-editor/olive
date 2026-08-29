@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,190 +21,194 @@
 
 #include "renderticket.h"
 
-namespace olive {
+namespace olive
+{
 
-RenderTicket::RenderTicket() :
-  is_running_(false),
-  has_result_(false),
-  finish_count_(0)
+RenderTicket::RenderTicket()
+	: is_running_(false)
+	, has_result_(false)
+	, finish_count_(0)
 {
 }
 
 void RenderTicket::WaitForFinished(QMutex *mutex)
 {
-  if (is_running_) {
-    wait_.wait(mutex);
-  }
+	if (is_running_) {
+		wait_.wait(mutex);
+	}
 }
 
 void RenderTicket::Start()
 {
-  QMutexLocker locker(&lock_);
+	QMutexLocker locker(&lock_);
 
-  is_running_ = true;
-  has_result_ = false;
-  result_.clear();
+	is_running_ = true;
+	has_result_ = false;
+	result_.clear();
 }
 
 void RenderTicket::Finish()
 {
-  FinishInternal(false, QVariant());
+	FinishInternal(false, QVariant());
 }
 
 void RenderTicket::Finish(QVariant result)
 {
-  FinishInternal(true, result);
+	FinishInternal(true, result);
 }
 
 QVariant RenderTicket::Get()
 {
-  WaitForFinished();
+	WaitForFinished();
 
-  // We don't have to mutex around this because there is no way to write to `result_` after
-  // the ticket has finished and the above function blocks the calling thread until it is finished
-  return result_;
+	// We don't have to mutex around this because there is no way to write to `result_` after
+	// the ticket has finished and the above function blocks the calling thread until it is finished
+	return result_;
 }
 
 void RenderTicket::WaitForFinished()
 {
-  QMutexLocker locker(&lock_);
+	QMutexLocker locker(&lock_);
 
-  WaitForFinished(&lock_);
+	WaitForFinished(&lock_);
 }
 
 bool RenderTicket::IsRunning(bool lock)
 {
-  if (lock) {
-    lock_.lock();
-  }
+	if (lock) {
+		lock_.lock();
+	}
 
-  bool running = is_running_;
+	bool running = is_running_;
 
-  if (lock) {
-    lock_.unlock();
-  }
+	if (lock) {
+		lock_.unlock();
+	}
 
-  return running;
+	return running;
 }
 
 int RenderTicket::GetFinishCount(bool lock)
 {
-  if (lock) {
-    lock_.lock();
-  }
+	if (lock) {
+		lock_.lock();
+	}
 
-  int count = finish_count_;
+	int count = finish_count_;
 
-  if (lock) {
-    lock_.unlock();
-  }
+	if (lock) {
+		lock_.unlock();
+	}
 
-  return count;
+	return count;
 }
 
 bool RenderTicket::HasResult()
 {
-  QMutexLocker locker(&lock_);
+	QMutexLocker locker(&lock_);
 
-  return has_result_;
+	return has_result_;
 }
 
 void RenderTicket::FinishInternal(bool has_result, QVariant result)
 {
-  QMutexLocker locker(&lock_);
+	QMutexLocker locker(&lock_);
 
-  if (!is_running_) {
-    qWarning() << "Tried to finish ticket that wasn't running";
-  } else {
-    is_running_ = false;
-    has_result_ = has_result;
-    result_ = result;
-    finish_count_++;
+	if (!is_running_) {
+		qWarning() << "Tried to finish ticket that wasn't running";
+	} else {
+		is_running_ = false;
+		has_result_ = has_result;
+		result_ = result;
+		finish_count_++;
 
-    wait_.wakeAll();
+		wait_.wakeAll();
 
-    locker.unlock();
+		locker.unlock();
 
-    emit Finished();
-  }
+		emit Finished();
+	}
 }
 
-RenderTicketWatcher::RenderTicketWatcher(QObject *parent) :
-  QObject(parent),
-  ticket_(nullptr)
+RenderTicketWatcher::RenderTicketWatcher(QObject *parent)
+	: QObject(parent)
+	, ticket_(nullptr)
 {
 }
 
 void RenderTicketWatcher::SetTicket(RenderTicketPtr ticket)
 {
-  if (ticket_) {
-    qCritical() << "Tried to set a ticket on a RenderTicketWatcher twice";
-    return;
-  }
+	if (ticket_) {
+		qCritical() << "Tried to set a ticket on a RenderTicketWatcher twice";
+		return;
+	}
 
-  if (!ticket) {
-    qCritical() << "Tried to set a null ticket on a RenderTicketWatcher";
-    return;
-  }
+	if (!ticket) {
+		qCritical() << "Tried to set a null ticket on a RenderTicketWatcher";
+		return;
+	}
 
-  ticket_ = ticket;
+	ticket_ = ticket;
 
-  // Lock ticket so we can query if it's already finished by the time this code runs
-  QMutexLocker locker(ticket->lock());
+	// Lock ticket so we can query if it's already finished by the time this code runs
+	QMutexLocker locker(ticket->lock());
 
-  connect(ticket_.get(), &RenderTicket::Finished, this, &RenderTicketWatcher::TicketFinished);
+	connect(ticket_.get(), &RenderTicket::Finished, this,
+			&RenderTicketWatcher::TicketFinished);
 
-  if (!ticket_->IsRunning(false) && ticket_->GetFinishCount(false) > 0) {
-    // Ticket has already finished before, so we emit a signal
-    locker.unlock();
-    TicketFinished();
-  }
+	if (!ticket_->IsRunning(false) && ticket_->GetFinishCount(false) > 0) {
+		// Ticket has already finished before, so we emit a signal asynchronously
+		// to avoid deleting this watcher before the caller has a chance to use
+		// the returned pointer.
+		QMetaObject::invokeMethod(this, &RenderTicketWatcher::TicketFinished,
+								  Qt::QueuedConnection);
+	}
 }
 
 bool RenderTicketWatcher::IsRunning()
 {
-  if (ticket_) {
-    return ticket_->IsRunning();
-  } else {
-    return false;
-  }
+	if (ticket_) {
+		return ticket_->IsRunning();
+	} else {
+		return false;
+	}
 }
 
 void RenderTicketWatcher::WaitForFinished()
 {
-  if (ticket_) {
-    ticket_->WaitForFinished();
-  }
+	if (ticket_) {
+		ticket_->WaitForFinished();
+	}
 }
 
 QVariant RenderTicketWatcher::Get()
 {
-  if (ticket_) {
-    return ticket_->Get();
-  } else {
-    return QVariant();
-  }
+	if (ticket_) {
+		return ticket_->Get();
+	} else {
+		return QVariant();
+	}
 }
 
 bool RenderTicketWatcher::HasResult()
 {
-  if (ticket_) {
-    return ticket_->HasResult();
-  } else {
-    return false;
-  }
+	if (ticket_) {
+		return ticket_->HasResult();
+	} else {
+		return false;
+	}
 }
 
 void RenderTicketWatcher::Cancel()
 {
-  if (ticket_) {
-    ticket_->Cancel();
-  }
+	if (ticket_) {
+		ticket_->Cancel();
+	}
 }
 
 void RenderTicketWatcher::TicketFinished()
 {
-  emit Finished(this);
+	emit Finished(this);
 }
 
 }

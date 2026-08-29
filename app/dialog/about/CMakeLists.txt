@@ -15,11 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/about/about.cpp
-  dialog/about/about.h
-  dialog/about/patreon.h
-  dialog/about/scrollinglabel.cpp
-  dialog/about/scrollinglabel.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/about/about.cpp
+        dialog/about/about.h
+        dialog/about/patreon.h
+        dialog/about/scrollinglabel.cpp
+        dialog/about/scrollinglabel.h
+        PARENT_SCOPE
 )

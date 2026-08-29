@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Studios LLC
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,41 +27,41 @@
 
 #include "node.h"
 
-namespace olive {
+namespace olive
+{
 
 class NodeGroup;
 
 struct SerializedData {
-  struct SerializedConnection {
-    NodeInput input;
-    quintptr output_node;
-  };
+	struct SerializedConnection {
+		NodeInput input;
+		quintptr output_node;
+	};
 
-  struct BlockLink {
-    Node* block;
-    quintptr link;
-  };
+	struct BlockLink {
+		Node *block;
+		quintptr link;
+	};
 
-  struct GroupLink {
-    NodeGroup *group;
-    QString passthrough_id;
-    quintptr input_node;
-    QString input_id;
-    int input_element;
-    QString custom_name;
-    InputFlags custom_flags;
-    NodeValue::Type data_type;
-    QVariant default_val;
-    QHash<QString, QVariant> custom_properties;
-  };
+	struct GroupLink {
+		NodeGroup *group;
+		QString passthrough_id;
+		quintptr input_node;
+		QString input_id;
+		int input_element;
+		QString custom_name;
+		InputFlags custom_flags;
+		NodeValue::Type data_type;
+		QVariant default_val;
+		QHash<QString, QVariant> custom_properties;
+	};
 
-  QMap<Node *, QMap<quintptr, Node::Position> > positions;
-  QHash<quintptr, Node*> node_ptrs;
-  QList<SerializedConnection> desired_connections;
-  QList<BlockLink> block_links;
-  QVector<GroupLink> group_input_links;
-  QHash<NodeGroup*, quintptr> group_output_links;
-
+	QMap<Node *, QMap<quintptr, Node::Position>> positions;
+	QHash<quintptr, Node *> node_ptrs;
+	QList<SerializedConnection> desired_connections;
+	QList<BlockLink> block_links;
+	QVector<GroupLink> group_input_links;
+	QHash<NodeGroup *, quintptr> group_output_links;
 };
 
 }

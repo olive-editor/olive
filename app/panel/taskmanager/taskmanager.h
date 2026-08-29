@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,21 +25,21 @@
 #include "panel/panel.h"
 #include "widget/taskview/taskview.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A PanelWidget wrapper around a TaskView widget
  */
-class TaskManagerPanel : public PanelWidget
-{
-  Q_OBJECT
+class TaskManagerPanel : public PanelWidget {
+	Q_OBJECT
 public:
-  TaskManagerPanel();
+	TaskManagerPanel();
 
 private:
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  TaskView* view_;
+	TaskView *view_;
 };
 
 }

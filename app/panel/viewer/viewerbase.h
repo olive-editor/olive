@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,102 +26,101 @@
 #include "panel/timebased/timebased.h"
 #include "widget/viewer/viewer.h"
 
-namespace olive {
-
-class ViewerPanelBase : public TimeBasedPanel
+namespace olive
 {
-  Q_OBJECT
+
+class ViewerPanelBase : public TimeBasedPanel {
+	Q_OBJECT
 public:
-  ViewerPanelBase(const QString& object_name);
+	ViewerPanelBase(const QString &object_name);
 
-  ViewerWidget *GetViewerWidget() const
-  {
-    return static_cast<ViewerWidget*>(GetTimeBasedWidget());
-  }
+	ViewerWidget *GetViewerWidget() const
+	{
+		return static_cast<ViewerWidget *>(GetTimeBasedWidget());
+	}
 
-  virtual void PlayPause() override;
+	virtual void PlayPause() override;
 
-  virtual void PlayInToOut() override;
+	virtual void PlayInToOut() override;
 
-  virtual void ShuttleLeft() override;
+	virtual void ShuttleLeft() override;
 
-  virtual void ShuttleStop() override;
+	virtual void ShuttleStop() override;
 
-  virtual void ShuttleRight() override;
+	virtual void ShuttleRight() override;
 
-  void ConnectTimeBasedPanel(TimeBasedPanel* panel);
+	void ConnectTimeBasedPanel(TimeBasedPanel *panel);
 
-  void DisconnectTimeBasedPanel(TimeBasedPanel* panel);
+	void DisconnectTimeBasedPanel(TimeBasedPanel *panel);
 
-  /**
+	/**
    * @brief Wrapper for ViewerWidget::SetFullScreen()
    */
-  void SetFullScreen(QScreen* screen = nullptr);
+	void SetFullScreen(QScreen *screen = nullptr);
 
-  ColorManager *GetColorManager()
-  {
-    return GetViewerWidget()->color_manager();
-  }
+	ColorManager *GetColorManager()
+	{
+		return GetViewerWidget()->color_manager();
+	}
 
-  void UpdateTextureFromNode()
-  {
-    GetViewerWidget()->UpdateTextureFromNode();
-  }
+	void UpdateTextureFromNode()
+	{
+		GetViewerWidget()->UpdateTextureFromNode();
+	}
 
-  void AddPlaybackDevice(ViewerDisplayWidget *vw)
-  {
-    GetViewerWidget()->AddPlaybackDevice(vw);
-  }
+	void AddPlaybackDevice(ViewerDisplayWidget *vw)
+	{
+		GetViewerWidget()->AddPlaybackDevice(vw);
+	}
 
-  void SetTimelineSelectedBlocks(const QVector<Block*> &b)
-  {
-    GetViewerWidget()->SetTimelineSelectedBlocks(b);
-  }
+	void SetTimelineSelectedBlocks(const QVector<Block *> &b)
+	{
+		GetViewerWidget()->SetTimelineSelectedBlocks(b);
+	}
 
-  void SetNodeViewSelections(const QVector<Node*> &n)
-  {
-    GetViewerWidget()->SetNodeViewSelections(n);
-  }
+	void SetNodeViewSelections(const QVector<Node *> &n)
+	{
+		GetViewerWidget()->SetNodeViewSelections(n);
+	}
 
-  void ConnectMulticamWidget(MulticamWidget *p)
-  {
-    GetViewerWidget()->ConnectMulticamWidget(p);
-  }
+	void ConnectMulticamWidget(MulticamWidget *p)
+	{
+		GetViewerWidget()->ConnectMulticamWidget(p);
+	}
 
 public slots:
-  void SetGizmos(Node* node);
+	void SetGizmos(Node *node);
 
-  void CacheEntireSequence();
+	void CacheEntireSequence();
 
-  void CacheSequenceInOut();
+	void CacheSequenceInOut();
 
-  void RequestStartEditingText()
-  {
-    GetViewerWidget()->RequestStartEditingText();
-  }
+	void RequestStartEditingText()
+	{
+		GetViewerWidget()->RequestStartEditingText();
+	}
 
 signals:
-  /**
+	/**
    * @brief Signal emitted when a new frame is loaded
    */
-  void TextureChanged(TexturePtr t);
+	void TextureChanged(TexturePtr t);
 
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::ColorProcessorChanged()
    */
-  void ColorProcessorChanged(ColorProcessorPtr processor);
+	void ColorProcessorChanged(ColorProcessorPtr processor);
 
-  /**
+	/**
    * @brief Wrapper for ViewerGLWidget::ColorManagerChanged()
    */
-  void ColorManagerChanged(ColorManager* color_manager);
+	void ColorManagerChanged(ColorManager *color_manager);
 
 protected:
-  void SetViewerWidget(ViewerWidget *vw);
+	void SetViewerWidget(ViewerWidget *vw);
 
 private slots:
-  void FocusedPanelChanged(PanelWidget *panel);
-
+	void FocusedPanelChanged(PanelWidget *panel);
 };
 
 }

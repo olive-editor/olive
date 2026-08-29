@@ -1,6 +1,7 @@
 /***
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -19,32 +20,33 @@
 #include "node/node.h"
 #include "node/color/colormanager/colormanager.h"
 
-namespace olive {
+namespace olive
+{
 
 class DespillNode : public Node {
- public:
-  DespillNode();
+public:
+	DespillNode();
 
-  NODE_DEFAULT_FUNCTIONS(DespillNode)
+	NODE_DEFAULT_FUNCTIONS(DespillNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kTextureInput;
-  static const QString kColorInput;
-  static const QString kMethodInput;
-  static const QString kPreserveLuminanceInput;
-
-
+	static const QString kTextureInput;
+	static const QString kColorInput;
+	static const QString kMethodInput;
+	static const QString kPreserveLuminanceInput;
 };
 
-}  // namespace olive
+} // namespace olive
 
-#endif  // DESPILLNODE_H
+#endif // DESPILLNODE_H

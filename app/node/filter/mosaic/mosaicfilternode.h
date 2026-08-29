@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,45 +24,46 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class MosaicFilterNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class MosaicFilterNode : public Node {
+	Q_OBJECT
 public:
-  MosaicFilterNode();
+	MosaicFilterNode();
 
-  NODE_DEFAULT_FUNCTIONS(MosaicFilterNode)
+	NODE_DEFAULT_FUNCTIONS(MosaicFilterNode)
 
-  virtual QString Name() const override
-  {
-    return tr("Mosaic");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Mosaic");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.mosaicfilter");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.mosaicfilter");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryFilter};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryFilter };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Apply a pixelated mosaic filter to video.");
-  }
+	virtual QString Description() const override
+	{
+		return tr("Apply a pixelated mosaic filter to video.");
+	}
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  static const QString kTextureInput;
-  static const QString kHorizInput;
-  static const QString kVertInput;
-
+	static const QString kTextureInput;
+	static const QString kHorizInput;
+	static const QString kVertInput;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,46 +25,46 @@
 #include <QTimer>
 #include <QWidget>
 
-namespace olive {
-
-class ScrollingLabel : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ScrollingLabel : public QWidget {
+	Q_OBJECT
 public:
-  ScrollingLabel(QWidget* parent = nullptr);
-  ScrollingLabel(const QStringList& text, QWidget* parent = nullptr);
+	ScrollingLabel(QWidget *parent = nullptr);
+	ScrollingLabel(const QStringList &text, QWidget *parent = nullptr);
 
-  void SetText(const QStringList& text);
+	void SetText(const QStringList &text);
 
-  void StartAnimating()
-  {
-    timer_.start();
-  }
+	void StartAnimating()
+	{
+		timer_.start();
+	}
 
-  void StopAnimating()
-  {
-    timer_.stop();
-  }
+	void StopAnimating()
+	{
+		timer_.stop();
+	}
 
 protected:
-  virtual void paintEvent(QPaintEvent* e) override;
+	virtual void paintEvent(QPaintEvent *e) override;
 
 private:
-  static void SetOpacityOfScanLine(uchar* scan_line, int width, int channels, double mul);
+	static void SetOpacityOfScanLine(uchar *scan_line, int width, int channels,
+									 double mul);
 
-  static const int kMinLineHeight;
+	static const int kMinLineHeight;
 
-  QStringList text_;
+	QStringList text_;
 
-  int text_height_;
+	int text_height_;
 
-  QTimer timer_;
+	QTimer timer_;
 
-  int animate_;
+	int animate_;
 
 private slots:
-  void AnimationUpdate();
-
+	void AnimationUpdate();
 };
 
 }

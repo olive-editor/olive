@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,109 +25,109 @@
 #include "panel/timebased/timebased.h"
 #include "widget/timelinewidget/timelinewidget.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief Panel container for a TimelineWidget
  */
-class TimelinePanel : public TimeBasedPanel
-{
-  Q_OBJECT
+class TimelinePanel : public TimeBasedPanel {
+	Q_OBJECT
 public:
-  TimelinePanel(const QString &name);
+	TimelinePanel(const QString &name);
 
-  inline TimelineWidget *timeline_widget() const
-  {
-    return static_cast<TimelineWidget*>(GetTimeBasedWidget());
-  }
+	inline TimelineWidget *timeline_widget() const
+	{
+		return static_cast<TimelineWidget *>(GetTimeBasedWidget());
+	}
 
-  void SplitAtPlayhead();
+	void SplitAtPlayhead();
 
-  virtual void LoadData(const Info &info) override;
-  virtual Info SaveData() const override;
+	virtual void LoadData(const Info &info) override;
+	virtual Info SaveData() const override;
 
-  virtual void SelectAll() override;
+	virtual void SelectAll() override;
 
-  virtual void DeselectAll() override;
+	virtual void DeselectAll() override;
 
-  virtual void RippleToIn() override;
+	virtual void RippleToIn() override;
 
-  virtual void RippleToOut() override;
+	virtual void RippleToOut() override;
 
-  virtual void EditToIn() override;
+	virtual void EditToIn() override;
 
-  virtual void EditToOut() override;
+	virtual void EditToOut() override;
 
-  virtual void DeleteSelected() override;
+	virtual void DeleteSelected() override;
 
-  virtual void RippleDelete() override;
+	virtual void RippleDelete() override;
 
-  virtual void IncreaseTrackHeight() override;
+	virtual void IncreaseTrackHeight() override;
 
-  virtual void DecreaseTrackHeight() override;
+	virtual void DecreaseTrackHeight() override;
 
-  virtual void ToggleLinks() override;
+	virtual void ToggleLinks() override;
 
-  virtual void PasteInsert() override;
+	virtual void PasteInsert() override;
 
-  virtual void DeleteInToOut() override;
+	virtual void DeleteInToOut() override;
 
-  virtual void RippleDeleteInToOut() override;
+	virtual void RippleDeleteInToOut() override;
 
-  virtual void ToggleSelectedEnabled() override;
+	virtual void ToggleSelectedEnabled() override;
 
-  virtual void SetColorLabel(int index) override;
+	virtual void SetColorLabel(int index) override;
 
-  virtual void NudgeLeft() override;
+	virtual void NudgeLeft() override;
 
-  virtual void NudgeRight() override;
+	virtual void NudgeRight() override;
 
-  virtual void MoveInToPlayhead() override;
+	virtual void MoveInToPlayhead() override;
 
-  virtual void MoveOutToPlayhead() override;
+	virtual void MoveOutToPlayhead() override;
 
-  virtual void RenameSelected() override;
+	virtual void RenameSelected() override;
 
-  void AddDefaultTransitionsToSelected()
-  {
-    timeline_widget()->AddDefaultTransitionsToSelected();
-  }
+	void AddDefaultTransitionsToSelected()
+	{
+		timeline_widget()->AddDefaultTransitionsToSelected();
+	}
 
-  void ShowSpeedDurationDialogForSelectedClips()
-  {
-    timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
-  }
+	void ShowSpeedDurationDialogForSelectedClips()
+	{
+		timeline_widget()->ShowSpeedDurationDialogForSelectedClips();
+	}
 
-  void NestSelectedClips()
-  {
-    timeline_widget()->NestSelectedClips();
-  }
+	void NestSelectedClips()
+	{
+		timeline_widget()->NestSelectedClips();
+	}
 
-  void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
+	void InsertFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
-  void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
+	void OverwriteFootageAtPlayhead(const QVector<ViewerOutput *> &footage);
 
-  const QVector<Block*>& GetSelectedBlocks() const
-  {
-    return timeline_widget()->GetSelectedBlocks();
-  }
+	const QVector<Block *> &GetSelectedBlocks() const
+	{
+		return timeline_widget()->GetSelectedBlocks();
+	}
 
-  Sequence *GetSequence() const
-  {
-    return dynamic_cast<Sequence*>(GetConnectedViewer());
-  }
+	Sequence *GetSequence() const
+	{
+		return dynamic_cast<Sequence *>(GetConnectedViewer());
+	}
 
 protected:
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
 signals:
-  void BlockSelectionChanged(const QVector<Block*>& selected_blocks);
+	void BlockSelectionChanged(const QVector<Block *> &selected_blocks);
 
-  void RequestCaptureStart(const TimeRange &time, const Track::Reference &track);
+	void RequestCaptureStart(const TimeRange &time,
+							 const Track::Reference &track);
 
-  void RevealViewerInProject(ViewerOutput *r);
-  void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
-
+	void RevealViewerInProject(ViewerOutput *r);
+	void RevealViewerInFootageViewer(ViewerOutput *r, const TimeRange &range);
 };
 
 }

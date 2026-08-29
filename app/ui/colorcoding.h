@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,47 +25,46 @@
 #include <olive/core/core.h>
 #include <QObject>
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class ColorCoding : public QObject
-{
-  Q_OBJECT
+class ColorCoding : public QObject {
+	Q_OBJECT
 public:
-  enum Code {
-    kRed,
-    kMaroon,
-    kOrange,
-    kBrown,
-    kYellow,
-    kOlive,
-    kLime,
-    kGreen,
-    kCyan,
-    kTeal,
-    kBlue,
-    kNavy,
-    kPink,
-    kPurple,
-    kSilver,
-    kGray
-  };
+	enum Code {
+		kRed,
+		kMaroon,
+		kOrange,
+		kBrown,
+		kYellow,
+		kOlive,
+		kLime,
+		kGreen,
+		kCyan,
+		kTeal,
+		kBlue,
+		kNavy,
+		kPink,
+		kPurple,
+		kSilver,
+		kGray
+	};
 
-  static QString GetColorName(int c);
+	static QString GetColorName(int c);
 
-  static Color GetColor(int c);
+	static Color GetColor(int c);
 
-  static Qt::GlobalColor GetUISelectorColor(const Color& c);
+	static Qt::GlobalColor GetUISelectorColor(const Color &c);
 
-  static const QVector<Color>& standard_colors()
-  {
-    return colors_;
-  }
+	static const QVector<Color> &standard_colors()
+	{
+		return colors_;
+	}
 
 private:
-  static QVector<Color> colors_;
-
+	static QVector<Color> colors_;
 };
 
 }

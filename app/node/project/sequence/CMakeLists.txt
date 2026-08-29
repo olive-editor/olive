@@ -16,8 +16,8 @@
 
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/project/sequence/sequence.h
-  node/project/sequence/sequence.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/project/sequence/sequence.h
+        node/project/sequence/sequence.cpp
+        PARENT_SCOPE
 )

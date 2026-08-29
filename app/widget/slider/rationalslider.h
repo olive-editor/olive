@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,112 +27,111 @@
 
 #include "base/decimalsliderbase.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
- /**
+/**
  * @brief A olive::rational based slider
  *
  * A slider that can display rationals as either timecode (drop or non-drop), a timestamp (frames),
  * or a float (seconds).
  */
-class RationalSlider : public DecimalSliderBase
-{
-  Q_OBJECT
+class RationalSlider : public DecimalSliderBase {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief enum containing the possibly display types
    */
-  enum DisplayType {
-    kTime,
-    kFloat,
-    kRational
-  };
+	enum DisplayType { kTime, kFloat, kRational };
 
-  RationalSlider(QWidget* parent = nullptr);
+	RationalSlider(QWidget *parent = nullptr);
 
-  /**
+	/**
    * @brief Returns the sliders value as a rational
    */
-  rational GetValue();
+	rational GetValue();
 
-  /**
+	/**
    * @brief Sets the sliders default value
    */
-  void SetDefaultValue(const rational& r);
+	void SetDefaultValue(const rational &r);
 
-  /**
+	/**
    * @brief Sets the sliders minimum value
    */
-  void SetMinimum(const rational& d);
+	void SetMinimum(const rational &d);
 
-  /**
+	/**
    * @brief Sets the sliders maximum value
    */
-  void SetMaximum(const rational& d);
+	void SetMaximum(const rational &d);
 
-  /**
+	/**
    * @brief Sets the display type of the slider
    */
-  void SetDisplayType(const DisplayType& type);
+	void SetDisplayType(const DisplayType &type);
 
-  /**
+	/**
    * @brief Set whether the user can change the display type or not
    */
-  void SetLockDisplayType(bool e);
+	void SetLockDisplayType(bool e);
 
-  /**
+	/**
    * @brief Get whether the user can change the display type or not
    */
-  bool GetLockDisplayType();
+	bool GetLockDisplayType();
 
-  /**
+	/**
    * @brief Hide display type in menu
    */
-  void DisableDisplayType(DisplayType type);
+	void DisableDisplayType(DisplayType type);
 
 public slots:
-  /**
+	/**
    * @brief Sets the sliders timebase which is also the minimum increment of the slider
    */
-  void SetTimebase(const rational& timebase);
+	void SetTimebase(const rational &timebase);
 
-  /**
+	/**
    * @brief Sets the sliders value
    */
-  void SetValue(const rational& d);
+	void SetValue(const rational &d);
 
 protected:
-  virtual QString ValueToString(const QVariant& v) const override;
+	virtual QString ValueToString(const QVariant &v) const override;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const override;
+	virtual QVariant StringToValue(const QString &s, bool *ok) const override;
 
-  virtual QVariant AdjustDragDistanceInternal(const QVariant &start, const double &drag) const override;
+	virtual QVariant
+	AdjustDragDistanceInternal(const QVariant &start,
+							   const double &drag) const override;
 
-  virtual void ValueSignalEvent(const QVariant& v) override;
+	virtual void ValueSignalEvent(const QVariant &v) override;
 
-  virtual bool ValueGreaterThan(const QVariant& lhs, const QVariant& rhs) const override;
+	virtual bool ValueGreaterThan(const QVariant &lhs,
+								  const QVariant &rhs) const override;
 
-  virtual bool ValueLessThan(const QVariant& lhs, const QVariant& rhs) const override;
+	virtual bool ValueLessThan(const QVariant &lhs,
+							   const QVariant &rhs) const override;
 
 signals:
-  void ValueChanged(rational);
+	void ValueChanged(rational);
 
 private slots:
-  void ShowDisplayTypeMenu();
+	void ShowDisplayTypeMenu();
 
-  void SetDisplayTypeFromMenu();
+	void SetDisplayTypeFromMenu();
 
 private:
-  DisplayType display_type_;
+	DisplayType display_type_;
 
-  rational timebase_;
+	rational timebase_;
 
-  bool lock_display_type_;
+	bool lock_display_type_;
 
-  QVector<DisplayType> disabled_;
-
+	QVector<DisplayType> disabled_;
 };
 
 }

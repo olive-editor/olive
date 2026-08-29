@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,53 +29,54 @@
 #include "task/render/render.h"
 #include "task/task.h"
 
-namespace olive {
-
-class ExportTask : public RenderTask
+namespace olive
 {
-  Q_OBJECT
+
+class ExportTask : public RenderTask {
+	Q_OBJECT
 public:
-  ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager, const EncodingParams &params);
+	ExportTask(ViewerOutput *viewer_node, ColorManager *color_manager,
+			   const EncodingParams &params);
 
 protected:
-  virtual bool Run() override;
+	virtual bool Run() override;
 
-  virtual bool FrameDownloaded(FramePtr frame, const rational &time) override;
+	virtual bool FrameDownloaded(FramePtr frame, const rational &time) override;
 
-  virtual bool AudioDownloaded(const TimeRange& range, const SampleBuffer &samples) override;
+	virtual bool AudioDownloaded(const TimeRange &range,
+								 const SampleBuffer &samples) override;
 
-  virtual bool EncodeSubtitle(const SubtitleBlock *sub) override;
+	virtual bool EncodeSubtitle(const SubtitleBlock *sub) override;
 
-  virtual bool TwoStepFrameRendering() const override
-  {
-    return false;
-  }
+	virtual bool TwoStepFrameRendering() const override
+	{
+		return false;
+	}
 
 private:
-  bool WriteAudioLoop(const TimeRange &time, const SampleBuffer &samples);
+	bool WriteAudioLoop(const TimeRange &time, const SampleBuffer &samples);
 
-  ProjectCopier *copier_;
+	ProjectCopier *copier_;
 
-  QHash<rational, FramePtr> time_map_;
+	QHash<rational, FramePtr> time_map_;
 
-  QHash<TimeRange, SampleBuffer> audio_map_;
+	QHash<TimeRange, SampleBuffer> audio_map_;
 
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  EncodingParams params_;
+	EncodingParams params_;
 
-  std::shared_ptr<Encoder> encoder_;
+	std::shared_ptr<Encoder> encoder_;
 
-  std::shared_ptr<Encoder> subtitle_encoder_;
+	std::shared_ptr<Encoder> subtitle_encoder_;
 
-  ColorProcessorPtr color_processor_;
+	ColorProcessorPtr color_processor_;
 
-  int64_t frame_time_;
+	int64_t frame_time_;
 
-  rational audio_time_;
+	rational audio_time_;
 
-  TimeRange export_range_;
-
+	TimeRange export_range_;
 };
 
 }

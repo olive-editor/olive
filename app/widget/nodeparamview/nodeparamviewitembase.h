@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,72 +27,76 @@
 #include "nodeparamviewitemtitlebar.h"
 #include "node/node.h"
 
-namespace olive {
-
-class NodeParamViewItemBase : public QDockWidget
+namespace olive
 {
-  Q_OBJECT
+
+class NodeParamViewItemBase : public QDockWidget {
+	Q_OBJECT
 public:
-  NodeParamViewItemBase(QWidget* parent = nullptr);
+	NodeParamViewItemBase(QWidget *parent = nullptr);
 
-  void SetHighlighted(bool e)
-  {
-    highlighted_ = e;
+	void SetHighlighted(bool e)
+	{
+		highlighted_ = e;
 
-    update();
-  }
+		update();
+	}
 
-  bool IsHighlighted() const { return highlighted_; }
+	bool IsHighlighted() const
+	{
+		return highlighted_;
+	}
 
-  bool IsExpanded() const;
+	bool IsExpanded() const;
 
-  static QString GetTitleBarTextFromNode(Node *n);
+	static QString GetTitleBarTextFromNode(Node *n);
 
 public slots:
-  void SetExpanded(bool e);
+	void SetExpanded(bool e);
 
-  void ToggleExpanded()
-  {
-    SetExpanded(!IsExpanded());
-  }
+	void ToggleExpanded()
+	{
+		SetExpanded(!IsExpanded());
+	}
 
 signals:
-  void PinToggled(bool e);
+	void PinToggled(bool e);
 
-  void ExpandedChanged(bool e);
+	void ExpandedChanged(bool e);
 
-  void Moved();
+	void Moved();
 
-  void Clicked();
+	void Clicked();
 
 protected:
-  void SetBody(QWidget *body);
+	void SetBody(QWidget *body);
 
-  virtual void paintEvent(QPaintEvent *event) override;
+	virtual void paintEvent(QPaintEvent *event) override;
 
-  NodeParamViewItemTitleBar* title_bar() const
-  {
-    return title_bar_;
-  }
+	NodeParamViewItemTitleBar *title_bar() const
+	{
+		return title_bar_;
+	}
 
-  virtual void changeEvent(QEvent *e) override;
+	virtual void changeEvent(QEvent *e) override;
 
-  virtual void moveEvent(QMoveEvent *event) override;
+	virtual void moveEvent(QMoveEvent *event) override;
 
-  virtual void mousePressEvent(QMouseEvent *e) override;
+	virtual void mousePressEvent(QMouseEvent *e) override;
 
 protected slots:
-  virtual void Retranslate(){}
+	virtual void Retranslate()
+	{
+	}
 
 private:
-  NodeParamViewItemTitleBar* title_bar_;
+	NodeParamViewItemTitleBar *title_bar_;
 
-  QWidget *body_;
+	QWidget *body_;
 
-  QWidget *hidden_body_;
+	QWidget *hidden_body_;
 
-  bool highlighted_;
-
+	bool highlighted_;
 };
 
 }

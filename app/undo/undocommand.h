@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,78 +28,85 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 class Project;
 
-class UndoCommand
-{
+class UndoCommand {
 public:
-  UndoCommand();
+	UndoCommand();
 
-  virtual ~UndoCommand(){}
+	virtual ~UndoCommand()
+	{
+	}
 
-  DISABLE_COPY_MOVE(UndoCommand)
+	DISABLE_COPY_MOVE(UndoCommand)
 
-  bool has_prepared() const {return prepared_;}
-  void set_prepared(bool e) {prepared_ = true;}
+	bool has_prepared() const
+	{
+		return prepared_;
+	}
+	void set_prepared(bool e)
+	{
+		prepared_ = true;
+	}
 
-  void redo_now();
-  void undo_now();
+	void redo_now();
+	void undo_now();
 
-  void redo_and_set_modified();
-  void undo_and_set_modified();
+	void redo_and_set_modified();
+	void undo_and_set_modified();
 
-  virtual Project* GetRelevantProject() const = 0;
+	virtual Project *GetRelevantProject() const = 0;
 
 protected:
-  virtual void prepare(){}
-  virtual void redo() = 0;
-  virtual void undo() = 0;
+	virtual void prepare()
+	{
+	}
+	virtual void redo() = 0;
+	virtual void undo() = 0;
 
 private:
-  bool modified_;
+	bool modified_;
 
-  Project* project_;
+	Project *project_;
 
-  bool prepared_;
+	bool prepared_;
 
-  bool done_;
-
+	bool done_;
 };
 
-class MultiUndoCommand : public UndoCommand
-{
+class MultiUndoCommand : public UndoCommand {
 public:
-  MultiUndoCommand() = default;
+	MultiUndoCommand() = default;
 
-  virtual Project* GetRelevantProject() const override
-  {
-    return nullptr;
-  }
+	virtual Project *GetRelevantProject() const override
+	{
+		return nullptr;
+	}
 
-  void add_child(UndoCommand* command)
-  {
-    children_.push_back(command);
-  }
+	void add_child(UndoCommand *command)
+	{
+		children_.push_back(command);
+	}
 
-  int child_count() const
-  {
-    return children_.size();
-  }
+	int child_count() const
+	{
+		return children_.size();
+	}
 
-  UndoCommand* child(int i) const
-  {
-    return children_[i];
-  }
+	UndoCommand *child(int i) const
+	{
+		return children_[i];
+	}
 
 protected:
-  virtual void redo() override;
-  virtual void undo() override;
+	virtual void redo() override;
+	virtual void undo() override;
 
 private:
-  std::vector<UndoCommand*> children_;
-
+	std::vector<UndoCommand *> children_;
 };
 
 }

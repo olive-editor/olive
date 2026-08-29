@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,59 +25,60 @@
 #include "dialog/progress/progress.h"
 #include "task/task.h"
 
-namespace olive {
-
-class TaskDialog : public ProgressDialog
+namespace olive
 {
-  Q_OBJECT
+
+class TaskDialog : public ProgressDialog {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief TaskDialog Constructor
    *
    * Creates a TaskDialog. The TaskDialog takes ownership of the Task and will destroy it on close.
    * Connect to the Task::Succeeded() if you want to retrieve information from the task before it
    * gets destroyed.
    */
-  TaskDialog(Task *task, const QString &title, QWidget* parent = nullptr);
+	TaskDialog(Task *task, const QString &title, QWidget *parent = nullptr);
 
-  /**
+	/**
    * @brief Set whether TaskDialog should destroy itself (and the task) when it's closed
    *
    * This is TRUE by default.
    */
-  void SetDestroyOnClose(bool e)
-  {
-    destroy_on_close_ = e;
-  }
+	void SetDestroyOnClose(bool e)
+	{
+		destroy_on_close_ = e;
+	}
 
-  /**
+	/**
    * @brief Returns this dialog's task
    */
-  Task* GetTask() const
-  {
-    return task_;
-  }
+	Task *GetTask() const
+	{
+		return task_;
+	}
 
 protected:
-  virtual void showEvent(QShowEvent* e) override;
+	virtual void showEvent(QShowEvent *e) override;
 
-  virtual void closeEvent(QCloseEvent* e) override;
+	virtual void closeEvent(QCloseEvent *e) override;
 
 signals:
-  void TaskSucceeded(Task* task);
+	void TaskSucceeded(Task *task);
 
-  void TaskFailed(Task* task);
+	void TaskFailed(Task *task);
 
 private:
-  Task* task_;
+	Task *task_;
 
-  bool destroy_on_close_;
+	bool destroy_on_close_;
 
-  bool already_shown_;
+	bool already_shown_;
+
+	bool task_finished_;
 
 private slots:
-  void TaskFinished();
-
+	void TaskFinished();
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,34 +24,34 @@
 
 #include "colorswatchwidget.h"
 
-namespace olive {
-
-class ColorGradientWidget : public ColorSwatchWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ColorGradientWidget : public ColorSwatchWidget {
+	Q_OBJECT
 public:
-  ColorGradientWidget(Qt::Orientation orientation, QWidget* parent = nullptr);
+	ColorGradientWidget(Qt::Orientation orientation, QWidget *parent = nullptr);
 
 protected:
-  virtual Color GetColorFromScreenPos(const QPoint& p) const override;
+	virtual Color GetColorFromScreenPos(const QPoint &p) const override;
 
-  virtual void paintEvent(QPaintEvent* e) override;
+	virtual void paintEvent(QPaintEvent *e) override;
 
-  virtual void SelectedColorChangedEvent(const Color& c, bool external) override;
+	virtual void SelectedColorChangedEvent(const Color &c,
+										   bool external) override;
 
 private:
-  static Color LerpColor(const Color& a, const Color& b, int i, int max);
+	static Color LerpColor(const Color &a, const Color &b, int i, int max);
 
-  QPixmap cached_gradient_;
+	QPixmap cached_gradient_;
 
-  Qt::Orientation orientation_;
+	Qt::Orientation orientation_;
 
-  Color start_;
+	Color start_;
 
-  Color end_;
+	Color end_;
 
-  float val_;
-
+	float val_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -34,7 +35,8 @@
 #include "widget/projectexplorer/projectexplorernavigation.h"
 #include "widget/projecttoolbar/projecttoolbar.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A widget for browsing through a Project structure.
@@ -44,23 +46,22 @@ namespace olive {
  *
  * This widget contains three views, tree view, list view, and icon view. These can be switched at any time.
  */
-class ProjectExplorer : public QWidget
-{
-  Q_OBJECT
+class ProjectExplorer : public QWidget {
+	Q_OBJECT
 public:
-  ProjectExplorer(QWidget* parent);
+	ProjectExplorer(QWidget *parent);
 
-  const ProjectToolbar::ViewType& view_type() const;
+	const ProjectToolbar::ViewType &view_type() const;
 
-  Project* project() const;
-  void set_project(Project* p);
+	Project *project() const;
+	void set_project(Project *p);
 
-  Folder *get_root() const;
-  void set_root(Folder *item);
+	Folder *get_root() const;
+	void set_root(Folder *item);
 
-  QVector<Node *> SelectedItems() const;
+	QVector<Node *> SelectedItems() const;
 
-  /**
+	/**
    * @brief Use a heuristic to determine which (if any) folder is selected
    *
    * Generally for some import/adding processes, we assume that if a folder is selected, the user probably wants to
@@ -72,51 +73,51 @@ public:
    * A folder that's heuristically been determined as "selected", or the root directory if none, or nullptr if no
    * project is open.
    */
-  Folder* GetSelectedFolder() const;
+	Folder *GetSelectedFolder() const;
 
-  /**
+	/**
    * @brief Access the ViewModel model of the project
    */
-  ProjectViewModel* model();
+	ProjectViewModel *model();
 
-  void SelectAll();
+	void SelectAll();
 
-  void DeselectAll();
+	void DeselectAll();
 
-  void DeleteSelected();
+	void DeleteSelected();
 
-  bool SelectItem(Node *n, bool deselect_all_first = true);
+	bool SelectItem(Node *n, bool deselect_all_first = true);
 
 public slots:
-  void set_view_type(ProjectToolbar::ViewType type);
+	void set_view_type(ProjectToolbar::ViewType type);
 
-  void Edit(Node* item);
+	void Edit(Node *item);
 
-  void RenameSelectedItem();
+	void RenameSelectedItem();
 
-  void SetSearchFilter(const QString &s);
+	void SetSearchFilter(const QString &s);
 
 signals:
-  /**
+	/**
    * @brief Emitted when an Item is double clicked
    *
    * @param item
    *
    * The Item that was double clicked, or nullptr if empty area was double clicked
    */
-  void DoubleClickedItem(Node* item);
+	void DoubleClickedItem(Node *item);
 
-  void SelectionChanged(const QVector<Node *> &selected);
+	void SelectionChanged(const QVector<Node *> &selected);
 
 private:
-  /**
+	/**
    * @brief Get all the blocks that solely rely on an input node
    *
    * Ignores blocks that depend on multiple inputs
    */
-  QList<Block*> GetFootageBlocks(QList<Node*> nodes);
+	QList<Block *> GetFootageBlocks(QList<Node *> nodes);
 
-  /**
+	/**
    * @brief Simple convenience function for adding a view to this stacked widget
    *
    * Mainly for use in the constructor. Adds the view, connects its signals/slots, and sets the model.
@@ -125,9 +126,9 @@ private:
    *
    * View to add to the stack
    */
-  void AddView(QAbstractItemView* view);
+	void AddView(QAbstractItemView *view);
 
-  /**
+	/**
    * @brief Browse to a specific folder index in the model
    *
    * Only affects list_view_ and icon_view_.
@@ -136,61 +137,70 @@ private:
    *
    * Either an invalid index to return to the project root, or an index to a valid Folder object.
    */
-  void BrowseToFolder(const QModelIndex& index);
+	void BrowseToFolder(const QModelIndex &index);
 
-  int ConfirmItemDeletion(Node *item);
+	int ConfirmItemDeletion(Node *item);
 
-  bool DeleteItemsInternal(const QVector<Node *> &selected, bool &check_if_item_is_in_use, MultiUndoCommand *command);
+	bool DeleteItemsInternal(const QVector<Node *> &selected,
+							 bool &check_if_item_is_in_use,
+							 MultiUndoCommand *command);
 
-  static QString GetHumanReadableNodeName(Node* node);
+	static QString GetHumanReadableNodeName(Node *node);
 
-  void UpdateNavBarText();
+	void UpdateNavBarText();
 
-  /**
+	/**
    * @brief Get the currently active QAbstractItemView
    */
-  QAbstractItemView* CurrentView() const;
+	QAbstractItemView *CurrentView() const;
 
-  QStackedWidget* stacked_widget_;
+	QStackedWidget *stacked_widget_;
 
-  ProjectExplorerNavigation* nav_bar_;
+	ProjectExplorerNavigation *nav_bar_;
 
-  ProjectExplorerIconView* icon_view_;
-  ProjectExplorerListView* list_view_;
-  ProjectExplorerTreeView* tree_view_;
+	ProjectExplorerIconView *icon_view_;
+	ProjectExplorerListView *list_view_;
+	ProjectExplorerTreeView *tree_view_;
 
-  ProjectToolbar::ViewType view_type_;
+	ProjectToolbar::ViewType view_type_;
 
-  QSortFilterProxyModel sort_model_;
-  ProjectViewModel model_;
+	QSortFilterProxyModel sort_model_;
+	ProjectViewModel model_;
 
-  QVector<Node*> context_menu_items_;
+	QVector<Node *> context_menu_items_;
 
 private slots:
-  void ViewEmptyAreaDoubleClickedSlot();
+	void ViewEmptyAreaDoubleClickedSlot();
 
-  void ItemDoubleClickedSlot(const QModelIndex& index);
+	void ItemDoubleClickedSlot(const QModelIndex &index);
 
-  void SizeChangedSlot(int s);
+	void SizeChangedSlot(int s);
 
-  void DirUpSlot();
+	void DirUpSlot();
 
-  void ShowContextMenu();
+	void ShowContextMenu();
 
-  void ShowItemPropertiesDialog();
+	void ShowItemPropertiesDialog();
 
-  void RevealSelectedFootage();
+	void RevealSelectedFootage();
 
-  void ReplaceSelectedFootage();
+	void ReplaceSelectedFootage();
 
-  void OpenContextMenuItemInNewTab();
+	void OpenContextMenuItemInNewTab();
 
-  void OpenContextMenuItemInNewWindow();
+	void OpenContextMenuItemInNewWindow();
 
-  void ContextMenuStartProxy(QAction* a);
+	void GenerateProxiesForSelectedFootage();
 
-  void ViewSelectionChanged();
+	void SetSelectedFootageProxyEnabled(bool enabled);
 
+	void RevealProxyForSelectedFootage();
+
+	void DeleteProxiesForSelectedFootage();
+
+	void ShowProxyDialogForSelectedFootage();
+
+	void ViewSelectionChanged();
 };
 
 }

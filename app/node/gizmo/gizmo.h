@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,30 +27,43 @@
 
 #include "node/globals.h"
 
-namespace olive {
-
-class NodeGizmo : public QObject
+namespace olive
 {
-  Q_OBJECT
+
+class NodeGizmo : public QObject {
+	Q_OBJECT
 public:
-  explicit NodeGizmo(QObject *parent = nullptr);
-  virtual ~NodeGizmo() override;
+	explicit NodeGizmo(QObject *parent = nullptr);
+	virtual ~NodeGizmo() override;
 
-  virtual void Draw(QPainter *p) const {}
+	virtual void Draw(QPainter *p) const
+	{
+	}
 
-  const NodeGlobals &GetGlobals() const { return globals_; }
-  void SetGlobals(const NodeGlobals &globals) { globals_ = globals; }
+	const NodeGlobals &GetGlobals() const
+	{
+		return globals_;
+	}
+	void SetGlobals(const NodeGlobals &globals)
+	{
+		globals_ = globals;
+	}
 
-  bool IsVisible() const { return visible_; }
-  void SetVisible(bool e) { visible_ = e; }
+	bool IsVisible() const
+	{
+		return visible_;
+	}
+	void SetVisible(bool e)
+	{
+		visible_ = e;
+	}
 
 signals:
 
 private:
-  NodeGlobals globals_;
+	NodeGlobals globals_;
 
-  bool visible_;
-
+	bool visible_;
 };
 
 }

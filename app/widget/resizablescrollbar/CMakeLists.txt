@@ -15,10 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  widget/resizablescrollbar/resizablescrollbar.cpp
-  widget/resizablescrollbar/resizablescrollbar.h
-  widget/resizablescrollbar/resizabletimelinescrollbar.cpp
-  widget/resizablescrollbar/resizabletimelinescrollbar.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        widget/resizablescrollbar/resizablescrollbar.cpp
+        widget/resizablescrollbar/resizablescrollbar.h
+        widget/resizablescrollbar/resizabletimelinescrollbar.cpp
+        widget/resizablescrollbar/resizabletimelinescrollbar.h
+        PARENT_SCOPE
 )

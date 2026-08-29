@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,49 +28,53 @@
 #include "node/inputdragger.h"
 #include "node/node.h"
 
-namespace olive {
-
-class ShapeNodeBase : public GeneratorWithMerge
+namespace olive
 {
-  Q_OBJECT
+
+class ShapeNodeBase : public GeneratorWithMerge {
+	Q_OBJECT
 public:
-  ShapeNodeBase(bool create_color_input = true);
+	ShapeNodeBase(bool create_color_input = true);
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals) override;
 
-  void SetRect(QRectF rect, const VideoParams &sequence_res, MultiUndoCommand *command);
+	void SetRect(QRectF rect, const VideoParams &sequence_res,
+				 MultiUndoCommand *command);
 
-  static const QString kPositionInput;
-  static const QString kSizeInput;
-  static const QString kColorInput;
+	static const QString kPositionInput;
+	static const QString kSizeInput;
+	static const QString kColorInput;
 
 protected:
-  PolygonGizmo *poly_gizmo() const
-  {
-    return poly_gizmo_;
-  }
+	PolygonGizmo *poly_gizmo() const
+	{
+		return poly_gizmo_;
+	}
 
 protected slots:
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers) override;
+	virtual void GizmoDragMove(double x, double y,
+							   const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  QVector2D GenerateGizmoAnchor(const QVector2D &pos, const QVector2D &size, NodeGizmo *gizmo, QVector2D *pt = nullptr) const;
+	QVector2D GenerateGizmoAnchor(const QVector2D &pos, const QVector2D &size,
+								  NodeGizmo *gizmo,
+								  QVector2D *pt = nullptr) const;
 
-  bool IsGizmoTop(NodeGizmo *g) const;
-  bool IsGizmoBottom(NodeGizmo *g) const;
-  bool IsGizmoLeft(NodeGizmo *g) const;
-  bool IsGizmoRight(NodeGizmo *g) const;
-  bool IsGizmoHorizontalCenter(NodeGizmo *g) const;
-  bool IsGizmoVerticalCenter(NodeGizmo *g) const;
-  bool IsGizmoCorner(NodeGizmo *g) const;
+	bool IsGizmoTop(NodeGizmo *g) const;
+	bool IsGizmoBottom(NodeGizmo *g) const;
+	bool IsGizmoLeft(NodeGizmo *g) const;
+	bool IsGizmoRight(NodeGizmo *g) const;
+	bool IsGizmoHorizontalCenter(NodeGizmo *g) const;
+	bool IsGizmoVerticalCenter(NodeGizmo *g) const;
+	bool IsGizmoCorner(NodeGizmo *g) const;
 
-  // Gizmo variables
-  static const int kGizmoWholeRect = kGizmoScaleCount;
-  PointGizmo *point_gizmo_[kGizmoScaleCount];
-  PolygonGizmo *poly_gizmo_;
-
+	// Gizmo variables
+	static const int kGizmoWholeRect = kGizmoScaleCount;
+	PointGizmo *point_gizmo_[kGizmoScaleCount];
+	PolygonGizmo *poly_gizmo_;
 };
 
 }

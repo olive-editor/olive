@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,56 +31,55 @@
 #include "nodeviewitem.h"
 #include "undo/undostack.h"
 
-namespace olive {
-
-class NodeViewScene : public QGraphicsScene
+namespace olive
 {
-  Q_OBJECT
+
+class NodeViewScene : public QGraphicsScene {
+	Q_OBJECT
 public:
-  NodeViewScene(QObject *parent = nullptr);
+	NodeViewScene(QObject *parent = nullptr);
 
-  void SelectAll();
-  void DeselectAll();
+	void SelectAll();
+	void DeselectAll();
 
-  QVector<NodeViewItem*> GetSelectedItems() const;
+	QVector<NodeViewItem *> GetSelectedItems() const;
 
-  const QHash<Node*, NodeViewContext*> &context_map() const
-  {
-    return context_map_;
-  }
+	const QHash<Node *, NodeViewContext *> &context_map() const
+	{
+		return context_map_;
+	}
 
-  Qt::Orientation GetFlowOrientation() const;
+	Qt::Orientation GetFlowOrientation() const;
 
-  NodeViewCommon::FlowDirection GetFlowDirection() const
-  {
-    return direction_;
-  }
+	NodeViewCommon::FlowDirection GetFlowDirection() const
+	{
+		return direction_;
+	}
 
-  void SetFlowDirection(NodeViewCommon::FlowDirection direction);
+	void SetFlowDirection(NodeViewCommon::FlowDirection direction);
 
-  bool GetEdgesAreCurved() const
-  {
-    return curved_edges_;
-  }
+	bool GetEdgesAreCurved() const
+	{
+		return curved_edges_;
+	}
 
 public slots:
-  NodeViewContext *AddContext(Node *node);
-  void RemoveContext(Node *node);
+	NodeViewContext *AddContext(Node *node);
+	void RemoveContext(Node *node);
 
-  /**
+	/**
    * @brief Set whether edges in this scene should be curved or not
    */
-  void SetEdgesAreCurved(bool curved);
+	void SetEdgesAreCurved(bool curved);
 
 private:
-  QHash<Node*, NodeViewContext*> context_map_;
+	QHash<Node *, NodeViewContext *> context_map_;
 
-  Project* graph_;
+	Project *graph_;
 
-  NodeViewCommon::FlowDirection direction_;
+	NodeViewCommon::FlowDirection direction_;
 
-  bool curved_edges_;
-
+	bool curved_edges_;
 };
 
 }

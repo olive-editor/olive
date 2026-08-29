@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,13 +21,14 @@
 
 #include "loadbasetask.h"
 
-namespace olive {
-
-ProjectLoadBaseTask::ProjectLoadBaseTask(const QString &filename) :
-  project_(nullptr),
-  filename_(filename)
+namespace olive
 {
-  SetTitle(tr("Loading '%1'").arg(filename));
+
+ProjectLoadBaseTask::ProjectLoadBaseTask(const QString &filename)
+	: project_(nullptr)
+	, filename_(filename)
+{
+	SetTitle(tr("Loading '%1'").arg(filename));
 }
 
 }

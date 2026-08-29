@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,32 +25,31 @@
 #include "node/input/multicam/multicamnode.h"
 #include "widget/viewer/viewerdisplay.h"
 
-namespace olive {
-
-class MulticamDisplay : public ViewerDisplayWidget
+namespace olive
 {
-  Q_OBJECT
-public:
-  explicit MulticamDisplay(QWidget *parent = nullptr);
 
-  void SetMulticamNode(MultiCamNode *n);
+class MulticamDisplay : public ViewerDisplayWidget {
+	Q_OBJECT
+public:
+	explicit MulticamDisplay(QWidget *parent = nullptr);
+
+	void SetMulticamNode(MultiCamNode *n);
 
 protected:
-  virtual void OnPaint() override;
+	virtual void OnPaint() override;
 
-  virtual void OnDestroy() override;
+	virtual void OnDestroy() override;
 
-  virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v) override;
+	virtual TexturePtr LoadCustomTextureFromFrame(const QVariant &v) override;
 
 private:
-  static QString GenerateShaderCode(int rows, int cols);
+	static QString GenerateShaderCode(int rows, int cols);
 
-  MultiCamNode *node_;
+	MultiCamNode *node_;
 
-  QVariant shader_;
-  int rows_;
-  int cols_;
-
+	QVariant shader_;
+	int rows_;
+	int cols_;
 };
 
 }

@@ -15,16 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  window/mainwindow/mainmenu.h
-  window/mainwindow/mainmenu.cpp
-  window/mainwindow/mainstatusbar.h
-  window/mainwindow/mainstatusbar.cpp
-  window/mainwindow/mainwindow.h
-  window/mainwindow/mainwindow.cpp
-  window/mainwindow/mainwindowlayoutinfo.h
-  window/mainwindow/mainwindowlayoutinfo.cpp
-  window/mainwindow/mainwindowundo.h
-  window/mainwindow/mainwindowundo.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        window/mainwindow/mainmenu.h
+        window/mainwindow/mainmenu.cpp
+        window/mainwindow/mainstatusbar.h
+        window/mainwindow/mainstatusbar.cpp
+        window/mainwindow/mainwindow.h
+        window/mainwindow/mainwindow.cpp
+        window/mainwindow/mainwindowlayoutinfo.h
+        window/mainwindow/mainwindowlayoutinfo.cpp
+        window/mainwindow/mainwindowundo.h
+        window/mainwindow/mainwindowundo.cpp
+        PARENT_SCOPE
 )

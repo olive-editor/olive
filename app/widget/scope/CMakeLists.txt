@@ -16,9 +16,10 @@
 
 add_subdirectory(histogram)
 add_subdirectory(scopebase)
+add_subdirectory(vectorscope)
 add_subdirectory(waveform)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

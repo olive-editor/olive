@@ -15,12 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/generator/text/textv1.cpp
-  node/generator/text/textv1.h
-  node/generator/text/textv2.cpp
-  node/generator/text/textv2.h
-  node/generator/text/textv3.cpp
-  node/generator/text/textv3.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/generator/text/textv1.cpp
+        node/generator/text/textv1.h
+        node/generator/text/textv2.cpp
+        node/generator/text/textv2.h
+        node/generator/text/textv3.cpp
+        node/generator/text/textv3.h
+        PARENT_SCOPE
 )

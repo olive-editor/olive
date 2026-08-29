@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,37 +27,36 @@
 
 #include "ui/humanstrings.h"
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class SampleRateComboBox : public QComboBox
-{
-  Q_OBJECT
+class SampleRateComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  SampleRateComboBox(QWidget* parent = nullptr) :
-    QComboBox(parent)
-  {
-    foreach (int sr, AudioParams::kSupportedSampleRates) {
-      this->addItem(HumanStrings::SampleRateToString(sr), sr);
-    }
-  }
+	SampleRateComboBox(QWidget *parent = nullptr)
+		: QComboBox(parent)
+	{
+		foreach (int sr, AudioParams::kSupportedSampleRates) {
+			this->addItem(HumanStrings::SampleRateToString(sr), sr);
+		}
+	}
 
-  int GetSampleRate() const
-  {
-    return this->currentData().toInt();
-  }
+	int GetSampleRate() const
+	{
+		return this->currentData().toInt();
+	}
 
-  void SetSampleRate(int rate)
-  {
-    for (int i=0; i<this->count(); i++) {
-      if (this->itemData(i).toInt() == rate) {
-        this->setCurrentIndex(i);
-        break;
-      }
-    }
-  }
-
+	void SetSampleRate(int rate)
+	{
+		for (int i = 0; i < this->count(); i++) {
+			if (this->itemData(i).toInt() == rate) {
+				this->setCurrentIndex(i);
+				break;
+			}
+		}
+	}
 };
 
 }

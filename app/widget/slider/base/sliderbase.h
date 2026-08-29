@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,93 +28,95 @@
 #include "sliderladder.h"
 #include "widget/focusablelineedit/focusablelineedit.h"
 
-namespace olive {
-
-class SliderBase : public QStackedWidget
+namespace olive
 {
-  Q_OBJECT
+
+class SliderBase : public QStackedWidget {
+	Q_OBJECT
 public:
-  SliderBase(QWidget* parent = nullptr);
+	SliderBase(QWidget *parent = nullptr);
 
-  void SetAlignment(Qt::Alignment alignment);
+	void SetAlignment(Qt::Alignment alignment);
 
-  bool IsTristate() const;
-  void SetTristate();
+	bool IsTristate() const;
+	void SetTristate();
 
-  void SetFormat(const QString& s, const bool plural = false);
-  void ClearFormat();
+	void SetFormat(const QString &s, const bool plural = false);
+	void ClearFormat();
 
-  bool IsFormatPlural() const;
+	bool IsFormatPlural() const;
 
-  void SetDefaultValue(const QVariant& v);
+	void SetDefaultValue(const QVariant &v);
 
-  QString GetFormattedValueToString(const QVariant& v) const;
+	QString GetFormattedValueToString(const QVariant &v) const;
 
-  void InsertLabelSubstitution(const QVariant &value, const QString &label)
-  {
-    label_substitutions_.append({value, label});
-    UpdateLabel();
-  }
+	void InsertLabelSubstitution(const QVariant &value, const QString &label)
+	{
+		label_substitutions_.append({ value, label });
+		UpdateLabel();
+	}
 
-  void SetColor(const QColor &c)
-  {
-    label_->SetColor(c);
-  }
+	void SetColor(const QColor &c)
+	{
+		label_->SetColor(c);
+	}
 
 public slots:
-  void ShowEditor();
+	void ShowEditor();
 
 protected slots:
-  void UpdateLabel();
+	void UpdateLabel();
 
 protected:
-  const QVariant& GetValueInternal() const;
+	const QVariant &GetValueInternal() const;
 
-  void SetValueInternal(const QVariant& v);
+	void SetValueInternal(const QVariant &v);
 
-  QString GetFormat() const;
+	QString GetFormat() const;
 
-  QString GetFormattedValueToString() const;
+	QString GetFormattedValueToString() const;
 
-  SliderLabel* label() { return label_; }
+	SliderLabel *label()
+	{
+		return label_;
+	}
 
-  virtual QString ValueToString(const QVariant &v) const = 0;
+	virtual QString ValueToString(const QVariant &v) const = 0;
 
-  virtual QVariant StringToValue(const QString& s, bool* ok) const = 0;
+	virtual QVariant StringToValue(const QString &s, bool *ok) const = 0;
 
-  virtual QVariant AdjustValue(const QVariant& value) const;
+	virtual QVariant AdjustValue(const QVariant &value) const;
 
-  virtual bool CanSetValue() const;
+	virtual bool CanSetValue() const;
 
-  virtual void ValueSignalEvent(const QVariant& value) = 0;
+	virtual void ValueSignalEvent(const QVariant &value) = 0;
 
-  virtual void changeEvent(QEvent* e) override;
+	virtual void changeEvent(QEvent *e) override;
 
 private:
-  bool GetLabelSubstitution(const QVariant &v, QString *out) const;
+	bool GetLabelSubstitution(const QVariant &v, QString *out) const;
 
-  SliderLabel* label_;
+	SliderLabel *label_;
 
-  FocusableLineEdit* editor_;
+	FocusableLineEdit *editor_;
 
-  QVariant value_;
-  QVariant default_value_;
+	QVariant value_;
+	QVariant default_value_;
 
-  bool tristate_;
+	bool tristate_;
 
-  QString custom_format_;
+	QString custom_format_;
 
-  bool format_plural_;
+	bool format_plural_;
 
-  QVector<QPair<QVariant, QString> > label_substitutions_;
+	QVector<QPair<QVariant, QString>> label_substitutions_;
 
 private slots:
-  void LineEditConfirmed();
+	void LineEditConfirmed();
 
-  void LineEditCancelled();
+	void LineEditCancelled();
 
-  void ResetValue();
-
+	void ResetValue();
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -22,30 +23,35 @@
 
 #include "task/taskmanager.h"
 
-namespace olive {
-
-TaskManagerPanel::TaskManagerPanel() :
-  PanelWidget(QStringLiteral("TaskManagerPanel"))
+namespace olive
 {
-  // Create task view
-  view_ = new TaskView(this);
 
-  // Set it as the main widget
-  setWidget(view_);
+TaskManagerPanel::TaskManagerPanel()
+	: PanelWidget(QStringLiteral("TaskManagerPanel"))
+{
+	// Create task view
+	view_ = new TaskView(this);
 
-  // Connect task view to the task manager
-  connect(TaskManager::instance(), &TaskManager::TaskAdded, view_, &TaskView::AddTask);
-  connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_, &TaskView::RemoveTask);
-  connect(TaskManager::instance(), &TaskManager::TaskFailed, view_, &TaskView::TaskFailed);
-  connect(view_, &TaskView::TaskCancelled, TaskManager::instance(), &TaskManager::CancelTask);
+	// Set it as the main widget
+	setWidget(view_);
 
-  // Set strings
-  Retranslate();
+	// Connect task view to the task manager
+	connect(TaskManager::instance(), &TaskManager::TaskAdded, view_,
+			&TaskView::AddTask);
+	connect(TaskManager::instance(), &TaskManager::TaskRemoved, view_,
+			&TaskView::RemoveTask);
+	connect(TaskManager::instance(), &TaskManager::TaskFailed, view_,
+			&TaskView::TaskFailed);
+	connect(view_, &TaskView::TaskCancelled, TaskManager::instance(),
+			&TaskManager::CancelTask);
+
+	// Set strings
+	Retranslate();
 }
 
 void TaskManagerPanel::Retranslate()
 {
-  SetTitle(tr("Task Manager"));
+	SetTitle(tr("Task Manager"));
 }
 
 }

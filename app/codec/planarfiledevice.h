@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,38 +26,38 @@
 #include <QFile>
 #include <QObject>
 
-namespace olive {
+namespace olive
+{
 
 using namespace core;
 
-class PlanarFileDevice : public QObject
-{
-  Q_OBJECT
+class PlanarFileDevice : public QObject {
+	Q_OBJECT
 public:
-  PlanarFileDevice(QObject *parent = nullptr);
+	PlanarFileDevice(QObject *parent = nullptr);
 
-  virtual ~PlanarFileDevice() override;
+	virtual ~PlanarFileDevice() override;
 
-  bool isOpen() const
-  {
-    return !files_.isEmpty();
-  }
+	bool isOpen() const
+	{
+		return !files_.isEmpty();
+	}
 
-  bool open(const QVector<QString> &filenames, QIODevice::OpenMode mode);
+	bool open(const QVector<QString> &filenames, QIODevice::OpenMode mode);
 
-  qint64 read(char **data, qint64 bytes_per_channel, qint64 offset = 0);
+	qint64 read(char **data, qint64 bytes_per_channel, qint64 offset = 0);
 
-  qint64 write(const char **data, qint64 bytes_per_channel, qint64 offset = 0);
+	qint64 write(const char **data, qint64 bytes_per_channel,
+				 qint64 offset = 0);
 
-  qint64 size() const;
+	qint64 size() const;
 
-  bool seek(qint64 pos);
+	bool seek(qint64 pos);
 
-  void close();
+	void close();
 
 private:
-  QVector<QFile*> files_;
-
+	QVector<QFile *> files_;
 };
 
 }

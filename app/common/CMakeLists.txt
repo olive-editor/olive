@@ -1,5 +1,6 @@
 # Olive - Non-Linear Video Editor
 # Copyright (C) 2022 Olive Team
+# Modifications Copyright (C) 2025 mikesolar
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,43 +15,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  common/cancelableobject.h
-  common/channellayout.h
-  common/commandlineparser.cpp
-  common/commandlineparser.h
-  common/crashpadinterface.cpp
-  common/crashpadinterface.h
-  common/crashpadutils.h
-  common/debug.cpp
-  common/debug.h
-  common/decibel.h
-  common/define.h
-  common/ffmpegutils.cpp
-  common/ffmpegutils.h
-  common/filefunctions.cpp
-  common/filefunctions.h
-  common/html.cpp
-  common/html.h
-  common/jobtime.cpp
-  common/jobtime.h
-  common/lerp.h
-  common/memorypool.h
-  common/ocioutils.cpp
-  common/ocioutils.h
-  common/oiioutils.cpp
-  common/oiioutils.h
-  common/otioutils.h
-  common/qtutils.cpp
-  common/qtutils.h
-  common/range.h
-  common/ratiodialog.cpp
-  common/ratiodialog.h
-  common/threadsafemap.h
-  common/tohex.h
-  common/util.h
-  common/xmlutils.cpp
-  common/xmlutils.h
-  PARENT_SCOPE
+target_sources(libolive-editor PRIVATE
+        cancelableobject.h
+        commandlineparser.cpp
+        commandlineparser.h
+        crashpadinterface.cpp
+        crashpadinterface.h
+        crashpadutils.h
+        Current.cpp
+        Current.h
+        debug.cpp
+        debug.h
+        decibel.h
+        define.h
+        ffmpegutils.cpp
+        ffmpegutils.h
+        filefunctions.cpp
+        filefunctions.h
+        html.cpp
+        html.h
+        jobtime.cpp
+        jobtime.h
+        lerp.h
+        memorypool.h
+        ocioutils.cpp
+        ocioutils.h
+        oiioutils.cpp
+        oiioutils.h
+        otioutils.h
+        qtutils.cpp
+        qtutils.h
+        range.h
+        ratiodialog.cpp
+        ratiodialog.h
+        threadsafemap.h
+        tohex.h
+        util.h
+        xmlutils.cpp
+        xmlutils.h
 )

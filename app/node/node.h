@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,6 +21,8 @@
 
 #ifndef NODE_H
 #define NODE_H
+
+#include "ofxhImageEffectAPI.h"
 
 #include <map>
 #include <QMutex>
@@ -44,17 +47,24 @@
 #include "render/shadercode.h"
 #include "splitvalue.h"
 
-namespace olive {
+namespace olive
+{
 
 #define NODE_DEFAULT_FUNCTIONS(x) \
-  NODE_DEFAULT_DESTRUCTOR(x) \
-  NODE_COPY_FUNCTION(x)
+	NODE_DEFAULT_DESTRUCTOR(x)    \
+	NODE_COPY_FUNCTION(x)
 
 #define NODE_DEFAULT_DESTRUCTOR(x) \
-  virtual ~x() override {DisconnectAll();}
+	virtual ~x() override          \
+	{                              \
+		DisconnectAll();           \
+	}
 
-#define NODE_COPY_FUNCTION(x) \
-  virtual Node *copy() const override {return new x();}
+#define NODE_COPY_FUNCTION(x)           \
+	virtual Node *copy() const override \
+	{                                   \
+		return new x();                 \
+	}
 
 class Folder;
 class Project;
@@ -74,91 +84,91 @@ struct SerializedData;
  * This is a simple base class designed to contain all the functionality for this kind of processing connective unit.
  * It is an abstract class intended to be subclassed to create nodes with actual functionality.
  */
-class Node : public QObject
-{
-  Q_OBJECT
+class Node : public QObject {
+	Q_OBJECT
 public:
-  enum CategoryID {
-    kCategoryUnknown = -1,
+	enum CategoryID {
+		kCategoryUnknown = -1,
 
-    kCategoryOutput,
-    kCategoryGenerator,
-    kCategoryMath,
-    kCategoryKeying,
-    kCategoryFilter,
-    kCategoryColor,
-    kCategoryTime,
-    kCategoryTimeline,
-    kCategoryTransition,
-    kCategoryDistort,
-    kCategoryProject,
+		kCategoryOutput,
+		kCategoryGenerator,
+		kCategoryMath,
+		kCategoryKeying,
+		kCategoryFilter,
+		kCategoryColor,
+		kCategoryTime,
+		kCategoryTimeline,
+		kCategoryTransition,
+		kCategoryDistort,
+		kCategoryProject,
+		kCategoryOpenFX,
 
-    kCategoryCount
-  };
+		kCategoryCount
+	};
 
-  enum Flag {
-    kNone = 0,
-    kDontShowInParamView = 0x1,
-    kVideoEffect = 0x2,
-    kAudioEffect = 0x4,
-    kDontShowInCreateMenu = 0x8,
-    kIsItem = 0x10
-  };
+	enum Flag {
+		kNone = 0,
+		kDontShowInParamView = 0x1,
+		kVideoEffect = 0x2,
+		kAudioEffect = 0x4,
+		kDontShowInCreateMenu = 0x8,
+		kIsItem = 0x10
+	};
 
-  struct ContextPair {
-    Node *node;
-    Node *context;
-  };
+	struct ContextPair {
+		Node *node;
+		Node *context;
+	};
 
-  Node();
+	Node();
 
-  virtual ~Node() override;
+	virtual ~Node() override;
 
-  /**
+	/**
    * @brief Creates a clone of the Node
    *
    * By default, the clone will NOT have the values and connections of the original node. The caller is responsible for
    * copying that data with functions like CopyInputs() as copies may be done for different reasons.
    */
-  virtual Node* copy() const = 0;
+	virtual Node *copy() const = 0;
 
-  /**
+	/**
    * @brief Convenience function - assumes parent is a NodeGraph
    */
-  Project *parent() const;
+	Project *parent() const;
 
-  Project* project() const;
+	Project *project() const;
 
-  const uint64_t &GetFlags() const
-  {
-    return flags_;
-  }
+	const uint64_t &GetFlags() const
+	{
+		return flags_;
+	}
 
-  /**
+	/**
    * @brief Return the name of the node
    *
    * This is the node's name shown to the user. This must be overridden by subclasses, and preferably run through the
    * translator.
    */
-  virtual QString Name() const = 0;
+	virtual QString Name() const = 0;
 
-  /**
+	/**
    * @brief Returns a shortened name of this node if applicable
    *
    * Defaults to returning Name() but can be overridden.
    */
-  virtual QString ShortName() const;
+	virtual QString ShortName() const;
 
-  /**
+	/**
    * @brief Return the unique identifier of the node
    *
    * This is used in save files and any other times a specific node must be picked out at runtime. This must be an ID
    * completely unique to this node, and preferably in bundle identifier format (e.g. "org.company.Name"). This string
    * should NOT be translated.
    */
-  virtual QString id() const = 0;
+	virtual QString id() const = 0;
 
-  /**
+	/**
    * @brief Return the category this node is in (optional for subclassing, but recommended)
    *
    * In any organized node menus, show the node in this category. If this node should be in a subfolder of a subfolder,
@@ -166,680 +176,779 @@ public:
    * interpreted as an empty string category. This value should be run through a translator as its largely user
    * oriented.
    */
-  virtual QVector<CategoryID> Category() const = 0;
+	virtual QVector<CategoryID> Category() const = 0;
 
-  /**
+	/**
+	 * @brief Return a sub-category string for secondary grouping
+	 *        within the primary category (e.g. "Filter" under "OpenFX").
+	 */
+	virtual QString SubCategory() const
+	{
+		return QString();
+	}
+
+	/**
    * @brief Return a description of this node's purpose (optional for subclassing, but recommended)
    *
    * A short (1-2 sentence) description of what this node should do to help the user understand its purpose. This should
    * be run through a translator.
    */
-  virtual QString Description() const;
+	virtual QString Description() const;
 
-  Folder* folder() const
-  {
-    return folder_;
-  }
+	Folder *folder() const
+	{
+		return folder_;
+	}
 
-  bool IsItem() const { return flags_ & kIsItem; }
+	bool IsItem() const
+	{
+		return flags_ & kIsItem;
+	}
 
-  /**
+	/**
    * @brief Function called to retranslate parameter names (should be overridden in derivatives)
    */
-  virtual void Retranslate();
+	virtual void Retranslate();
 
-  enum DataType
-  {
-    ICON,
-    DURATION,
-    CREATED_TIME,
-    MODIFIED_TIME,
-    FREQUENCY_RATE,
-    TOOLTIP
-  };
+	enum DataType {
+		ICON,
+		DURATION,
+		CREATED_TIME,
+		MODIFIED_TIME,
+		FREQUENCY_RATE,
+		TOOLTIP
+	};
 
-  virtual QVariant data(const DataType &d) const;
+	virtual QVariant data(const DataType &d) const;
 
-  const QVector<QString>& inputs() const
-  {
-    return input_ids_;
-  }
+	const QVector<QString> &inputs() const
+	{
+		return input_ids_;
+	}
 
-  virtual QVector<QString> IgnoreInputsForRendering() const
-  {
-    return QVector<QString>();
-  }
+	virtual QVector<QString> IgnoreInputsForRendering() const
+	{
+		return QVector<QString>();
+	}
 
-  class ActiveElements
-  {
-  public:
-    enum Mode {
-      kAllElements,
-      kSpecified,
-      kNoElements
-    };
+	class ActiveElements {
+	public:
+		enum Mode { kAllElements, kSpecified, kNoElements };
 
-    ActiveElements(Mode m = kAllElements)
-    {
-      mode_ = m;
-    }
+		ActiveElements(Mode m = kAllElements)
+		{
+			mode_ = m;
+		}
 
-    Mode mode() const { return mode_; }
-    std::list<int> elements() const { return elements_; }
+		Mode mode() const
+		{
+			return mode_;
+		}
+		std::list<int> elements() const
+		{
+			return elements_;
+		}
 
-    void add(int e)
-    {
-      elements_.push_back(e);
-      mode_ = kSpecified;
-    }
+		void add(int e)
+		{
+			elements_.push_back(e);
+			mode_ = kSpecified;
+		}
 
-  private:
-    Mode mode_;
-    std::list<int> elements_;
+	private:
+		Mode mode_;
+		std::list<int> elements_;
+	};
 
-  };
+	virtual ActiveElements GetActiveElementsAtTime(const QString &input,
+												   const TimeRange &r) const
+	{
+		return ActiveElements::kAllElements;
+	}
 
-  virtual ActiveElements GetActiveElementsAtTime(const QString &input, const TimeRange &r) const
-  {
-    return ActiveElements::kAllElements;
-  }
+	bool HasInputWithID(const QString &id) const
+	{
+		return input_ids_.contains(id);
+	}
 
-  bool HasInputWithID(const QString& id) const
-  {
-    return input_ids_.contains(id);
-  }
+	bool HasParamWithID(const QString &id) const
+	{
+		return HasInputWithID(id);
+	}
 
-  bool HasParamWithID(const QString& id) const
-  {
-    return HasInputWithID(id);
-  }
+	FrameHashCache *video_frame_cache() const
+	{
+		return video_cache_;
+	}
 
-  FrameHashCache* video_frame_cache() const
-  {
-    return video_cache_;
-  }
+	ThumbnailCache *thumbnail_cache() const
+	{
+		return thumbnail_cache_;
+	}
 
-  ThumbnailCache* thumbnail_cache() const
-  {
-    return thumbnail_cache_;
-  }
+	AudioPlaybackCache *audio_playback_cache() const
+	{
+		return audio_cache_;
+	}
 
-  AudioPlaybackCache* audio_playback_cache() const
-  {
-    return audio_cache_;
-  }
+	AudioWaveformCache *waveform_cache() const
+	{
+		return waveform_cache_;
+	}
 
-  AudioWaveformCache* waveform_cache() const
-  {
-    return waveform_cache_;
-  }
+	virtual TimeRange GetVideoCacheRange() const
+	{
+		return TimeRange();
+	}
+	virtual TimeRange GetAudioCacheRange() const
+	{
+		return TimeRange();
+	}
 
-  virtual TimeRange GetVideoCacheRange() const { return TimeRange(); }
-  virtual TimeRange GetAudioCacheRange() const { return TimeRange(); }
+	struct Position {
+		Position(const QPointF &p = QPointF(0, 0), bool e = false)
+		{
+			position = p;
+			expanded = e;
+		}
 
-  struct Position
-  {
-    Position(const QPointF &p = QPointF(0, 0), bool e = false)
-    {
-      position = p;
-      expanded = e;
-    }
+		bool load(QXmlStreamReader *reader);
+		void save(QXmlStreamWriter *writer) const;
 
-    bool load(QXmlStreamReader *reader);
-    void save(QXmlStreamWriter *writer) const;
+		QPointF position;
+		bool expanded;
 
-    QPointF position;
-    bool expanded;
+		inline Position &operator+=(const Position &p)
+		{
+			position += p.position;
+			return *this;
+		}
 
-    inline Position &operator+=(const Position &p)
-    {
-      position += p.position;
-      return *this;
-    }
+		inline Position &operator-=(const Position &p)
+		{
+			position -= p.position;
+			return *this;
+		}
 
-    inline Position &operator-=(const Position &p)
-    {
-      position -= p.position;
-      return *this;
-    }
+		friend inline const Position operator+(Position a, const Position &b)
+		{
+			a += b;
+			return a;
+		}
 
-    friend inline const Position operator+(Position a, const Position &b)
-    {
-      a += b;
-      return a;
-    }
+		friend inline const Position operator-(Position a, const Position &b)
+		{
+			a -= b;
+			return a;
+		}
+	};
 
-    friend inline const Position operator-(Position a, const Position &b)
-    {
-      a -= b;
-      return a;
-    }
-  };
+	using PositionMap = QHash<Node *, Position>;
+	const PositionMap &GetContextPositions() const
+	{
+		return context_positions_;
+	}
 
-  using PositionMap = QHash<Node*, Position>;
-  const PositionMap &GetContextPositions() const
-  {
-    return context_positions_;
-  }
+	bool IsNodeExpandedInContext(Node *node) const
+	{
+		return context_positions_.value(node).expanded;
+	}
 
-  bool IsNodeExpandedInContext(Node *node) const
-  {
-    return context_positions_.value(node).expanded;
-  }
+	bool ContextContainsNode(Node *node) const
+	{
+		return context_positions_.contains(node);
+	}
 
-  bool ContextContainsNode(Node *node) const
-  {
-    return context_positions_.contains(node);
-  }
+	Position GetNodePositionDataInContext(Node *node)
+	{
+		return context_positions_.value(node);
+	}
 
-  Position GetNodePositionDataInContext(Node *node)
-  {
-    return context_positions_.value(node);
-  }
+	QPointF GetNodePositionInContext(Node *node)
+	{
+		return GetNodePositionDataInContext(node).position;
+	}
 
-  QPointF GetNodePositionInContext(Node *node)
-  {
-    return GetNodePositionDataInContext(node).position;
-  }
+	bool SetNodePositionInContext(Node *node, const QPointF &pos);
 
-  bool SetNodePositionInContext(Node *node, const QPointF &pos);
+	bool SetNodePositionInContext(Node *node, const Position &pos);
 
-  bool SetNodePositionInContext(Node *node, const Position &pos);
+	void SetNodeExpandedInContext(Node *node, bool e)
+	{
+		context_positions_[node].expanded = e;
+	}
 
-  void SetNodeExpandedInContext(Node *node, bool e)
-  {
-    context_positions_[node].expanded = e;
-  }
+	bool RemoveNodeFromContext(Node *node);
 
-  bool RemoveNodeFromContext(Node *node);
-
-  /**
+	/**
    * @brief Retrieve the color of this node
    */
-  Color color() const;
+	Color color() const;
 
-  /**
+	/**
    * @brief Same as color() but return a pretty gradient version
    */
-  QLinearGradient gradient_color(qreal top, qreal bottom) const;
+	QLinearGradient gradient_color(qreal top, qreal bottom) const;
 
-  /**
+	/**
    * @brief Uses config and returns either color() for flat shading or gradient for gradient
    */
-  QBrush brush(qreal top, qreal bottom) const;
+	QBrush brush(qreal top, qreal bottom) const;
 
-  int GetOverrideColor() const
-  {
-    return override_color_;
-  }
+	int GetOverrideColor() const
+	{
+		return override_color_;
+	}
 
-  /**
+	/**
    * @brief Sets the override color. Set to -1 for no override color.
    */
-  void SetOverrideColor(int index)
-  {
-    if (override_color_ != index) {
-      override_color_ = index;
-      emit ColorChanged();
-    }
-  }
-
-  static void ConnectEdge(Node *output, const NodeInput& input);
-
-  static void DisconnectEdge(Node *output, const NodeInput& input);
-
-  void CopyCacheUuidsFrom(Node *n);
-
-  bool AreCachesEnabled() const { return caches_enabled_; }
-  void SetCachesEnabled(bool e) { caches_enabled_ = e; }
-
-  virtual QString GetInputName(const QString& id) const;
-
-  void SetInputName(const QString& id, const QString& name);
-
-  bool IsInputHidden(const QString& input) const;
-  bool IsInputConnectable(const QString& input) const;
-  bool IsInputKeyframable(const QString& input) const;
-
-  bool IsInputKeyframing(const QString& input, int element = -1) const;
-  bool IsInputKeyframing(const NodeInput& input) const
-  {
-    return IsInputKeyframing(input.input(), input.element());
-  }
-
-  void SetInputIsKeyframing(const QString& input, bool e, int element = -1);
-  void SetInputIsKeyframing(const NodeInput& input, bool e)
-  {
-    SetInputIsKeyframing(input.input(), e, input.element());
-  }
-
-  bool IsInputConnected(const QString& input, int element = -1) const;
-  bool IsInputConnected(const NodeInput& input) const
-  {
-    return IsInputConnected(input.input(), input.element());
-  }
-
-  virtual bool IsInputConnectedForRender(const QString& input, int element = -1) const
-  {
-    return IsInputConnected(input, element);
-  }
-  bool IsInputConnectedForRender(const NodeInput& input) const
-  {
-    return IsInputConnectedForRender(input.input(), input.element());
-  }
-
-  bool IsInputStatic(const QString& input, int element = -1) const
-  {
-    return !IsInputConnected(input, element) && !IsInputKeyframing(input, element);
-  }
-
-  bool IsInputStatic(const NodeInput& input) const
-  {
-    return IsInputStatic(input.input(), input.element());
-  }
-
-  Node *GetConnectedOutput(const QString& input, int element = -1) const;
-
-  Node *GetConnectedOutput(const NodeInput& input) const
-  {
-    return GetConnectedOutput(input.input(), input.element());
-  }
-
-  virtual Node *GetConnectedRenderOutput(const QString& input, int element = -1) const
-  {
-    return GetConnectedOutput(input, element);
-  }
-
-  Node *GetConnectedRenderOutput(const NodeInput& input) const
-  {
-    return GetConnectedRenderOutput(input.input(), input.element());
-  }
-
-  bool IsUsingStandardValue(const QString& input, int track, int element = -1) const;
-
-  NodeValue::Type GetInputDataType(const QString& id) const;
-  void SetInputDataType(const QString& id, const NodeValue::Type& type);
-
-  bool HasInputProperty(const QString& id, const QString& name) const;
-  QHash<QString, QVariant> GetInputProperties(const QString& id) const;
-  QVariant GetInputProperty(const QString& id, const QString& name) const;
-  void SetInputProperty(const QString& id, const QString& name, const QVariant& value);
-
-  QVariant GetValueAtTime(const QString& input, const rational& time, int element = -1) const
-  {
-    NodeValue::Type type = GetInputDataType(input);
-
-    return NodeValue::combine_track_values_into_normal_value(type, GetSplitValueAtTime(input, time, element));
-  }
-
-  QVariant GetValueAtTime(const NodeInput& input, const rational& time)
-  {
-    return GetValueAtTime(input.input(), time, input.element());
-  }
-
-  SplitValue GetSplitValueAtTime(const QString& input, const rational& time, int element = -1) const;
-
-  SplitValue GetSplitValueAtTime(const NodeInput& input, const rational& time)
-  {
-    return GetSplitValueAtTime(input.input(), time, input.element());
-  }
-
-  QVariant GetSplitValueAtTimeOnTrack(const QString& input, const rational& time, int track, int element = -1) const;
-  QVariant GetSplitValueAtTimeOnTrack(const NodeInput& input, const rational& time, int track) const
-  {
-    return GetSplitValueAtTimeOnTrack(input.input(), time, track, input.element());
-  }
-
-  QVariant GetSplitValueAtTimeOnTrack(const NodeKeyframeTrackReference& input, const rational& time) const
-  {
-    return GetSplitValueAtTimeOnTrack(input.input(), time, input.track());
-  }
-
-  QVariant GetDefaultValue(const QString& input) const;
-  SplitValue GetSplitDefaultValue(const QString& input) const;
-  QVariant GetSplitDefaultValueOnTrack(const QString& input, int track) const;
-
-  void SetDefaultValue(const QString& input, const QVariant &val);
-  void SetSplitDefaultValue(const QString& input, const SplitValue &val);
-  void SetSplitDefaultValueOnTrack(const QString& input, const QVariant &val, int track);
-
-  const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const QString& input, int element) const;
-  const QVector<NodeKeyframeTrack>& GetKeyframeTracks(const NodeInput& input) const
-  {
-    return GetKeyframeTracks(input.input(), input.element());
-  }
-
-  QVector<NodeKeyframe*> GetKeyframesAtTime(const QString& input, const rational& time, int element = -1) const;
-  QVector<NodeKeyframe*> GetKeyframesAtTime(const NodeInput& input, const rational& time) const
-  {
-    return GetKeyframesAtTime(input.input(), time, input.element());
-  }
-
-  NodeKeyframe* GetKeyframeAtTimeOnTrack(const QString& input, const rational& time, int track, int element = -1) const;
-  NodeKeyframe* GetKeyframeAtTimeOnTrack(const NodeInput& input, const rational& time, int track) const
-  {
-    return GetKeyframeAtTimeOnTrack(input.input(), time, track, input.element());
-  }
-
-  NodeKeyframe* GetKeyframeAtTimeOnTrack(const NodeKeyframeTrackReference& input, const rational& time) const
-  {
-    return GetKeyframeAtTimeOnTrack(input.input(), time, input.track());
-  }
-
-  NodeKeyframe::Type GetBestKeyframeTypeForTimeOnTrack(const QString& input, const rational& time, int track, int element = -1) const;
-
-  NodeKeyframe::Type GetBestKeyframeTypeForTimeOnTrack(const NodeInput& input, const rational& time, int track) const
-  {
-    return GetBestKeyframeTypeForTimeOnTrack(input.input(), time, track, input.element());
-  }
-
-  NodeKeyframe::Type GetBestKeyframeTypeForTimeOnTrack(const NodeKeyframeTrackReference& input, const rational& time) const
-  {
-    return GetBestKeyframeTypeForTimeOnTrack(input.input(), time, input.track());
-  }
-
-  int GetNumberOfKeyframeTracks(const QString& id) const;
-  int GetNumberOfKeyframeTracks(const NodeInput& id) const
-  {
-    return GetNumberOfKeyframeTracks(id.input());
-  }
-
-  NodeKeyframe* GetEarliestKeyframe(const QString& id, int element = -1) const;
-  NodeKeyframe* GetEarliestKeyframe(const NodeInput& id) const
-  {
-    return GetEarliestKeyframe(id.input(), id.element());
-  }
-
-  NodeKeyframe* GetLatestKeyframe(const QString& id, int element = -1) const;
-  NodeKeyframe* GetLatestKeyframe(const NodeInput& id) const
-  {
-    return GetLatestKeyframe(id.input(), id.element());
-  }
-
-  NodeKeyframe* GetClosestKeyframeBeforeTime(const QString& id, const rational& time, int element = -1) const;
-  NodeKeyframe* GetClosestKeyframeBeforeTime(const NodeInput& id, const rational& time) const
-  {
-    return GetClosestKeyframeBeforeTime(id.input(), time, id.element());
-  }
-
-  NodeKeyframe* GetClosestKeyframeAfterTime(const QString& id, const rational& time, int element = -1) const;
-  NodeKeyframe* GetClosestKeyframeAfterTime(const NodeInput& id, const rational& time) const
-  {
-    return GetClosestKeyframeAfterTime(id.input(), time, id.element());
-  }
-
-  bool HasKeyframeAtTime(const QString& id, const rational& time, int element = -1) const;
-  bool HasKeyframeAtTime(const NodeInput& id, const rational& time) const
-  {
-    return HasKeyframeAtTime(id.input(), time, id.element());
-  }
-
-  QStringList GetComboBoxStrings(const QString& id) const;
-
-  QVariant GetStandardValue(const QString& id, int element = -1) const;
-  QVariant GetStandardValue(const NodeInput& id) const
-  {
-    return GetStandardValue(id.input(), id.element());
-  }
-
-  SplitValue GetSplitStandardValue(const QString& id, int element = -1) const;
-  SplitValue GetSplitStandardValue(const NodeInput& id) const
-  {
-    return GetSplitStandardValue(id.input(), id.element());
-  }
-
-  QVariant GetSplitStandardValueOnTrack(const QString& input, int track, int element = -1) const;
-  QVariant GetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id) const
-  {
-    return GetSplitStandardValueOnTrack(id.input().input(), id.track(), id.input().element());
-  }
-
-  void SetStandardValue(const QString& id, const QVariant& value, int element = -1);
-  void SetStandardValue(const NodeInput& id, const QVariant& value)
-  {
-    SetStandardValue(id.input(), value, id.element());
-  }
-
-  void SetSplitStandardValue(const QString& id, const SplitValue& value, int element = -1);
-  void SetSplitStandardValue(const NodeInput& id, const SplitValue& value)
-  {
-    SetSplitStandardValue(id.input(), value, id.element());
-  }
-
-  void SetSplitStandardValueOnTrack(const QString& id, int track, const QVariant& value, int element = -1);
-  void SetSplitStandardValueOnTrack(const NodeKeyframeTrackReference& id, const QVariant& value)
-  {
-    SetSplitStandardValueOnTrack(id.input().input(), id.track(), value, id.input().element());
-  }
-
-  bool InputIsArray(const QString& id) const;
-
-  void InputArrayInsert(const QString& id, int index);
-  void InputArrayResize(const QString& id, int size);
-  void InputArrayRemove(const QString& id, int index);
-
-  void InputArrayAppend(const QString& id)
-  {
-    InputArrayResize(id, InputArraySize(id) + 1);
-  }
-
-  void InputArrayPrepend(const QString& id)
-  {
-    InputArrayInsert(id, 0);
-  }
-
-  void InputArrayRemoveLast(const QString& id)
-  {
-    InputArrayResize(id, InputArraySize(id) - 1);
-  }
-
-  int InputArraySize(const QString& id) const;
-
-  NodeInputImmediate* GetImmediate(const QString& input, int element) const;
-
-  NodeInput GetEffectInput()
-  {
-    return effect_input_.isEmpty() ? NodeInput() : NodeInput(this, effect_input_);
-  }
-
-  const QString &GetEffectInputID() const
-  {
-    return effect_input_;
-  }
-
-  class ValueHint {
-  public:
-    explicit ValueHint(const QVector<NodeValue::Type> &types = QVector<NodeValue::Type>(), int index = -1, const QString &tag = QString()) :
-      type_(types),
-      index_(index),
-      tag_(tag)
-    {
-    }
-
-    explicit ValueHint(const QVector<NodeValue::Type> &types, const QString &tag) :
-      type_(types),
-      index_(-1),
-      tag_(tag)
-    {
-    }
-
-    explicit ValueHint(int index) :
-      index_(index)
-    {
-    }
-
-    explicit ValueHint(const QString &tag) :
-      index_(-1),
-      tag_(tag)
-    {
-    }
-
-    const QVector<NodeValue::Type> &types() const { return type_; }
-    const int &index() const { return index_; }
-    const QString& tag() const { return tag_; }
-
-    void set_type(const QVector<NodeValue::Type> &type) { type_ = type; }
-    void set_index(const int &index) { index_ = index; }
-    void set_tag(const QString &tag) { tag_ = tag; }
-
-    bool load(QXmlStreamReader *reader);
-    void save(QXmlStreamWriter *writer) const;
-
-  private:
-    QVector<NodeValue::Type> type_;
-    int index_;
-    QString tag_;
-
-  };
-
-  const QMap<InputElementPair, ValueHint> &GetValueHints() const
-  {
-    return value_hints_;
-  }
-
-  ValueHint GetValueHintForInput(const QString &input, int element = -1) const
-  {
-    return value_hints_.value({input, element});
-  }
-
-  void SetValueHintForInput(const QString &input, const ValueHint &hint, int element = -1);
-
-  const NodeKeyframeTrack& GetTrackFromKeyframe(NodeKeyframe* key) const;
-
-  using InputConnections = std::map<NodeInput, Node*>;
-
-  /**
+	void SetOverrideColor(int index)
+	{
+		if (override_color_ != index) {
+			override_color_ = index;
+			emit ColorChanged();
+		}
+	}
+
+	static void ConnectEdge(Node *output, const NodeInput &input);
+
+	static void DisconnectEdge(Node *output, const NodeInput &input);
+
+	void CopyCacheUuidsFrom(Node *n);
+
+	bool AreCachesEnabled() const
+	{
+		return caches_enabled_;
+	}
+	void SetCachesEnabled(bool e)
+	{
+		caches_enabled_ = e;
+	}
+
+	virtual QString GetInputName(const QString &id) const;
+
+	void SetInputName(const QString &id, const QString &name);
+
+	bool IsInputHidden(const QString &input) const;
+	bool IsInputConnectable(const QString &input) const;
+	bool IsInputKeyframable(const QString &input) const;
+
+	bool IsInputKeyframing(const QString &input, int element = -1) const;
+	bool IsInputKeyframing(const NodeInput &input) const
+	{
+		return IsInputKeyframing(input.input(), input.element());
+	}
+
+	void SetInputIsKeyframing(const QString &input, bool e, int element = -1);
+	void SetInputIsKeyframing(const NodeInput &input, bool e)
+	{
+		SetInputIsKeyframing(input.input(), e, input.element());
+	}
+
+	bool IsInputConnected(const QString &input, int element = -1) const;
+	bool IsInputConnected(const NodeInput &input) const
+	{
+		return IsInputConnected(input.input(), input.element());
+	}
+
+	virtual bool IsInputConnectedForRender(const QString &input,
+										   int element = -1) const
+	{
+		return IsInputConnected(input, element);
+	}
+	bool IsInputConnectedForRender(const NodeInput &input) const
+	{
+		return IsInputConnectedForRender(input.input(), input.element());
+	}
+
+	bool IsInputStatic(const QString &input, int element = -1) const
+	{
+		return !IsInputConnected(input, element) &&
+			   !IsInputKeyframing(input, element);
+	}
+
+	bool IsInputStatic(const NodeInput &input) const
+	{
+		return IsInputStatic(input.input(), input.element());
+	}
+
+	Node *GetConnectedOutput(const QString &input, int element = -1) const;
+
+	Node *GetConnectedOutput(const NodeInput &input) const
+	{
+		return GetConnectedOutput(input.input(), input.element());
+	}
+
+	virtual Node *GetConnectedRenderOutput(const QString &input,
+										   int element = -1) const
+	{
+		return GetConnectedOutput(input, element);
+	}
+
+	Node *GetConnectedRenderOutput(const NodeInput &input) const
+	{
+		return GetConnectedRenderOutput(input.input(), input.element());
+	}
+
+	bool IsUsingStandardValue(const QString &input, int track,
+							  int element = -1) const;
+
+	NodeValue::Type GetInputDataType(const QString &id) const;
+	void SetInputDataType(const QString &id, const NodeValue::Type &type);
+
+	bool HasInputProperty(const QString &id, const QString &name) const;
+	QHash<QString, QVariant> GetInputProperties(const QString &id) const;
+	QVariant GetInputProperty(const QString &id, const QString &name) const;
+	void SetInputProperty(const QString &id, const QString &name,
+						  const QVariant &value);
+
+	QVariant GetValueAtTime(const QString &input, const rational &time,
+							int element = -1) const
+	{
+		NodeValue::Type type = GetInputDataType(input);
+
+		return NodeValue::combine_track_values_into_normal_value(
+			type, GetSplitValueAtTime(input, time, element));
+	}
+
+	QVariant GetValueAtTime(const NodeInput &input, const rational &time)
+	{
+		return GetValueAtTime(input.input(), time, input.element());
+	}
+
+	SplitValue GetSplitValueAtTime(const QString &input, const rational &time,
+								   int element = -1) const;
+
+	SplitValue GetSplitValueAtTime(const NodeInput &input, const rational &time)
+	{
+		return GetSplitValueAtTime(input.input(), time, input.element());
+	}
+
+	QVariant GetSplitValueAtTimeOnTrack(const QString &input,
+										const rational &time, int track,
+										int element = -1) const;
+	QVariant GetSplitValueAtTimeOnTrack(const NodeInput &input,
+										const rational &time, int track) const
+	{
+		return GetSplitValueAtTimeOnTrack(input.input(), time, track,
+										  input.element());
+	}
+
+	QVariant GetSplitValueAtTimeOnTrack(const NodeKeyframeTrackReference &input,
+										const rational &time) const
+	{
+		return GetSplitValueAtTimeOnTrack(input.input(), time, input.track());
+	}
+
+	QVariant GetDefaultValue(const QString &input) const;
+	SplitValue GetSplitDefaultValue(const QString &input) const;
+	QVariant GetSplitDefaultValueOnTrack(const QString &input, int track) const;
+
+	void SetDefaultValue(const QString &input, const QVariant &val);
+	void SetSplitDefaultValue(const QString &input, const SplitValue &val);
+	void SetSplitDefaultValueOnTrack(const QString &input, const QVariant &val,
+									 int track);
+
+	const QVector<NodeKeyframeTrack> &GetKeyframeTracks(const QString &input,
+														int element) const;
+	const QVector<NodeKeyframeTrack> &
+	GetKeyframeTracks(const NodeInput &input) const
+	{
+		return GetKeyframeTracks(input.input(), input.element());
+	}
+
+	QVector<NodeKeyframe *> GetKeyframesAtTime(const QString &input,
+											   const rational &time,
+											   int element = -1) const;
+	QVector<NodeKeyframe *> GetKeyframesAtTime(const NodeInput &input,
+											   const rational &time) const
+	{
+		return GetKeyframesAtTime(input.input(), time, input.element());
+	}
+
+	NodeKeyframe *GetKeyframeAtTimeOnTrack(const QString &input,
+										   const rational &time, int track,
+										   int element = -1) const;
+	NodeKeyframe *GetKeyframeAtTimeOnTrack(const NodeInput &input,
+										   const rational &time,
+										   int track) const
+	{
+		return GetKeyframeAtTimeOnTrack(input.input(), time, track,
+										input.element());
+	}
+
+	NodeKeyframe *
+	GetKeyframeAtTimeOnTrack(const NodeKeyframeTrackReference &input,
+							 const rational &time) const
+	{
+		return GetKeyframeAtTimeOnTrack(input.input(), time, input.track());
+	}
+
+	NodeKeyframe::Type
+	GetBestKeyframeTypeForTimeOnTrack(const QString &input,
+									  const rational &time, int track,
+									  int element = -1) const;
+
+	NodeKeyframe::Type GetBestKeyframeTypeForTimeOnTrack(const NodeInput &input,
+														 const rational &time,
+														 int track) const
+	{
+		return GetBestKeyframeTypeForTimeOnTrack(input.input(), time, track,
+												 input.element());
+	}
+
+	NodeKeyframe::Type
+	GetBestKeyframeTypeForTimeOnTrack(const NodeKeyframeTrackReference &input,
+									  const rational &time) const
+	{
+		return GetBestKeyframeTypeForTimeOnTrack(input.input(), time,
+												 input.track());
+	}
+
+	int GetNumberOfKeyframeTracks(const QString &id) const;
+	int GetNumberOfKeyframeTracks(const NodeInput &id) const
+	{
+		return GetNumberOfKeyframeTracks(id.input());
+	}
+
+	NodeKeyframe *GetEarliestKeyframe(const QString &id,
+									  int element = -1) const;
+	NodeKeyframe *GetEarliestKeyframe(const NodeInput &id) const
+	{
+		return GetEarliestKeyframe(id.input(), id.element());
+	}
+
+	NodeKeyframe *GetLatestKeyframe(const QString &id, int element = -1) const;
+	NodeKeyframe *GetLatestKeyframe(const NodeInput &id) const
+	{
+		return GetLatestKeyframe(id.input(), id.element());
+	}
+
+	NodeKeyframe *GetClosestKeyframeBeforeTime(const QString &id,
+											   const rational &time,
+											   int element = -1) const;
+	NodeKeyframe *GetClosestKeyframeBeforeTime(const NodeInput &id,
+											   const rational &time) const
+	{
+		return GetClosestKeyframeBeforeTime(id.input(), time, id.element());
+	}
+
+	NodeKeyframe *GetClosestKeyframeAfterTime(const QString &id,
+											  const rational &time,
+											  int element = -1) const;
+	NodeKeyframe *GetClosestKeyframeAfterTime(const NodeInput &id,
+											  const rational &time) const
+	{
+		return GetClosestKeyframeAfterTime(id.input(), time, id.element());
+	}
+
+	bool HasKeyframeAtTime(const QString &id, const rational &time,
+						   int element = -1) const;
+	bool HasKeyframeAtTime(const NodeInput &id, const rational &time) const
+	{
+		return HasKeyframeAtTime(id.input(), time, id.element());
+	}
+
+	QStringList GetComboBoxStrings(const QString &id) const;
+
+	QVariant GetStandardValue(const QString &id, int element = -1) const;
+	QVariant GetStandardValue(const NodeInput &id) const
+	{
+		return GetStandardValue(id.input(), id.element());
+	}
+
+	SplitValue GetSplitStandardValue(const QString &id, int element = -1) const;
+	SplitValue GetSplitStandardValue(const NodeInput &id) const
+	{
+		return GetSplitStandardValue(id.input(), id.element());
+	}
+
+	QVariant GetSplitStandardValueOnTrack(const QString &input, int track,
+										  int element = -1) const;
+	QVariant
+	GetSplitStandardValueOnTrack(const NodeKeyframeTrackReference &id) const
+	{
+		return GetSplitStandardValueOnTrack(id.input().input(), id.track(),
+											id.input().element());
+	}
+
+	void SetStandardValue(const QString &id, const QVariant &value,
+						  int element = -1);
+	void SetStandardValue(const NodeInput &id, const QVariant &value)
+	{
+		SetStandardValue(id.input(), value, id.element());
+	}
+
+	void SetSplitStandardValue(const QString &id, const SplitValue &value,
+							   int element = -1);
+	void SetSplitStandardValue(const NodeInput &id, const SplitValue &value)
+	{
+		SetSplitStandardValue(id.input(), value, id.element());
+	}
+
+	void SetSplitStandardValueOnTrack(const QString &id, int track,
+									  const QVariant &value, int element = -1);
+	void SetSplitStandardValueOnTrack(const NodeKeyframeTrackReference &id,
+									  const QVariant &value)
+	{
+		SetSplitStandardValueOnTrack(id.input().input(), id.track(), value,
+									 id.input().element());
+	}
+
+	bool InputIsArray(const QString &id) const;
+
+	void InputArrayInsert(const QString &id, int index);
+	void InputArrayResize(const QString &id, int size);
+	void InputArrayRemove(const QString &id, int index);
+
+	void InputArrayAppend(const QString &id)
+	{
+		InputArrayResize(id, InputArraySize(id) + 1);
+	}
+
+	void InputArrayPrepend(const QString &id)
+	{
+		InputArrayInsert(id, 0);
+	}
+
+	void InputArrayRemoveLast(const QString &id)
+	{
+		InputArrayResize(id, InputArraySize(id) - 1);
+	}
+
+	int InputArraySize(const QString &id) const;
+
+	NodeInputImmediate *GetImmediate(const QString &input, int element) const;
+
+	NodeInput GetEffectInput()
+	{
+		return effect_input_.isEmpty() ? NodeInput() :
+										 NodeInput(this, effect_input_);
+	}
+
+	const QString &GetEffectInputID() const
+	{
+		return effect_input_;
+	}
+
+	class ValueHint {
+	public:
+		explicit ValueHint(
+			const QVector<NodeValue::Type> &types = QVector<NodeValue::Type>(),
+			int index = -1, const QString &tag = QString())
+			: type_(types)
+			, index_(index)
+			, tag_(tag)
+		{
+		}
+
+		explicit ValueHint(const QVector<NodeValue::Type> &types,
+						   const QString &tag)
+			: type_(types)
+			, index_(-1)
+			, tag_(tag)
+		{
+		}
+
+		explicit ValueHint(int index)
+			: index_(index)
+		{
+		}
+
+		explicit ValueHint(const QString &tag)
+			: index_(-1)
+			, tag_(tag)
+		{
+		}
+
+		const QVector<NodeValue::Type> &types() const
+		{
+			return type_;
+		}
+		const int &index() const
+		{
+			return index_;
+		}
+		const QString &tag() const
+		{
+			return tag_;
+		}
+
+		void set_type(const QVector<NodeValue::Type> &type)
+		{
+			type_ = type;
+		}
+		void set_index(const int &index)
+		{
+			index_ = index;
+		}
+		void set_tag(const QString &tag)
+		{
+			tag_ = tag;
+		}
+
+		bool load(QXmlStreamReader *reader);
+		void save(QXmlStreamWriter *writer) const;
+
+	private:
+		QVector<NodeValue::Type> type_;
+		int index_;
+		QString tag_;
+	};
+
+	const QMap<InputElementPair, ValueHint> &GetValueHints() const
+	{
+		return value_hints_;
+	}
+
+	virtual ValueHint GetValueHintForInput(const QString &input,
+										   int element = -1) const
+	{
+		return value_hints_.value({ input, element });
+	}
+
+	void SetValueHintForInput(const QString &input, const ValueHint &hint,
+							  int element = -1);
+
+	const NodeKeyframeTrack &GetTrackFromKeyframe(NodeKeyframe *key) const;
+
+	using InputConnections = std::map<NodeInput, Node *>;
+
+	/**
    * @brief Return map of input connections
    *
    * Inputs can only have one connection, so the key is the input connected and the value is the
    * output that it's connected to.
    */
-  const InputConnections& input_connections() const
-  {
-    return input_connections_;
-  }
+	const InputConnections &input_connections() const
+	{
+		return input_connections_;
+	}
 
-  using OutputConnection = std::pair<Node*, NodeInput>;
-  using OutputConnections = std::vector<OutputConnection>;
+	using OutputConnection = std::pair<Node *, NodeInput>;
+	using OutputConnections = std::vector<OutputConnection>;
 
-  /**
+	/**
    * @brief Return list of output connections
    *
    * An output can connect an infinite amount of inputs, so in this map, the key is the output and
    * the value is a vector of inputs.
    */
-  const OutputConnections& output_connections() const
-  {
-    return output_connections_;
-  }
+	const OutputConnections &output_connections() const
+	{
+		return output_connections_;
+	}
 
-  /**
+	/**
    * @brief Return a list of all Nodes that this Node's inputs are connected to (does not include this Node)
    */
-  QVector<Node *> GetDependencies() const;
+	QVector<Node *> GetDependencies() const;
 
-  /**
+	/**
    * @brief Returns a list of Nodes that this Node is dependent on, provided no other Nodes are dependent on them
    * outside of this hierarchy.
    *
    * Similar to GetDependencies(), but excludes any Nodes that are used outside the dependency graph of this Node.
    */
-  QVector<Node *> GetExclusiveDependencies() const;
+	QVector<Node *> GetExclusiveDependencies() const;
 
-  /**
+	/**
    * @brief Retrieve immediate dependencies (only nodes that are directly connected to the inputs of this one)
    */
-  QVector<Node *> GetImmediateDependencies() const;
+	QVector<Node *> GetImmediateDependencies() const;
 
-  struct ShaderRequest
-  {
-    ShaderRequest(const QString &shader_id)
-    {
-      id = shader_id;
-    }
+	struct ShaderRequest {
+		ShaderRequest(const QString &shader_id)
+		{
+			id = shader_id;
+		}
 
-    ShaderRequest(const QString &shader_id, const QString &shader_stub)
-    {
-      id = shader_id;
-      stub = shader_stub;
-    }
+		ShaderRequest(const QString &shader_id, const QString &shader_stub)
+		{
+			id = shader_id;
+			stub = shader_stub;
+		}
 
-    QString id;
-    QString stub;
-  };
+		QString id;
+		QString stub;
+	};
 
-  /**
+	/**
    * @brief Generate hardware accelerated code for this Node
    */
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
+	virtual ShaderCode GetShaderCode(const ShaderRequest &request) const;
 
-  /**
+	/**
    * @brief If Value() pushes a ShaderJob, this is the function that will process them.
    */
-  virtual void ProcessSamples(const NodeValueRow &values, const SampleBuffer &input, SampleBuffer &output, int index) const;
+	virtual void ProcessSamples(const NodeValueRow &values,
+								const SampleBuffer &input, SampleBuffer &output,
+								int index) const;
 
-  /**
+	/**
    * @brief If Value() pushes a GenerateJob, override this function for the image to create
    *
    * @param frame
    *
    * The destination buffer. It will already be allocated and ready for writing to.
    */
-  virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const;
+	virtual void GenerateFrame(FramePtr frame, const GenerateJob &job) const;
 
-  /**
+	/**
    * @brief Returns whether this node ever receives an input from a particular node instance
    */
-  bool InputsFrom(Node* n, bool recursively) const;
+	bool InputsFrom(Node *n, bool recursively) const;
 
-  /**
+	/**
    * @brief Returns whether this node ever receives an input from a node with a particular ID
    */
-  bool InputsFrom(const QString& id, bool recursively) const;
+	bool InputsFrom(const QString &id, bool recursively) const;
 
-  /**
+	/**
    * @brief Find inputs that `output` outputs to in order to arrive at this node
    *
    * Traverse this node's inputs recursively looking for `output`, and return a list of
    * edges that `output` uses to get to `this` node.
    */
-  QVector<NodeInput> FindWaysNodeArrivesHere(const Node *output) const;
+	QVector<NodeInput> FindWaysNodeArrivesHere(const Node *output) const;
 
-  /**
+	/**
    * @brief Severs all input and output connections
    */
-  void DisconnectAll();
+	void DisconnectAll();
 
-  /**
+	/**
    * @brief Get the human-readable name for any category
    */
-  static QString GetCategoryName(const CategoryID &c);
+	static QString GetCategoryName(const CategoryID &c);
 
-  enum TransformTimeDirection {
-    kTransformTowardsInput,
-    kTransformTowardsOutput
-  };
+	enum TransformTimeDirection {
+		kTransformTowardsInput,
+		kTransformTowardsOutput
+	};
 
-  /**
+	/**
    * @brief Transforms time from this node through the connections it takes to get to the specified node
    */
-  TimeRange TransformTimeTo(TimeRange time, Node* target, TransformTimeDirection dir, int path_index);
+	TimeRange TransformTimeTo(TimeRange time, Node *target,
+							  TransformTimeDirection dir, int path_index);
 
-  /**
+	/**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
-  template<class T>
-  QVector<T*> FindInputNodes(int maximum = 0) const;
+	template <class T> QVector<T *> FindInputNodes(int maximum = 0) const;
 
-  /**
+	/**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
-  template<class T>
-  static QVector<T*> FindInputNodesConnectedToInput(const NodeInput &input, int maximum = 0);
+	template <class T>
+	static QVector<T *> FindInputNodesConnectedToInput(const NodeInput &input,
+													   int maximum = 0);
 
-  using InvalidateCacheOptions = QHash<QString, QVariant>;
+	using InvalidateCacheOptions = QHash<QString, QVariant>;
 
-  /**
+	/**
    * @brief Signal all dependent Nodes that anything cached between start_range and end_range is now invalid and
    *        requires re-rendering
    *
@@ -848,52 +957,73 @@ public:
    * the DAG. Even if the time needs to be transformed somehow (e.g. converting media time to sequence time), you can
    * call this function with transformed time and relay the signal that way.
    */
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element = -1, InvalidateCacheOptions options = InvalidateCacheOptions());
+	virtual void
+	InvalidateCache(const TimeRange &range, const QString &from,
+					int element = -1,
+					InvalidateCacheOptions options = InvalidateCacheOptions());
 
-  void InvalidateCache(const TimeRange& range, const NodeInput& from, const InvalidateCacheOptions &options = InvalidateCacheOptions())
-  {
-    InvalidateCache(range, from.input(), from.element(), options);
-  }
+	void InvalidateCache(
+		const TimeRange &range, const NodeInput &from,
+		const InvalidateCacheOptions &options = InvalidateCacheOptions())
+	{
+		InvalidateCache(range, from.input(), from.element(), options);
+	}
 
-  /**
+	/**
    * @brief Adjusts time that should be sent to nodes connected to certain inputs.
    *
    * If this node modifies the `time` (i.e. a clip converting sequence time to media time), this function should be
    * overridden to do so. Also make sure to override OutputTimeAdjustment() to provide the inverse function.
    */
-  virtual TimeRange InputTimeAdjustment(const QString& input, int element, const TimeRange& input_time, bool clamp) const;
+	virtual TimeRange InputTimeAdjustment(const QString &input, int element,
+										  const TimeRange &input_time,
+										  bool clamp) const;
 
-  /**
+	/**
    * @brief The inverse of InputTimeAdjustment()
    */
-  virtual TimeRange OutputTimeAdjustment(const QString& input, int element, const TimeRange& input_time) const;
+	virtual TimeRange OutputTimeAdjustment(const QString &input, int element,
+										   const TimeRange &input_time) const;
 
-  /**
+	/**
    * @brief Copies inputs from from Node to another including connections
    *
    * Nodes must be of the same types (i.e. have the same ID)
    */
-  static void CopyInputs(const Node *source, Node* destination, bool include_connections = true, MultiUndoCommand *command = nullptr);
+	static void CopyInputs(const Node *source, Node *destination,
+						   bool include_connections = true,
+						   MultiUndoCommand *command = nullptr);
 
-  static void CopyInput(const Node *src, Node* dst, const QString& input, bool include_connections, bool traverse_arrays, MultiUndoCommand *command);
+	static void CopyInput(const Node *src, Node *dst, const QString &input,
+						  bool include_connections, bool traverse_arrays,
+						  MultiUndoCommand *command);
 
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int src_element, int dst_element, MultiUndoCommand *command = nullptr);
-  static void CopyValuesOfElement(const Node* src, Node* dst, const QString& input, int element, MultiUndoCommand *command = nullptr)
-  {
-    return CopyValuesOfElement(src, dst, input, element, element, command);
-  }
+	static void CopyValuesOfElement(const Node *src, Node *dst,
+									const QString &input, int src_element,
+									int dst_element,
+									MultiUndoCommand *command = nullptr);
+	static void CopyValuesOfElement(const Node *src, Node *dst,
+									const QString &input, int element,
+									MultiUndoCommand *command = nullptr)
+	{
+		return CopyValuesOfElement(src, dst, input, element, element, command);
+	}
 
-  /**
+	/**
    * @brief Clones a set of nodes and connects the new ones the way the old ones were
    */
-  static QVector<Node*> CopyDependencyGraph(const QVector<Node*>& nodes, MultiUndoCommand *command);
-  static void CopyDependencyGraph(const QVector<Node*>& src, const QVector<Node*>& dst, MultiUndoCommand *command);
+	static QVector<Node *> CopyDependencyGraph(const QVector<Node *> &nodes,
+											   MultiUndoCommand *command);
+	static void CopyDependencyGraph(const QVector<Node *> &src,
+									const QVector<Node *> &dst,
+									MultiUndoCommand *command);
 
-  static Node* CopyNodeAndDependencyGraphMinusItems(Node* node, MultiUndoCommand* command);
+	static Node *
+	CopyNodeAndDependencyGraphMinusItems(Node *node, MultiUndoCommand *command);
 
-  static Node* CopyNodeInGraph(Node *node, MultiUndoCommand* command);
+	static Node *CopyNodeInGraph(Node *node, MultiUndoCommand *command);
 
-  /**
+	/**
    * @brief The main processing function
    *
    * The node's main purpose is to take values from inputs to set values in outputs. For whatever subclass node you
@@ -906,440 +1036,531 @@ public:
    * corresponding output if it's connected to one. If your node doesn't directly deal with time, the default behavior
    * of the NodeParam objects will handle everything related to it automatically.
    */
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const;
 
-  bool HasGizmos() const
-  {
-    return !gizmos_.isEmpty();
-  }
+	bool HasGizmos() const
+	{
+		return !gizmos_.isEmpty();
+	}
 
-  const QVector<NodeGizmo*> &GetGizmos() const
-  {
-    return gizmos_;
-  }
+	const QVector<NodeGizmo *> &GetGizmos() const
+	{
+		return gizmos_;
+	}
 
-  virtual QTransform GizmoTransformation(const NodeValueRow &row, const NodeGlobals &globals) const { return QTransform(); }
+	virtual QTransform GizmoTransformation(const NodeValueRow &row,
+										   const NodeGlobals &globals) const
+	{
+		return QTransform();
+	}
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals){}
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals)
+	{
+	}
 
-  const QString& GetLabel() const;
-  void SetLabel(const QString& s);
+	const QString &GetLabel() const;
+	void SetLabel(const QString &s);
 
-  QString GetLabelAndName() const;
-  QString GetLabelOrName() const;
+	QString GetLabelAndName() const;
+	QString GetLabelOrName() const;
 
-  void InvalidateAll(const QString& input, int element = -1);
+	void InvalidateAll(const QString &input, int element = -1);
 
-  bool HasLinks() const
-  {
-    return !links_.isEmpty();
-  }
+	bool HasLinks() const
+	{
+		return !links_.isEmpty();
+	}
 
-  const QVector<Node*>& links() const
-  {
-    return links_;
-  }
+	const QVector<Node *> &links() const
+	{
+		return links_;
+	}
 
-  static bool Link(Node* a, Node* b);
-  static bool Unlink(Node* a, Node* b);
-  static bool AreLinked(Node* a, Node* b);
+	static bool Link(Node *a, Node *b);
+	static bool Unlink(Node *a, Node *b);
+	static bool AreLinked(Node *a, Node *b);
 
-  bool Load(QXmlStreamReader *reader, SerializedData *data);
-  void Save(QXmlStreamWriter *writer) const;
+	bool Load(QXmlStreamReader *reader, SerializedData *data);
+	void Save(QXmlStreamWriter *writer) const;
 
-  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data);
-  virtual void SaveCustom(QXmlStreamWriter *writer) const {}
-  virtual void PostLoadEvent(SerializedData *data);
+	virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data);
+	virtual void SaveCustom(QXmlStreamWriter *writer) const
+	{
+	}
+	virtual void PostLoadEvent(SerializedData *data);
 
-  bool LoadInput(QXmlStreamReader *reader, SerializedData *data);
-  void SaveInput(QXmlStreamWriter *writer, const QString &id) const;
+	bool LoadInput(QXmlStreamReader *reader, SerializedData *data);
+	void SaveInput(QXmlStreamWriter *writer, const QString &id) const;
 
-  bool LoadImmediate(QXmlStreamReader *reader, const QString &input, int element, SerializedData *data);
-  void SaveImmediate(QXmlStreamWriter *writer, const QString &input, int element) const;
+	/**
+	 * @brief Maps an input ID read from an old project file to its current ID
+	 *
+	 * Nodes whose input IDs have been renamed override this so old projects
+	 * keep loading. The default implementation returns the ID unchanged.
+	 */
+	virtual QString GetInputIDForLegacyID(const QString &id) const;
 
-  void SetFolder(Folder* folder)
-  {
-    folder_ = folder;
-  }
+	bool LoadImmediate(QXmlStreamReader *reader, const QString &input,
+					   int element, SerializedData *data);
+	void SaveImmediate(QXmlStreamWriter *writer, const QString &input,
+					   int element) const;
 
-  InputFlags GetInputFlags(const QString& input) const;
-  void SetInputFlag(const QString &input, InputFlag f, bool on = true);
+	void SetFolder(Folder *folder)
+	{
+		folder_ = folder;
+	}
 
-  virtual void LoadFinishedEvent(){}
-  virtual void ConnectedToPreviewEvent(){}
+	InputFlags GetInputFlags(const QString &input) const;
+	void SetInputFlag(const QString &input, InputFlag f, bool on = true);
 
-  static void SetValueAtTime(const NodeInput &input, const rational &time, const QVariant &value, int track, MultiUndoCommand *command, bool insert_on_all_tracks_if_no_key);
+	virtual void LoadFinishedEvent()
+	{
+	}
+	virtual void ConnectedToPreviewEvent()
+	{
+	}
 
-  /**
+	static void SetValueAtTime(const NodeInput &input, const rational &time,
+							   const QVariant &value, int track,
+							   MultiUndoCommand *command,
+							   bool insert_on_all_tracks_if_no_key);
+
+	/**
    * @brief Find path starting at `from` that outputs to arrive at `to`
    */
-  static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
+	static std::list<NodeInput> FindPath(Node *from, Node *to, int path_index);
 
-  void ArrayResizeInternal(const QString& id, int size);
+	void ArrayResizeInternal(const QString &id, int size);
 
-  virtual void AddedToGraphEvent(Project *p){}
-  virtual void RemovedFromGraphEvent(Project *p){}
+	virtual void AddedToGraphEvent(Project *p)
+	{
+	}
+	virtual void RemovedFromGraphEvent(Project *p)
+	{
+	}
 
-  static QString GetConnectCommandString(Node *output, const NodeInput &input);
-  static QString GetDisconnectCommandString(Node *output, const NodeInput &input);
+	static QString GetConnectCommandString(Node *output,
+										   const NodeInput &input);
+	static QString GetDisconnectCommandString(Node *output,
+											  const NodeInput &input);
 
-  static const QString kEnabledInput;
+	static const QString kEnabledInput;
+
+	OFX::Host::ImageEffect::Instance *getPluginInstance() const
+	{
+		return plugin_instance_;
+	}
+	OFX::Host::ImageEffect::ImageEffectPlugin *getPlugin() const
+	{
+		return plugin_instance_ ? plugin_instance_->getPlugin() : nullptr;
+	}
 
 protected:
-  void InsertInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags, int index);
+	// If set, this node owns a plugin instance.
+	OFX::Host::ImageEffect::Instance *plugin_instance_ = nullptr;
 
-  void PrependInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
-  {
-    InsertInput(id, type, default_value, flags, 0);
-  }
+	void setPluginInstance(OFX::Host::ImageEffect::Instance *instance)
+	{
+		plugin_instance_ = instance;
+	}
 
-  void PrependInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
-  {
-    PrependInput(id, type, QVariant(), flags);
-  }
+	void InsertInput(const QString &id, NodeValue::Type type,
+					 const QVariant &default_value, InputFlags flags,
+					 int index);
 
-  void AddInput(const QString& id, NodeValue::Type type, const QVariant& default_value, InputFlags flags = InputFlags(kInputFlagNormal))
-  {
-    InsertInput(id, type, default_value, flags, input_ids_.size());
-  }
+	void PrependInput(const QString &id, NodeValue::Type type,
+					  const QVariant &default_value,
+					  InputFlags flags = InputFlags(kInputFlagNormal))
+	{
+		InsertInput(id, type, default_value, flags, 0);
+	}
 
-  void AddInput(const QString& id, NodeValue::Type type, InputFlags flags = InputFlags(kInputFlagNormal))
-  {
-    AddInput(id, type, QVariant(), flags);
-  }
+	void PrependInput(const QString &id, NodeValue::Type type,
+					  InputFlags flags = InputFlags(kInputFlagNormal))
+	{
+		PrependInput(id, type, QVariant(), flags);
+	}
 
-  void RemoveInput(const QString& id);
+	void AddInput(const QString &id, NodeValue::Type type,
+				  const QVariant &default_value,
+				  InputFlags flags = InputFlags(kInputFlagNormal))
+	{
+		InsertInput(id, type, default_value, flags, input_ids_.size());
+	}
 
-  void SetComboBoxStrings(const QString& id, const QStringList& strings)
-  {
-    SetInputProperty(id, QStringLiteral("combo_str"), strings);
-  }
+	void AddInput(const QString &id, NodeValue::Type type,
+				  InputFlags flags = InputFlags(kInputFlagNormal))
+	{
+		AddInput(id, type, QVariant(), flags);
+	}
 
-  void SendInvalidateCache(const TimeRange &range, const InvalidateCacheOptions &options);
+	void RemoveInput(const QString &id);
 
-  enum GizmoScaleHandles {
-    kGizmoScaleTopLeft,
-    kGizmoScaleTopCenter,
-    kGizmoScaleTopRight,
-    kGizmoScaleBottomLeft,
-    kGizmoScaleBottomCenter,
-    kGizmoScaleBottomRight,
-    kGizmoScaleCenterLeft,
-    kGizmoScaleCenterRight,
-    kGizmoScaleCount,
-  };
+	void SetComboBoxStrings(const QString &id, const QStringList &strings)
+	{
+		SetInputProperty(id, QStringLiteral("combo_str"), strings);
+	}
 
-  virtual void LinkChangeEvent(){}
+	void SendInvalidateCache(const TimeRange &range,
+							 const InvalidateCacheOptions &options);
 
-  virtual void InputValueChangedEvent(const QString& input, int element);
+	enum GizmoScaleHandles {
+		kGizmoScaleTopLeft,
+		kGizmoScaleTopCenter,
+		kGizmoScaleTopRight,
+		kGizmoScaleBottomLeft,
+		kGizmoScaleBottomCenter,
+		kGizmoScaleBottomRight,
+		kGizmoScaleCenterLeft,
+		kGizmoScaleCenterRight,
+		kGizmoScaleCount,
+	};
 
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output);
+	virtual void LinkChangeEvent()
+	{
+	}
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output);
+	virtual void InputValueChangedEvent(const QString &input, int element);
 
-  virtual void OutputConnectedEvent(const NodeInput& input);
+	virtual void InputConnectedEvent(const QString &input, int element,
+									 Node *output);
 
-  virtual void OutputDisconnectedEvent(const NodeInput& input);
+	virtual void InputDisconnectedEvent(const QString &input, int element,
+										Node *output);
 
-  virtual void childEvent(QChildEvent *event) override;
+	virtual void OutputConnectedEvent(const NodeInput &input);
 
-  void SetEffectInput(const QString &input)
-  {
-    effect_input_ = input;
-  }
+	virtual void OutputDisconnectedEvent(const NodeInput &input);
 
-  void SetFlag(Flag f, bool on = true)
-  {
-    if (on) {
-      flags_ |= f;
-    } else {
-      flags_ &= ~f;
-    }
-  }
+	virtual void childEvent(QChildEvent *event) override;
 
-  template<typename T>
-  T *AddDraggableGizmo(const QVector<NodeKeyframeTrackReference> &inputs = QVector<NodeKeyframeTrackReference>(), DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
-  {
-    T *gizmo = new T(this);
-    gizmo->SetDragValueBehavior(behavior);
-    foreach (const NodeKeyframeTrackReference &input, inputs) {
-      gizmo->AddInput(input);
-    }
-    connect(gizmo, &DraggableGizmo::HandleStart, this, &Node::GizmoDragStart);
-    connect(gizmo, &DraggableGizmo::HandleMovement, this, &Node::GizmoDragMove);
-    return gizmo;
-  }
+	void SetEffectInput(const QString &input)
+	{
+		effect_input_ = input;
+	}
 
-  template<typename T>
-  T *AddDraggableGizmo(const QStringList &inputs, DraggableGizmo::DragValueBehavior behavior = DraggableGizmo::kDeltaFromStart)
-  {
-    QVector<NodeKeyframeTrackReference> refs(inputs.size());
-    for (int i=0; i<refs.size(); i++) {
-      refs[i] = NodeInput(this, inputs[i]);
-    }
-    return AddDraggableGizmo<T>(refs, behavior);
-  }
+	void SetFlag(Flag f, bool on = true)
+	{
+		if (on) {
+			flags_ |= f;
+		} else {
+			flags_ &= ~f;
+		}
+	}
+
+	template <typename T>
+	T *AddDraggableGizmo(const QVector<NodeKeyframeTrackReference> &inputs =
+							 QVector<NodeKeyframeTrackReference>(),
+						 DraggableGizmo::DragValueBehavior behavior =
+							 DraggableGizmo::kDeltaFromStart)
+	{
+		T *gizmo = new T(this);
+		gizmo->SetDragValueBehavior(behavior);
+		foreach (const NodeKeyframeTrackReference &input, inputs) {
+			gizmo->AddInput(input);
+		}
+		connect(gizmo, &DraggableGizmo::HandleStart, this,
+				&Node::GizmoDragStart);
+		connect(gizmo, &DraggableGizmo::HandleMovement, this,
+				&Node::GizmoDragMove);
+		return gizmo;
+	}
+
+	template <typename T>
+	T *AddDraggableGizmo(const QStringList &inputs,
+						 DraggableGizmo::DragValueBehavior behavior =
+							 DraggableGizmo::kDeltaFromStart)
+	{
+		QVector<NodeKeyframeTrackReference> refs(inputs.size());
+		for (int i = 0; i < refs.size(); i++) {
+			refs[i] = NodeInput(this, inputs[i]);
+		}
+		return AddDraggableGizmo<T>(refs, behavior);
+	}
 
 protected slots:
-  virtual void GizmoDragStart(const olive::NodeValueRow &row, double x, double y, const olive::core::rational &time){}
+	virtual void GizmoDragStart(const olive::NodeValueRow &row, double x,
+								double y, const olive::core::rational &time)
+	{
+	}
 
-  virtual void GizmoDragMove(double x, double y, const Qt::KeyboardModifiers &modifiers){}
+	virtual void GizmoDragMove(double x, double y,
+							   const Qt::KeyboardModifiers &modifiers)
+	{
+	}
 
 signals:
-  /**
+	/**
    * @brief Signal emitted when SetLabel() is called
    */
-  void LabelChanged(const QString& s);
+	void LabelChanged(const QString &s);
 
-  void ColorChanged();
+	void ColorChanged();
 
-  void ValueChanged(const NodeInput& input, const TimeRange& range);
+	void ValueChanged(const NodeInput &input, const TimeRange &range);
 
-  void InputConnected(Node *output, const NodeInput& input);
+	void InputConnected(Node *output, const NodeInput &input);
 
-  void InputDisconnected(Node *output, const NodeInput& input);
+	void InputDisconnected(Node *output, const NodeInput &input);
 
-  void OutputConnected(Node *output, const NodeInput& input);
+	void OutputConnected(Node *output, const NodeInput &input);
 
-  void OutputDisconnected(Node *output, const NodeInput& input);
+	void OutputDisconnected(Node *output, const NodeInput &input);
 
-  void InputValueHintChanged(const NodeInput& input);
+	void InputValueHintChanged(const NodeInput &input);
 
-  void InputPropertyChanged(const QString& input, const QString& key, const QVariant& value);
+	void InputPropertyChanged(const QString &input, const QString &key,
+							  const QVariant &value);
 
-  void LinksChanged();
+	void LinksChanged();
 
-  void InputArraySizeChanged(const QString& input, int old_size, int new_size);
+	void InputArraySizeChanged(const QString &input, int old_size,
+							   int new_size);
 
-  void KeyframeAdded(NodeKeyframe* key);
+	void KeyframeAdded(NodeKeyframe *key);
 
-  void KeyframeRemoved(NodeKeyframe* key);
+	void KeyframeRemoved(NodeKeyframe *key);
 
-  void KeyframeTimeChanged(NodeKeyframe* key);
+	void KeyframeTimeChanged(NodeKeyframe *key);
 
-  void KeyframeTypeChanged(NodeKeyframe* key);
+	void MessageCountChanged();
 
-  void KeyframeValueChanged(NodeKeyframe* key);
+	void KeyframeTypeChanged(NodeKeyframe *key);
 
-  void KeyframeEnableChanged(const NodeInput& input, bool enabled);
+	void KeyframeValueChanged(NodeKeyframe *key);
 
-  void InputAdded(const QString& id);
+	void KeyframeEnableChanged(const NodeInput &input, bool enabled);
 
-  void InputRemoved(const QString& id);
+	void InputAdded(const QString &id);
 
-  void InputNameChanged(const QString& id, const QString& name);
+	void InputRemoved(const QString &id);
 
-  void InputDataTypeChanged(const QString& id, NodeValue::Type type);
+	void InputNameChanged(const QString &id, const QString &name);
 
-  void AddedToGraph(Project* graph);
+	void InputDataTypeChanged(const QString &id, NodeValue::Type type);
 
-  void RemovedFromGraph(Project* graph);
+	void AddedToGraph(Project *graph);
 
-  void NodeAddedToContext(Node *node);
+	void RemovedFromGraph(Project *graph);
 
-  void NodePositionInContextChanged(Node *node, const QPointF &pos);
+	void NodeAddedToContext(Node *node);
 
-  void NodeRemovedFromContext(Node *node);
+	void NodePositionInContextChanged(Node *node, const QPointF &pos);
 
-  void InputFlagsChanged(const QString &input, const InputFlags &flags);
+	void NodeRemovedFromContext(Node *node);
+
+	void InputFlagsChanged(const QString &input, const InputFlags &flags);
 
 private:
-  struct Input {
-    NodeValue::Type type;
-    InputFlags flags;
-    SplitValue default_value;
-    QHash<QString, QVariant> properties;
-    QString human_name;
-    int array_size;
-  };
+	struct Input {
+		NodeValue::Type type;
+		InputFlags flags;
+		SplitValue default_value;
+		QHash<QString, QVariant> properties;
+		QString human_name;
+		int array_size;
+	};
 
-  NodeInputImmediate* CreateImmediate(const QString& input);
+	NodeInputImmediate *CreateImmediate(const QString &input);
 
-  int GetInternalInputIndex(const QString& input) const
-  {
-    return input_ids_.indexOf(input);
-  }
+	int GetInternalInputIndex(const QString &input) const
+	{
+		return input_ids_.indexOf(input);
+	}
 
-  Input* GetInternalInputData(const QString& input)
-  {
-    int i = GetInternalInputIndex(input);
+	Input *GetInternalInputData(const QString &input)
+	{
+		int i = GetInternalInputIndex(input);
 
-    if (i == -1) {
-      return nullptr;
-    } else {
-      return &input_data_[i];
-    }
-  }
+		if (i == -1) {
+			return nullptr;
+		} else {
+			return &input_data_[i];
+		}
+	}
 
-  const Input* GetInternalInputData(const QString& input) const
-  {
-    int i = GetInternalInputIndex(input);
+	const Input *GetInternalInputData(const QString &input) const
+	{
+		int i = GetInternalInputIndex(input);
 
-    if (i == -1) {
-      return nullptr;
-    } else {
-      return &input_data_.at(i);
-    }
-  }
+		if (i == -1) {
+			return nullptr;
+		} else {
+			return &input_data_.at(i);
+		}
+	}
 
-  void ReportInvalidInput(const char* attempted_action, const QString &id, int element) const;
+	void ReportInvalidInput(const char *attempted_action, const QString &id,
+							int element) const;
 
-  static Node *CopyNodeAndDependencyGraphMinusItemsInternal(QMap<Node *, Node *> &created, Node *node, MultiUndoCommand *command);
+	static Node *CopyNodeAndDependencyGraphMinusItemsInternal(
+		QMap<Node *, Node *> &created, Node *node, MultiUndoCommand *command);
 
-  /**
+	/**
    * @brief Immediates aren't deleted, so the actual array size may be larger than ArraySize()
    */
-  int GetInternalInputArraySize(const QString& input);
+	int GetInternalInputArraySize(const QString &input);
 
-  /**
+	/**
    * @brief Find nodes of a certain type that this Node takes inputs from
    */
-  template<class T>
-  static void FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *>& list, int maximum);
+	template <class T>
+	static void FindInputNodesConnectedToInputInternal(const NodeInput &input,
+													   QVector<T *> &list,
+													   int maximum);
 
-  template<class T>
-  static void FindInputNodeInternal(const Node* n, QVector<T *>& list, int maximum);
+	template <class T>
+	static void FindInputNodeInternal(const Node *n, QVector<T *> &list,
+									  int maximum);
 
-  QVector<Node*> GetDependenciesInternal(bool traverse, bool exclusive_only) const;
+	QVector<Node *> GetDependenciesInternal(bool traverse,
+											bool exclusive_only) const;
 
-  void ParameterValueChanged(const QString &input, int element, const olive::core::TimeRange &range);
-  void ParameterValueChanged(const NodeInput& input, const olive::core::TimeRange &range)
-  {
-    ParameterValueChanged(input.input(), input.element(), range);
-  }
+	void ParameterValueChanged(const QString &input, int element,
+							   const olive::core::TimeRange &range);
+	void ParameterValueChanged(const NodeInput &input,
+							   const olive::core::TimeRange &range)
+	{
+		ParameterValueChanged(input.input(), input.element(), range);
+	}
 
-  /**
+	/**
    * @brief Intelligently determine how what time range is affected by a keyframe
    */
-  TimeRange GetRangeAffectedByKeyframe(NodeKeyframe *key) const;
+	TimeRange GetRangeAffectedByKeyframe(NodeKeyframe *key) const;
 
-  /**
+	/**
    * @brief Gets a time range between the previous and next keyframes of index
    */
-  TimeRange GetRangeAroundIndex(const QString& input, int index, int track, int element) const;
+	TimeRange GetRangeAroundIndex(const QString &input, int index, int track,
+								  int element) const;
 
-  void ClearElement(const QString &input, int index);
+	void ClearElement(const QString &input, int index);
 
-  /**
+	/**
    * @brief Custom user label for node
    */
-  QString label_;
+	QString label_;
 
-  /**
+	/**
    * @brief -1 if the color should be based on the category, >=0 if the user has set a custom color
    */
-  int override_color_;
+	int override_color_;
 
-  /**
+	/**
    * @brief Nodes that are linked with this one
    */
-  QVector<Node*> links_;
+	QVector<Node *> links_;
 
-  QVector<QString> input_ids_;
-  QVector<Input> input_data_;
+	QVector<QString> input_ids_;
+	QVector<Input> input_data_;
 
-  QMap<QString, NodeInputImmediate*> standard_immediates_;
+	QMap<QString, NodeInputImmediate *> standard_immediates_;
 
-  QMap<QString, QVector<NodeInputImmediate*> > array_immediates_;
+	QMap<QString, QVector<NodeInputImmediate *>> array_immediates_;
 
-  InputConnections input_connections_;
+	InputConnections input_connections_;
 
-  OutputConnections output_connections_;
+	OutputConnections output_connections_;
 
-  Folder* folder_;
+	Folder *folder_;
 
-  QMap<InputElementPair, ValueHint> value_hints_;
+	QMap<InputElementPair, ValueHint> value_hints_;
 
-  PositionMap context_positions_;
+	PositionMap context_positions_;
 
-  uint64_t flags_;
+	uint64_t flags_;
 
-  QVector<NodeGizmo*> gizmos_;
+	QVector<NodeGizmo *> gizmos_;
 
-  QString effect_input_;
+	QString effect_input_;
 
-  FrameHashCache *video_cache_;
-  ThumbnailCache *thumbnail_cache_;
+	FrameHashCache *video_cache_;
+	ThumbnailCache *thumbnail_cache_;
 
-  AudioPlaybackCache *audio_cache_;
-  AudioWaveformCache *waveform_cache_;
+	AudioPlaybackCache *audio_cache_;
+	AudioWaveformCache *waveform_cache_;
 
-  bool caches_enabled_;
+	bool caches_enabled_;
 
 private slots:
-  /**
+	/**
    * @brief Slot when a keyframe's time changes to keep the keyframes correctly sorted by time
    */
-  void InvalidateFromKeyframeTimeChange();
+	void InvalidateFromKeyframeTimeChange();
 
-  /**
+	/**
    * @brief Slot when a keyframe's value changes to signal that the cache needs updating
    */
-  void InvalidateFromKeyframeValueChange();
+	void InvalidateFromKeyframeValueChange();
 
-  /**
+	/**
    * @brief Slot when a keyframe's type changes to signal that the cache needs updating
    */
-  void InvalidateFromKeyframeTypeChanged();
+	void InvalidateFromKeyframeTypeChanged();
 
-  /**
+	/**
    * @brief Slot when a keyframe's bezier in value changes to signal that the cache needs updating
    */
-  void InvalidateFromKeyframeBezierInChange();
+	void InvalidateFromKeyframeBezierInChange();
 
-  /**
+	/**
    * @brief Slot when a keyframe's bezier out value changes to signal that the cache needs updating
    */
-  void InvalidateFromKeyframeBezierOutChange();
-
+	void InvalidateFromKeyframeBezierOutChange();
 };
 
-template<class T>
-void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input, QVector<T *> &list, int maximum)
+template <class T>
+void Node::FindInputNodesConnectedToInputInternal(const NodeInput &input,
+												  QVector<T *> &list,
+												  int maximum)
 {
-  Node* edge = input.GetConnectedOutput();
-  if (!edge) {
-    return;
-  }
+	Node *edge = input.GetConnectedOutput();
+	if (!edge) {
+		return;
+	}
 
-  T* cast_test = dynamic_cast<T*>(edge);
+	T *cast_test = dynamic_cast<T *>(edge);
 
-  if (cast_test) {
-    list.append(cast_test);
-    if (maximum != 0 && list.size() == maximum) {
-      return;
-    }
-  }
+	if (cast_test) {
+		list.append(cast_test);
+		if (maximum != 0 && list.size() == maximum) {
+			return;
+		}
+	}
 
-  FindInputNodeInternal<T>(edge, list, maximum);
+	FindInputNodeInternal<T>(edge, list, maximum);
 }
 
-template<class T>
-QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input, int maximum)
+template <class T>
+QVector<T *> Node::FindInputNodesConnectedToInput(const NodeInput &input,
+												  int maximum)
 {
-  QVector<T *> list;
+	QVector<T *> list;
 
-  FindInputNodesConnectedToInputInternal<T>(input, list, maximum);
+	FindInputNodesConnectedToInputInternal<T>(input, list, maximum);
 
-  return list;
+	return list;
 }
 
-template<class T>
-void Node::FindInputNodeInternal(const Node* n, QVector<T *> &list, int maximum)
+template <class T>
+void Node::FindInputNodeInternal(const Node *n, QVector<T *> &list, int maximum)
 {
-  for (auto it=n->input_connections_.cbegin(); it!=n->input_connections_.cend(); it++) {
-    FindInputNodesConnectedToInputInternal(it->first, list, maximum);
-  }
+	for (auto it = n->input_connections_.cbegin();
+		 it != n->input_connections_.cend(); it++) {
+		FindInputNodesConnectedToInputInternal(it->first, list, maximum);
+	}
 }
 
-template<class T>
-QVector<T *> Node::FindInputNodes(int maximum) const
+template <class T> QVector<T *> Node::FindInputNodes(int maximum) const
 {
-  QVector<T *> list;
+	QVector<T *> list;
 
-  FindInputNodeInternal<T>(this, list, maximum);
+	FindInputNodeInternal<T>(this, list, maximum);
 
-  return list;
+	return list;
 }
 
 }

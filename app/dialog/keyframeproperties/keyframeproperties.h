@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,41 +30,42 @@
 #include "widget/slider/floatslider.h"
 #include "widget/slider/rationalslider.h"
 
-namespace olive {
-
-class KeyframePropertiesDialog : public QDialog
+namespace olive
 {
-  Q_OBJECT
+
+class KeyframePropertiesDialog : public QDialog {
+	Q_OBJECT
 public:
-  KeyframePropertiesDialog(const std::vector<NodeKeyframe*>& keys, const rational& timebase, QWidget* parent = nullptr);
+	KeyframePropertiesDialog(const std::vector<NodeKeyframe *> &keys,
+							 const rational &timebase,
+							 QWidget *parent = nullptr);
 
 public slots:
-  virtual void accept() override;
+	virtual void accept() override;
 
 private:
-  void SetUpBezierSlider(FloatSlider *slider, bool all_same, double value);
+	void SetUpBezierSlider(FloatSlider *slider, bool all_same, double value);
 
-  const std::vector<NodeKeyframe*>& keys_;
+	const std::vector<NodeKeyframe *> &keys_;
 
-  rational timebase_;
+	rational timebase_;
 
-  RationalSlider* time_slider_;
+	RationalSlider *time_slider_;
 
-  QComboBox* type_select_;
+	QComboBox *type_select_;
 
-  QGroupBox* bezier_group_;
+	QGroupBox *bezier_group_;
 
-  FloatSlider* bezier_in_x_slider_;
+	FloatSlider *bezier_in_x_slider_;
 
-  FloatSlider* bezier_in_y_slider_;
+	FloatSlider *bezier_in_y_slider_;
 
-  FloatSlider* bezier_out_x_slider_;
+	FloatSlider *bezier_out_x_slider_;
 
-  FloatSlider* bezier_out_y_slider_;
+	FloatSlider *bezier_out_y_slider_;
 
 private slots:
-  void KeyTypeChanged(int index);
-
+	void KeyTypeChanged(int index);
 };
 
 }

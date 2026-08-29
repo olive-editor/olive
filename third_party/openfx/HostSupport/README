@@ -1,0 +1,69 @@
+This directory contains source to an implementation of an OFX host C++ support library.
+This library skins the raw C API with a C++ layer, which is easy to program and abstracts
+the base API.
+
+It does several things,
+	- skins the C API with C++ classes, the host application 'only' needs to
+                 - derive several classes
+                 - implement a bunch of virtual methods
+                 - set some OFX properties
+        - does most of the complicated logic in OFX,
+                 - regions of interest calls
+                 - clip preferences calls     
+        - provides a persistent plug-in caching mechanism so that
+                 - newly installed plug-ins are described into a cache file,
+                 - the cache persists as an XML file with enough information
+                   to construct simple menus etc..
+                 - once cached, plug-ins need only be loaded on demand.
+        - is extensible beyond the base API,
+                 - allows hosts to provide extra suites and properties fairly easily.
+        - it is generic beyond ImageEffects APIs, so other APIs can be implemented
+             on the core sections of it.
+
+Apart from standard C and C++ libraries it is dependent on the expat XML library.
+
+You'll still need to understand what the API actually does, its just that the implementation details that become easier.
+
+The layer could do with some improvement, specifically,
+	- support for the external XML resource file,
+        - a degree more tidying up,
+        - parameter interacts
+        - more documentation.
+
+Released under a BSD-style licence: see source.
+
+Authors:
+         Abigail Brady <abigail@thefoundry.co.uk>
+         Andrew Whitmore <andy@thefoundry.co.uk>
+         Bruno Nicoletti <bruno@thefoundry.co.uk>
+
+Release Notes
+-------------
+
+26/03/2007
+
+Minimum implementation, which allows plugin descriptions to be cached.  Includes property sets and
+property suite and implementation of plugin description.  Support for describing in context and
+parameters not fully enabled.
+
+29/03/2007
+
+Support for describing in contexts and parameters.  These are cached as well.
+
+25/06/2007
+
+Major overhaul of the thing,
+      - propertys made simpler to use
+      - re-namespaced several classes so that anything to do with image effects are
+         in the ImageEffect namespace
+      - made the host layer do the logic for several Image Effect actions
+        - clip preferences
+        - regions of interest
+      - simplified the function signatures of the actions
+      - the 'Host' class now acts as,
+         - a factory,
+         - a filter for constructed objects,
+         - a description of the host application to the plugin.
+
+# SPDX-License-Identifier: BSD-3-Clause
+

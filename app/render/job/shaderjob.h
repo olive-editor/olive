@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,95 +28,94 @@
 #include "acceleratedjob.h"
 #include "render/texture.h"
 
-namespace olive {
-
-class ShaderJob : public AcceleratedJob
+namespace olive
 {
+
+class ShaderJob : public AcceleratedJob {
 public:
-  ShaderJob()
-  {
-    iterations_ = 1;
-    iterative_input_ = nullptr;
-  }
+	ShaderJob()
+	{
+		iterations_ = 1;
+		iterative_input_ = nullptr;
+	}
 
-  ShaderJob(const NodeValueRow &row) :
-    ShaderJob()
-  {
-    Insert(row);
-  }
+	ShaderJob(const NodeValueRow &row)
+		: ShaderJob()
+	{
+		Insert(row);
+	}
 
-  const QString& GetShaderID() const
-  {
-    return shader_id_;
-  }
+	const QString &GetShaderID() const
+	{
+		return shader_id_;
+	}
 
-  void SetShaderID(const QString& id)
-  {
-    shader_id_ = id;
-  }
+	void SetShaderID(const QString &id)
+	{
+		shader_id_ = id;
+	}
 
-  void SetIterations(int iterations, const NodeInput& iterative_input)
-  {
-    SetIterations(iterations, iterative_input.input());
-  }
+	void SetIterations(int iterations, const NodeInput &iterative_input)
+	{
+		SetIterations(iterations, iterative_input.input());
+	}
 
-  void SetIterations(int iterations, const QString& iterative_input)
-  {
-    iterations_ = iterations;
-    iterative_input_ = iterative_input;
-  }
+	void SetIterations(int iterations, const QString &iterative_input)
+	{
+		iterations_ = iterations;
+		iterative_input_ = iterative_input;
+	}
 
-  int GetIterationCount() const
-  {
-    return iterations_;
-  }
+	int GetIterationCount() const
+	{
+		return iterations_;
+	}
 
-  const QString& GetIterativeInput() const
-  {
-    return iterative_input_;
-  }
+	const QString &GetIterativeInput() const
+	{
+		return iterative_input_;
+	}
 
-  Texture::Interpolation GetInterpolation(const QString& id) const
-  {
-    return interpolation_.value(id, Texture::kDefaultInterpolation);
-  }
+	Texture::Interpolation GetInterpolation(const QString &id) const
+	{
+		return interpolation_.value(id, Texture::kDefaultInterpolation);
+	}
 
-  const QHash<QString, Texture::Interpolation> &GetInterpolationMap() const
-  {
-    return interpolation_;
-  }
+	const QHash<QString, Texture::Interpolation> &GetInterpolationMap() const
+	{
+		return interpolation_;
+	}
 
-  void SetInterpolation(const NodeInput& input, Texture::Interpolation interp)
-  {
-    interpolation_.insert(input.input(), interp);
-  }
+	void SetInterpolation(const NodeInput &input, Texture::Interpolation interp)
+	{
+		interpolation_.insert(input.input(), interp);
+	}
 
-  void SetInterpolation(const QString& id, Texture::Interpolation interp)
-  {
-    interpolation_.insert(id, interp);
-  }
+	void SetInterpolation(const QString &id, Texture::Interpolation interp)
+	{
+		interpolation_.insert(id, interp);
+	}
 
-  void SetVertexCoordinates(const QVector<float> &vertex_coords)
-  {
-    vertex_overrides_ = vertex_coords;
-  }
+	void SetVertexCoordinates(const QVector<float> &vertex_coords)
+	{
+		vertex_overrides_ = vertex_coords;
+	}
 
-  const QVector<float>& GetVertexCoordinates()
-  {
-    return vertex_overrides_;
-  }
+	const QVector<float> &GetVertexCoordinates()
+	{
+		return vertex_overrides_;
+	}
 
 private:
-  QString shader_id_;
+	QString shader_id_;
 
-  int iterations_;
+	int iterations_;
 
-  QString iterative_input_;
+	QString iterative_input_;
 
-  QHash<QString, Texture::Interpolation> interpolation_;
+	QHash<QString, Texture::Interpolation> interpolation_;
 
-  QVector<float> vertex_overrides_;
-
+	QVector<float> vertex_overrides_;
 };
 
 }

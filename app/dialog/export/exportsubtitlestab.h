@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -29,40 +30,52 @@
 #include "common/qtutils.h"
 #include "dialog/export/exportformatcombobox.h"
 
-namespace olive {
-
-class ExportSubtitlesTab : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ExportSubtitlesTab : public QWidget {
+	Q_OBJECT
 public:
-  ExportSubtitlesTab(QWidget *parent = nullptr);
+	ExportSubtitlesTab(QWidget *parent = nullptr);
 
-  bool GetSidecarEnabled() const { return sidecar_checkbox_->isChecked(); }
-  void SetSidecarEnabled(bool e) { sidecar_checkbox_->setEnabled(e); }
+	bool GetSidecarEnabled() const
+	{
+		return sidecar_checkbox_->isChecked();
+	}
+	void SetSidecarEnabled(bool e)
+	{
+		sidecar_checkbox_->setChecked(e);
+	}
 
-  ExportFormat::Format GetSidecarFormat() const { return sidecar_format_combobox_->GetFormat(); }
-  void SetSidecarFormat(ExportFormat::Format f) { sidecar_format_combobox_->SetFormat(f); }
+	ExportFormat::Format GetSidecarFormat() const
+	{
+		return sidecar_format_combobox_->GetFormat();
+	}
+	void SetSidecarFormat(ExportFormat::Format f)
+	{
+		sidecar_format_combobox_->SetFormat(f);
+	}
 
-  int SetFormat(ExportFormat::Format format);
+	int SetFormat(ExportFormat::Format format);
 
-  ExportCodec::Codec GetSubtitleCodec()
-  {
-    return static_cast<ExportCodec::Codec>(codec_combobox_->currentData().toInt());
-  }
+	ExportCodec::Codec GetSubtitleCodec()
+	{
+		return static_cast<ExportCodec::Codec>(
+			codec_combobox_->currentData().toInt());
+	}
 
-  void SetSubtitleCodec(ExportCodec::Codec c)
-  {
-    QtUtils::SetComboBoxData(codec_combobox_, c);
-  }
+	void SetSubtitleCodec(ExportCodec::Codec c)
+	{
+		QtUtils::SetComboBoxData(codec_combobox_, c);
+	}
 
 private:
-  QCheckBox *sidecar_checkbox_;
+	QCheckBox *sidecar_checkbox_;
 
-  QLabel *sidecar_format_label_;
-  ExportFormatComboBox *sidecar_format_combobox_;
+	QLabel *sidecar_format_label_;
+	ExportFormatComboBox *sidecar_format_combobox_;
 
-  QComboBox *codec_combobox_;
-
+	QComboBox *codec_combobox_;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,23 +24,22 @@
 
 #include "node/block/block.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief Node that represents nothing in its respective track for a certain period of time
  */
-class GapBlock : public Block
-{
-  Q_OBJECT
+class GapBlock : public Block {
+	Q_OBJECT
 public:
-  GapBlock();
+	GapBlock();
 
-  NODE_DEFAULT_FUNCTIONS(GapBlock)
+	NODE_DEFAULT_FUNCTIONS(GapBlock)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QString Description() const override;
-
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QString Description() const override;
 };
 
 }

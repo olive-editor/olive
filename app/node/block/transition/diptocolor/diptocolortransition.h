@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,30 +24,31 @@
 
 #include "node/block/transition/transition.h"
 
-namespace olive {
-
-class DipToColorTransition : public TransitionBlock
+namespace olive
 {
-  Q_OBJECT
+
+class DipToColorTransition : public TransitionBlock {
+	Q_OBJECT
 public:
-  DipToColorTransition();
+	DipToColorTransition();
 
-  NODE_DEFAULT_FUNCTIONS(DipToColorTransition)
+	NODE_DEFAULT_FUNCTIONS(DipToColorTransition)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  static const QString kColorInput;
+	static const QString kColorInput;
 
 protected:
-  virtual void ShaderJobEvent(const NodeValueRow &value, ShaderJob *job) const override;
-
+	virtual void ShaderJobEvent(const NodeValueRow &value,
+								ShaderJob *job) const override;
 };
 
 }

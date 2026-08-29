@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,79 +24,86 @@
 #include <QGridLayout>
 #include <QGroupBox>
 
-namespace olive {
-
-BezierWidget::BezierWidget(QWidget *parent) :
-  QWidget{parent}
+namespace olive
 {
-  QGridLayout *layout = new QGridLayout(this);
 
-  int row = 0;
+BezierWidget::BezierWidget(QWidget *parent)
+	: QWidget{ parent }
+{
+	QGridLayout *layout = new QGridLayout(this);
 
-  layout->addWidget(new QLabel(tr("Center:")), row, 0);
+	int row = 0;
 
-  x_slider_ = new FloatSlider();
-  connect(x_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  layout->addWidget(x_slider_, row, 1);
+	layout->addWidget(new QLabel(tr("Center:")), row, 0);
 
-  y_slider_ = new FloatSlider();
-  connect(y_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  layout->addWidget(y_slider_, row, 2);
+	x_slider_ = new FloatSlider();
+	connect(x_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	layout->addWidget(x_slider_, row, 1);
 
-  row++;
+	y_slider_ = new FloatSlider();
+	connect(y_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	layout->addWidget(y_slider_, row, 2);
 
-  QGroupBox *bezier_group = new QGroupBox(tr("Bezier"));
-  layout->addWidget(bezier_group, row, 0, 1, 3);
+	row++;
 
-  QGridLayout *bezier_layout = new QGridLayout(bezier_group);
+	QGroupBox *bezier_group = new QGroupBox(tr("Bezier"));
+	layout->addWidget(bezier_group, row, 0, 1, 3);
 
-  row = 0;
+	QGridLayout *bezier_layout = new QGridLayout(bezier_group);
 
-  bezier_layout->addWidget(new QLabel(tr("In:")), row, 0);
+	row = 0;
 
-  cp1_x_slider_ = new FloatSlider();
-  connect(cp1_x_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  bezier_layout->addWidget(cp1_x_slider_, row, 1);
+	bezier_layout->addWidget(new QLabel(tr("In:")), row, 0);
 
-  cp1_y_slider_ = new FloatSlider();
-  connect(cp1_y_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  bezier_layout->addWidget(cp1_y_slider_, row, 2);
+	cp1_x_slider_ = new FloatSlider();
+	connect(cp1_x_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	bezier_layout->addWidget(cp1_x_slider_, row, 1);
 
-  row++;
+	cp1_y_slider_ = new FloatSlider();
+	connect(cp1_y_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	bezier_layout->addWidget(cp1_y_slider_, row, 2);
 
-  bezier_layout->addWidget(new QLabel(tr("Out:")), row, 0);
+	row++;
 
-  cp2_x_slider_ = new FloatSlider();
-  connect(cp2_x_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  bezier_layout->addWidget(cp2_x_slider_, row, 1);
+	bezier_layout->addWidget(new QLabel(tr("Out:")), row, 0);
 
-  cp2_y_slider_ = new FloatSlider();
-  connect(cp2_y_slider_, &FloatSlider::ValueChanged, this, &BezierWidget::ValueChanged);
-  bezier_layout->addWidget(cp2_y_slider_, row, 2);
+	cp2_x_slider_ = new FloatSlider();
+	connect(cp2_x_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	bezier_layout->addWidget(cp2_x_slider_, row, 1);
+
+	cp2_y_slider_ = new FloatSlider();
+	connect(cp2_y_slider_, &FloatSlider::ValueChanged, this,
+			&BezierWidget::ValueChanged);
+	bezier_layout->addWidget(cp2_y_slider_, row, 2);
 }
 
 Bezier BezierWidget::GetValue() const
 {
-  Bezier b;
+	Bezier b;
 
-  b.set_x(x_slider_->GetValue());
-  b.set_y(y_slider_->GetValue());
-  b.set_cp1_x(cp1_x_slider_->GetValue());
-  b.set_cp1_y(cp1_y_slider_->GetValue());
-  b.set_cp2_x(cp2_x_slider_->GetValue());
-  b.set_cp2_y(cp2_y_slider_->GetValue());
+	b.set_x(x_slider_->GetValue());
+	b.set_y(y_slider_->GetValue());
+	b.set_cp1_x(cp1_x_slider_->GetValue());
+	b.set_cp1_y(cp1_y_slider_->GetValue());
+	b.set_cp2_x(cp2_x_slider_->GetValue());
+	b.set_cp2_y(cp2_y_slider_->GetValue());
 
-  return b;
+	return b;
 }
 
 void BezierWidget::SetValue(const Bezier &b)
 {
-  x_slider_->SetValue(b.x());
-  y_slider_->SetValue(b.y());
-  cp1_x_slider_->SetValue(b.cp1_x());
-  cp1_y_slider_->SetValue(b.cp1_y());
-  cp2_x_slider_->SetValue(b.cp2_x());
-  cp2_y_slider_->SetValue(b.cp2_y());
+	x_slider_->SetValue(b.x());
+	y_slider_->SetValue(b.y());
+	cp1_x_slider_->SetValue(b.cp1_x());
+	cp1_y_slider_->SetValue(b.cp1_y());
+	cp2_x_slider_->SetValue(b.cp2_x());
+	cp2_y_slider_->SetValue(b.cp2_y());
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,43 +27,43 @@
 #include "node/node.h"
 #include "node/inputdragger.h"
 
-namespace olive {
-
-class MatrixGenerator : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class MatrixGenerator : public Node {
+	Q_OBJECT
 public:
-  MatrixGenerator();
+	MatrixGenerator();
 
-  NODE_DEFAULT_FUNCTIONS(MatrixGenerator)
+	NODE_DEFAULT_FUNCTIONS(MatrixGenerator)
 
-  virtual QString Name() const override;
-  virtual QString ShortName() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString ShortName() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  static const QString kPositionInput;
-  static const QString kRotationInput;
-  static const QString kScaleInput;
-  static const QString kUniformScaleInput;
-  static const QString kAnchorInput;
+	static const QString kPositionInput;
+	static const QString kRotationInput;
+	static const QString kScaleInput;
+	static const QString kUniformScaleInput;
+	static const QString kAnchorInput;
 
 protected:
-  QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor, bool ignore_position, bool ignore_scale, const QMatrix4x4 &mat) const;
-  static QMatrix4x4 GenerateMatrix(const QVector2D &pos,
-                                   const float &rot,
-                                   const QVector2D &scale,
-                                   bool uniform_scale,
-                                   const QVector2D &anchor,
-                                   QMatrix4x4 mat);
+	QMatrix4x4 GenerateMatrix(const NodeValueRow &value, bool ignore_anchor,
+							  bool ignore_position, bool ignore_scale,
+							  const QMatrix4x4 &mat) const;
+	static QMatrix4x4 GenerateMatrix(const QVector2D &pos, const float &rot,
+									 const QVector2D &scale, bool uniform_scale,
+									 const QVector2D &anchor, QMatrix4x4 mat);
 
-  virtual void InputValueChangedEvent(const QString& input, int element) override;
-
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 };
 
 }

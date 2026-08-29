@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2023 Olive Studios LLC
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,27 +26,26 @@
 
 #include "common/define.h"
 
-namespace olive {
-
-class DragButton : public QPushButton
+namespace olive
 {
-  Q_OBJECT
+
+class DragButton : public QPushButton {
+	Q_OBJECT
 public:
-  DragButton(QWidget* parent = nullptr);
+	DragButton(QWidget *parent = nullptr);
 
 signals:
-  void DragStarted();
+	void DragStarted();
 
 protected:
-  virtual void mousePressEvent(QMouseEvent* event) override;
+	virtual void mousePressEvent(QMouseEvent *event) override;
 
-  virtual void mouseMoveEvent(QMouseEvent* event) override;
+	virtual void mouseMoveEvent(QMouseEvent *event) override;
 
-  virtual void mouseReleaseEvent(QMouseEvent* event) override;
+	virtual void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-  bool dragging_;
-
+	bool dragging_;
 };
 
 }

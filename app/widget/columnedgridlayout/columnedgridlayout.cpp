@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,39 +21,36 @@
 
 #include "columnedgridlayout.h"
 
-namespace olive {
+namespace olive
+{
 
-ColumnedGridLayout::ColumnedGridLayout(QWidget* parent,
-                                       int maximum_columns) :
-  QGridLayout (parent),
-  maximum_columns_(maximum_columns)
+ColumnedGridLayout::ColumnedGridLayout(QWidget *parent, int maximum_columns)
+	: QGridLayout(parent)
+	, maximum_columns_(maximum_columns)
 {
 }
 
 void ColumnedGridLayout::Add(QWidget *widget)
 {
-  if (maximum_columns_ > 0) {
+	if (maximum_columns_ > 0) {
+		int row = count() / maximum_columns_;
+		int column = count() % maximum_columns_;
 
-    int row = count() / maximum_columns_;
-    int column = count() % maximum_columns_;
+		addWidget(widget, row, column);
 
-    addWidget(widget, row, column);
-
-  } else {
-
-    addWidget(widget);
-
-  }
+	} else {
+		addWidget(widget);
+	}
 }
 
 int ColumnedGridLayout::MaximumColumns() const
 {
-  return maximum_columns_;
+	return maximum_columns_;
 }
 
 void ColumnedGridLayout::SetMaximumColumns(int maximum_columns)
 {
-  maximum_columns_ = maximum_columns;
+	maximum_columns_ = maximum_columns;
 }
 
 }

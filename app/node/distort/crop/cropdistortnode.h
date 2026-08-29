@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,62 +29,65 @@
 #include "node/inputdragger.h"
 #include "node/node.h"
 
-namespace olive {
-
-class CropDistortNode : public Node
+namespace olive
 {
-  Q_OBJECT
+
+class CropDistortNode : public Node {
+	Q_OBJECT
 public:
-  CropDistortNode();
+	CropDistortNode();
 
-  NODE_DEFAULT_FUNCTIONS(CropDistortNode)
+	NODE_DEFAULT_FUNCTIONS(CropDistortNode)
 
-  virtual QString Name() const override
-  {
-    return tr("Crop");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Crop");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.crop");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.crop");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryDistort};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryDistort };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Crop the edges of an image.");
-  }
+	virtual QString Description() const override
+	{
+		return tr("Crop the edges of an image.");
+	}
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
 
-  virtual void UpdateGizmoPositions(const NodeValueRow &row, const NodeGlobals &globals) override;
+	virtual void UpdateGizmoPositions(const NodeValueRow &row,
+									  const NodeGlobals &globals) override;
 
-  static const QString kTextureInput;
-  static const QString kLeftInput;
-  static const QString kTopInput;
-  static const QString kRightInput;
-  static const QString kBottomInput;
-  static const QString kFeatherInput;
+	static const QString kTextureInput;
+	static const QString kLeftInput;
+	static const QString kTopInput;
+	static const QString kRightInput;
+	static const QString kBottomInput;
+	static const QString kFeatherInput;
 
 protected slots:
-  virtual void GizmoDragMove(double delta_x, double delta_y, const Qt::KeyboardModifiers &modifiers) override;
+	virtual void GizmoDragMove(double delta_x, double delta_y,
+							   const Qt::KeyboardModifiers &modifiers) override;
 
 private:
-  void CreateCropSideInput(const QString& id);
+	void CreateCropSideInput(const QString &id);
 
-  // Gizmo variables
-  PointGizmo *point_gizmo_[kGizmoScaleCount];
-  PolygonGizmo *poly_gizmo_;
-  QVector2D temp_resolution_;
-
+	// Gizmo variables
+	PointGizmo *point_gizmo_[kGizmoScaleCount];
+	PolygonGizmo *poly_gizmo_;
+	QVector2D temp_resolution_;
 };
 
 }

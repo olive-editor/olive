@@ -16,25 +16,25 @@
 
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/project/serializer/serializer.cpp
-  node/project/serializer/serializer.h
-  node/project/serializer/serializer190219.cpp
-  node/project/serializer/serializer190219.h
-  node/project/serializer/serializer210528.cpp
-  node/project/serializer/serializer210528.h
-  node/project/serializer/serializer210907.cpp
-  node/project/serializer/serializer210907.h
-  node/project/serializer/serializer211228.cpp
-  node/project/serializer/serializer211228.h
-  node/project/serializer/serializer220403.cpp
-  node/project/serializer/serializer220403.h
-  node/project/serializer/serializer230220.cpp
-  node/project/serializer/serializer230220.h
+        ${OLIVE_SOURCES}
+        node/project/serializer/serializer.cpp
+        node/project/serializer/serializer.h
+        node/project/serializer/serializer190219.cpp
+        node/project/serializer/serializer190219.h
+        node/project/serializer/serializer210528.cpp
+        node/project/serializer/serializer210528.h
+        node/project/serializer/serializer210907.cpp
+        node/project/serializer/serializer210907.h
+        node/project/serializer/serializer211228.cpp
+        node/project/serializer/serializer211228.h
+        node/project/serializer/serializer220403.cpp
+        node/project/serializer/serializer220403.h
+        node/project/serializer/serializer230220.cpp
+        node/project/serializer/serializer230220.h
 
 
-  node/project/serializer/typeserializer.cpp
-  node/project/serializer/typeserializer.h
+        node/project/serializer/typeserializer.cpp
+        node/project/serializer/typeserializer.h
 
-  PARENT_SCOPE
+        PARENT_SCOPE
 )

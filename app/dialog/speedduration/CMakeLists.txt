@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/speedduration/speeddurationdialog.cpp
-  dialog/speedduration/speeddurationdialog.h
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/speedduration/speeddurationdialog.cpp
+        dialog/speedduration/speeddurationdialog.h
+        PARENT_SCOPE
 )

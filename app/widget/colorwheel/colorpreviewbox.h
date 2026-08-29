@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,29 +26,29 @@
 
 #include "render/colorprocessor.h"
 
-namespace olive {
-
-class ColorPreviewBox : public QWidget
+namespace olive
 {
-  Q_OBJECT
-public:
-  ColorPreviewBox(QWidget* parent = nullptr);
 
-  void SetColorProcessor(ColorProcessorPtr to_ref, ColorProcessorPtr to_display);
+class ColorPreviewBox : public QWidget {
+	Q_OBJECT
+public:
+	ColorPreviewBox(QWidget *parent = nullptr);
+
+	void SetColorProcessor(ColorProcessorPtr to_ref,
+						   ColorProcessorPtr to_display);
 
 public slots:
-  void SetColor(const Color& c);
+	void SetColor(const Color &c);
 
 protected:
-  virtual void paintEvent(QPaintEvent* e) override;
+	virtual void paintEvent(QPaintEvent *e) override;
 
 private:
-  Color color_;
+	Color color_;
 
-  ColorProcessorPtr to_ref_processor_;
+	ColorProcessorPtr to_ref_processor_;
 
-  ColorProcessorPtr to_display_processor_;
-
+	ColorProcessorPtr to_display_processor_;
 };
 
 }

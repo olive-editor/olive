@@ -20,5 +20,5 @@
 
 /* Make tab bar a little less chunky */
 QTabBar {
-  font-size: 9pt;
+    font-size: 9pt;
 }

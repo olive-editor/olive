@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  ui/cursors/cursors.qrc
-  PARENT_SCOPE
+        ${OLIVE_RESOURCES}
+        ui/cursors/cursors.qrc
+        PARENT_SCOPE
 )

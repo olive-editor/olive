@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,45 +29,43 @@
 #include "codecsection.h"
 #include "widget/slider/floatslider.h"
 
-namespace olive {
-
-class AV1CRFSection : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class AV1CRFSection : public QWidget {
+	Q_OBJECT
 public:
-  AV1CRFSection(int default_crf, QWidget* parent = nullptr);
+	AV1CRFSection(int default_crf, QWidget *parent = nullptr);
 
-  int GetValue() const;
+	int GetValue() const;
 
-  static const int kDefaultAV1CRF = 30;
+	static const int kDefaultAV1CRF = 30;
 
 private:
-  static const int kMinimumCRF = 0;
-  static const int kMaximumCRF = 63;
+	static const int kMinimumCRF = 0;
+	static const int kMaximumCRF = 63;
 
-  QSlider* crf_slider_;
-
+	QSlider *crf_slider_;
 };
 
-class AV1Section : public CodecSection
-{
-  Q_OBJECT
+class AV1Section : public CodecSection {
+	Q_OBJECT
 public:
-  enum CompressionMethod {
-    kConstantRateFactor,
-  };
+	enum CompressionMethod {
+		kConstantRateFactor,
+	};
 
-  AV1Section(QWidget* parent = nullptr);
-  AV1Section(int default_crf, QWidget* parent);
+	AV1Section(QWidget *parent = nullptr);
+	AV1Section(int default_crf, QWidget *parent);
 
-  virtual void AddOpts(EncodingParams* params) override;
+	virtual void AddOpts(EncodingParams *params) override;
 
 private:
-  QStackedWidget* compression_method_stack_;
+	QStackedWidget *compression_method_stack_;
 
-  AV1CRFSection* crf_section_;
+	AV1CRFSection *crf_section_;
 
-  QComboBox *preset_combobox_;
+	QComboBox *preset_combobox_;
 };
 
 }

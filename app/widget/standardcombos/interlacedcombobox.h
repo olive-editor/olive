@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,31 +26,30 @@
 
 #include "render/videoparams.h"
 
-namespace olive {
-
-class InterlacedComboBox : public QComboBox
+namespace olive
 {
-  Q_OBJECT
+
+class InterlacedComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  InterlacedComboBox(QWidget* parent = nullptr) :
-    QComboBox(parent)
-  {
-    // These must match the Interlacing enum in VideoParams
-    this->addItem(tr("None (Progressive)"));
-    this->addItem(tr("Top-Field First"));
-    this->addItem(tr("Bottom-Field First"));
-  }
+	InterlacedComboBox(QWidget *parent = nullptr)
+		: QComboBox(parent)
+	{
+		// These must match the Interlacing enum in VideoParams
+		this->addItem(tr("None (Progressive)"));
+		this->addItem(tr("Top-Field First"));
+		this->addItem(tr("Bottom-Field First"));
+	}
 
-  VideoParams::Interlacing GetInterlaceMode() const
-  {
-    return static_cast<VideoParams::Interlacing>(this->currentIndex());
-  }
+	VideoParams::Interlacing GetInterlaceMode() const
+	{
+		return static_cast<VideoParams::Interlacing>(this->currentIndex());
+	}
 
-  void SetInterlaceMode(VideoParams::Interlacing mode)
-  {
-    this->setCurrentIndex(mode);
-  }
-
+	void SetInterlaceMode(VideoParams::Interlacing mode)
+	{
+		this->setCurrentIndex(mode);
+	}
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2020 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -32,7 +33,8 @@
 #include "node/project/footage/footage.h"
 #include "undo/undocommand.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The MediaPropertiesDialog class
@@ -41,9 +43,9 @@ namespace olive {
  * a valid Media object.
  */
 class FootagePropertiesDialog : public QDialog {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief MediaPropertiesDialog Constructor
    *
    * @param parent
@@ -54,61 +56,93 @@ public:
    *
    * Media object to set properties for.
    */
-  FootagePropertiesDialog(QWidget *parent, Footage* footage);
+	FootagePropertiesDialog(QWidget *parent, Footage *footage);
+
 private:
-  class StreamEnableChangeCommand : public UndoCommand {
-  public:
-    StreamEnableChangeCommand(Footage *footage,
-                              Track::Type type,
-                              int index_in_type,
-                              bool enabled);
+	class StreamEnableChangeCommand : public UndoCommand {
+	public:
+		StreamEnableChangeCommand(Footage *footage, Track::Type type,
+								  int index_in_type, bool enabled);
 
-    virtual Project* GetRelevantProject() const override;
+		virtual Project *GetRelevantProject() const override;
 
-  protected:
-    virtual void redo() override;
-    virtual void undo() override;
+	protected:
+		virtual void redo() override;
+		virtual void undo() override;
 
-  private:
-    Footage *footage_;
-    Track::Type type_;
-    int index_;
+	private:
+		Footage *footage_;
+		Track::Type type_;
+		int index_;
 
-    bool old_enabled_;
-    bool new_enabled_;
-  };
+		bool old_enabled_;
+		bool new_enabled_;
+	};
 
-  /**
+	class FootageSetSourceStartTimeCommand : public UndoCommand {
+	public:
+		FootageSetSourceStartTimeCommand(Footage *footage, bool enabled,
+										 const rational &time,
+										 const QString &source);
+
+		virtual Project *GetRelevantProject() const override;
+
+	protected:
+		virtual void redo() override;
+		virtual void undo() override;
+
+	private:
+		Footage *footage_;
+
+		bool new_enabled_;
+		rational new_time_;
+		QString new_source_;
+
+		bool old_enabled_;
+		rational old_time_;
+		QString old_source_;
+	};
+
+	/**
    * @brief Stack of widgets that changes based on whether the stream is a video or audio stream
    */
-  QStackedWidget* stacked_widget_;
+	QStackedWidget *stacked_widget_;
 
-  /**
+	/**
    * @brief Media name text field
    */
-  QLineEdit* footage_name_field_;
+	QLineEdit *footage_name_field_;
 
-  /**
+	/**
+   * @brief Whether a manual source start time should be used
+   */
+	QCheckBox *source_start_time_enable_;
+
+	/**
+   * @brief Source start time in seconds
+   */
+	QDoubleSpinBox *source_start_time_spin_;
+
+	/**
    * @brief Internal pointer to Media object (set in constructor)
    */
-  Footage* footage_;
+	Footage *footage_;
 
-  /**
+	/**
    * @brief A list widget for listing the tracks in Media
    */
-  QListWidget* track_list;
+	QListWidget *track_list;
 
-  /**
+	/**
    * @brief Frame rate to conform to
    */
-  QDoubleSpinBox* conform_fr;
+	QDoubleSpinBox *conform_fr;
 
 private slots:
-  /**
+	/**
    * @brief Overridden accept function for saving the properties back to the Media class
    */
-  void accept();
-
+	void accept();
 };
 
 }

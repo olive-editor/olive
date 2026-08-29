@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,34 +26,33 @@
 
 #include "node/node.h"
 
-namespace olive {
-
-class NodeComboBox : public QComboBox
+namespace olive
 {
-  Q_OBJECT
+
+class NodeComboBox : public QComboBox {
+	Q_OBJECT
 public:
-  NodeComboBox(QWidget* parent = nullptr);
+	NodeComboBox(QWidget *parent = nullptr);
 
-  virtual void showPopup() override;
+	virtual void showPopup() override;
 
-  const QString& GetSelectedNode() const;
+	const QString &GetSelectedNode() const;
 
 public slots:
-  void SetNode(const QString& id);
+	void SetNode(const QString &id);
 
 protected:
-  virtual void changeEvent(QEvent *e) override;
+	virtual void changeEvent(QEvent *e) override;
 
 signals:
-  void NodeChanged(const QString& id);
+	void NodeChanged(const QString &id);
 
 private:
-  void UpdateText();
+	void UpdateText();
 
-  void SetNodeInternal(const QString& id, bool emit_signal);
+	void SetNodeInternal(const QString &id, bool emit_signal);
 
-  QString selected_id_;
-
+	QString selected_id_;
 };
 
 }

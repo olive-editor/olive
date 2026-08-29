@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,7 +24,8 @@
 
 #include "node/node.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The Folder class representing a directory in a project structure
@@ -31,193 +33,189 @@ namespace olive {
  * The Item base class already has support for children, but this functionality is disabled by default
  * (see CanHaveChildren() override). The Folder is a specific type that enables this functionality.
  */
-class Folder : public Node
-{
-  Q_OBJECT
+class Folder : public Node {
+	Q_OBJECT
 public:
-  Folder();
+	Folder();
 
-  NODE_DEFAULT_FUNCTIONS(Folder)
+	NODE_DEFAULT_FUNCTIONS(Folder)
 
-  virtual QString Name() const override
-  {
-    return tr("Folder");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Folder");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.folder");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.folder");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryProject};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryProject };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Organize several items into a single collection.");
-  }
+	virtual QString Description() const override
+	{
+		return tr("Organize several items into a single collection.");
+	}
 
-  virtual QVariant data(const DataType &d) const override;
+	virtual QVariant data(const DataType &d) const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  Node *GetChildWithName(const QString& s) const;
-  bool ChildExistsWithName(const QString& s) const
-  {
-    return GetChildWithName(s);
-  }
+	Node *GetChildWithName(const QString &s) const;
+	bool ChildExistsWithName(const QString &s) const
+	{
+		return GetChildWithName(s);
+	}
 
-  bool HasChildRecursive(Node *child) const;
+	bool HasChildRecursive(Node *child) const;
 
-  int item_child_count() const
-  {
-    return item_children_.size();
-  }
+	int item_child_count() const
+	{
+		return item_children_.size();
+	}
 
-  Node* item_child(int i) const
-  {
-    return item_children_.at(i);
-  }
+	Node *item_child(int i) const
+	{
+		return item_children_.at(i);
+	}
 
-  const QVector<Node*>& children() const
-  {
-    return item_children_;
-  }
+	const QVector<Node *> &children() const
+	{
+		return item_children_;
+	}
 
-  int index_of_child(Node* item) const
-  {
-    return item_children_.indexOf(item);
-  }
+	int index_of_child(Node *item) const
+	{
+		return item_children_.indexOf(item);
+	}
 
-  int index_of_child_in_array(Node* item) const;
+	int index_of_child_in_array(Node *item) const;
 
-  template <typename T>
-  QVector<T*> ListChildrenOfType() const
-  {
-    QVector<T*> list;
+	template <typename T> QVector<T *> ListChildrenOfType() const
+	{
+		QVector<T *> list;
 
-    foreach (Node* node, item_children_) {
-      T* cast_test = dynamic_cast<T*>(node);
-      if (cast_test) {
-        list.append(cast_test);
-      }
+		foreach (Node *node, item_children_) {
+			T *cast_test = dynamic_cast<T *>(node);
+			if (cast_test) {
+				list.append(cast_test);
+			}
 
-      Folder *folder_test = dynamic_cast<Folder*>(node);
-      if (folder_test) {
-        list.append(folder_test->ListChildrenOfType<T>());
-      }
-    }
+			Folder *folder_test = dynamic_cast<Folder *>(node);
+			if (folder_test) {
+				list.append(folder_test->ListChildrenOfType<T>());
+			}
+		}
 
-    return list;
-  }
+		return list;
+	}
 
-  static const QString kChildInput;
+	static const QString kChildInput;
 
-  class RemoveElementCommand : public UndoCommand
-  {
-  public:
-    RemoveElementCommand(Folder *folder, Node *child) :
-      folder_(folder),
-      child_(child),
-      subcommand_(nullptr)
-    {
-    }
+	class RemoveElementCommand : public UndoCommand {
+	public:
+		RemoveElementCommand(Folder *folder, Node *child)
+			: folder_(folder)
+			, child_(child)
+			, subcommand_(nullptr)
+		{
+		}
 
-    virtual ~RemoveElementCommand() override
-    {
-      delete subcommand_;
-    }
+		virtual ~RemoveElementCommand() override
+		{
+			delete subcommand_;
+		}
 
-    virtual Project *GetRelevantProject() const override
-    {
-      return folder_->project();
-    }
+		virtual Project *GetRelevantProject() const override
+		{
+			return folder_->project();
+		}
 
-  protected:
-    virtual void redo() override;
+	protected:
+		virtual void redo() override;
 
-    virtual void undo() override
-    {
-      if (subcommand_) {
-        subcommand_->undo_now();
-      }
-    }
+		virtual void undo() override
+		{
+			if (subcommand_) {
+				subcommand_->undo_now();
+			}
+		}
 
-  private:
-    Folder *folder_;
+	private:
+		Folder *folder_;
 
-    Node *child_;
+		Node *child_;
 
-    int remove_index_;
+		int remove_index_;
 
-    MultiUndoCommand *subcommand_;
-
-  };
+		MultiUndoCommand *subcommand_;
+	};
 
 signals:
-  void BeginInsertItem(Node* n, int index);
+	void BeginInsertItem(Node *n, int index);
 
-  void EndInsertItem();
+	void EndInsertItem();
 
-  void BeginRemoveItem(Node* n, int index);
+	void BeginRemoveItem(Node *n, int index);
 
-  void EndRemoveItem();
+	void EndRemoveItem();
 
 protected:
-  virtual void InputConnectedEvent(const QString& input, int element, Node *output) override;
+	virtual void InputConnectedEvent(const QString &input, int element,
+									 Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString& input, int element, Node *output) override;
+	virtual void InputDisconnectedEvent(const QString &input, int element,
+										Node *output) override;
 
 private:
-  template<typename T>
-  static void ListOutputsOfTypeInternal(const Folder* n, QVector<T*>& list, bool recursive)
-  {
-    foreach (const Node::OutputConnection& c, n->output_connections()) {
-      Node* connected = c.second.node();
+	template <typename T>
+	static void ListOutputsOfTypeInternal(const Folder *n, QVector<T *> &list,
+										  bool recursive)
+	{
+		foreach (const Node::OutputConnection &c, n->output_connections()) {
+			Node *connected = c.second.node();
 
-      T* cast_test = dynamic_cast<T*>(connected);
+			T *cast_test = dynamic_cast<T *>(connected);
 
-      if (cast_test) {
-        // Avoid duplicates
-        if (!list.contains(cast_test)) {
-          list.append(cast_test);
-        }
-      }
+			if (cast_test) {
+				// Avoid duplicates
+				if (!list.contains(cast_test)) {
+					list.append(cast_test);
+				}
+			}
 
-      if (recursive) {
-        Folder* subfolder = dynamic_cast<Folder*>(connected);
+			if (recursive) {
+				Folder *subfolder = dynamic_cast<Folder *>(connected);
 
-        if (subfolder) {
-          ListOutputsOfTypeInternal(subfolder, list, recursive);
-        }
-      }
-    }
-  }
+				if (subfolder) {
+					ListOutputsOfTypeInternal(subfolder, list, recursive);
+				}
+			}
+		}
+	}
 
-  QVector<Node*> item_children_;
-  QVector<int> item_element_index_;
-
+	QVector<Node *> item_children_;
+	QVector<int> item_element_index_;
 };
 
-class FolderAddChild : public UndoCommand
-{
+class FolderAddChild : public UndoCommand {
 public:
-  FolderAddChild(Folder* folder, Node* child);
+	FolderAddChild(Folder *folder, Node *child);
 
-  virtual Project * GetRelevantProject() const override;
+	virtual Project *GetRelevantProject() const override;
 
 protected:
-  virtual void redo() override;
+	virtual void redo() override;
 
-  virtual void undo() override;
+	virtual void undo() override;
 
 private:
-  Folder* folder_;
+	Folder *folder_;
 
-  Node* child_;
-
+	Node *child_;
 };
 
 }

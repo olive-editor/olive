@@ -17,10 +17,10 @@
 add_subdirectory(tabs)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  dialog/preferences/keysequenceeditor.h
-  dialog/preferences/keysequenceeditor.cpp
-  dialog/preferences/preferences.h
-  dialog/preferences/preferences.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        dialog/preferences/keysequenceeditor.h
+        dialog/preferences/keysequenceeditor.cpp
+        dialog/preferences/preferences.h
+        dialog/preferences/preferences.cpp
+        PARENT_SCOPE
 )

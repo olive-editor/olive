@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -28,153 +29,165 @@
 #include "common/oiioutils.h"
 #include "render/framemanager.h"
 
-namespace olive {
+namespace olive
+{
 
-Frame::Frame() :
-  data_(nullptr),
-  data_size_(0),
-  timestamp_(0)
+Frame::Frame()
+	: data_(nullptr)
+	, data_size_(0)
+	, timestamp_(0)
 {
 }
 
 Frame::~Frame()
 {
-  destroy();
+	destroy();
 }
 
 FramePtr Frame::Create()
 {
-  return std::make_shared<Frame>();
+	return std::make_shared<Frame>();
 }
 
 const VideoParams &Frame::video_params() const
 {
-  return params_;
+	return params_;
 }
 
 void Frame::set_video_params(const VideoParams &params)
 {
-  params_ = params;
+	params_ = params;
 
-  linesize_ = generate_linesize_bytes(width(), params_.format(), params_.channel_count());
-  linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
+	linesize_ = generate_linesize_bytes(width(), params_.format(),
+										params_.channel_count());
+	linesize_pixels_ = linesize_ / params_.GetBytesPerPixel();
 }
 
 FramePtr Frame::Interlace(FramePtr top, FramePtr bottom)
 {
-  if (top->video_params() != bottom->video_params()) {
-    qCritical() << "Tried to interlace two frames that had incompatible parameters";
-    return nullptr;
-  }
+	if (top->video_params() != bottom->video_params()) {
+		qCritical()
+			<< "Tried to interlace two frames that had incompatible parameters";
+		return nullptr;
+	}
 
-  FramePtr interlaced = Frame::Create();
-  interlaced->set_video_params(top->video_params());
-  interlaced->allocate();
+	FramePtr interlaced = Frame::Create();
+	interlaced->set_video_params(top->video_params());
+	interlaced->allocate();
 
-  int linesize = interlaced->linesize_bytes();
+	int linesize = interlaced->linesize_bytes();
 
-  for (int i=0; i<interlaced->height(); i++) {
-    FramePtr which = (i%2 == 0) ? top : bottom;
+	for (int i = 0; i < interlaced->height(); i++) {
+		FramePtr which = (i % 2 == 0) ? top : bottom;
 
-    memcpy(interlaced->data() + i*linesize,
-           which->const_data() + i*linesize,
-           linesize);
-  }
+		memcpy(interlaced->data() + i * linesize,
+			   which->const_data() + i * linesize, linesize);
+	}
 
-  return interlaced;
+	return interlaced;
 }
+
 
 int Frame::generate_linesize_bytes(int width, PixelFormat format, int channel_count)
 {
-  // Align to 32 bytes (not sure if this is necessary?)
-  return VideoParams::GetBytesPerPixel(format, channel_count) * ((width + 31) & ~31);
+    int bpp = VideoParams::GetBytesPerPixel(format, channel_count);
+    int row_bytes = width * bpp;
+    // 按 4 字节对齐（CPU/GPU 内存填充的行业标准）
+    // 如果需要更高对齐（如 64 字节用于 AVX-512），可以改为 (row_bytes + 63) & ~63
+    return (row_bytes + 3) & ~3;
 }
+
+
 
 Color Frame::get_pixel(int x, int y) const
 {
-  if (!contains_pixel(x, y)) {
-    return Color();
-  }
+	if (!contains_pixel(x, y)) {
+		return Color();
+	}
 
-  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
+	int byte_offset =
+		y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  return Color(reinterpret_cast<const char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
+	return Color(reinterpret_cast<const char *>(data_ + byte_offset),
+			video_params().format(), video_params().channel_count());
 }
 
 bool Frame::contains_pixel(int x, int y) const
 {
-  return (is_allocated() && x >= 0 && x < width() && y >= 0 && y < height());
+	return (is_allocated() && x >= 0 && x < width() && y >= 0 && y < height());
 }
 
 void Frame::set_pixel(int x, int y, const Color &c)
 {
-  if (!contains_pixel(x, y)) {
-    return;
-  }
+	if (!contains_pixel(x, y)) {
+		return;
+	}
 
-  int byte_offset = y * linesize_bytes() + x * video_params().GetBytesPerPixel();
+	int byte_offset =
+		y * linesize_bytes() + x * video_params().GetBytesPerPixel();
 
-  c.toData(reinterpret_cast<char*>(data_ + byte_offset), video_params().format(), video_params().channel_count());
+	c.toData(reinterpret_cast<char *>(data_ + byte_offset),
+			 video_params().format(), video_params().channel_count());
 }
 
 bool Frame::allocate()
 {
-  // Assume this frame is intended to be a video frame
-  if (!params_.is_valid()) {
-    qWarning() << "Tried to allocate a frame with invalid parameters";
-    return false;
-  }
+	// Assume this frame is intended to be a video frame
+	if (!params_.is_valid()) {
+		qWarning() << "Tried to allocate a frame with invalid parameters";
+		return false;
+	}
 
-  if (is_allocated()) {
-    // Already allocated
-    return true;
-  }
+	if (is_allocated()) {
+		// Already allocated
+		return true;
+	}
 
-  data_size_ = linesize_ * height();
-  data_ = FrameManager::Allocate(data_size_);
+	data_size_ = linesize_ * height();
+	data_ = FrameManager::Allocate(data_size_);
 
-  return true;
+	return true;
 }
 
 void Frame::destroy()
 {
-  if (is_allocated()) {
-    FrameManager::Deallocate(data_size_, data_);
+	if (is_allocated()) {
+		FrameManager::Deallocate(data_size_, data_);
 
-    data_size_ = 0;
-    data_ = nullptr;
-  }
+		data_size_ = 0;
+		data_ = nullptr;
+	}
 }
 
 FramePtr Frame::convert(PixelFormat format) const
 {
-  // Create new params with destination format
-  VideoParams params = params_;
-  params.set_format(format);
+	// Create new params with destination format
+	VideoParams params = params_;
+	params.set_format(format);
 
-  // Create new frame
-  FramePtr converted = Frame::Create();
-  converted->set_video_params(params);
-  converted->set_timestamp(timestamp_);
-  converted->allocate();
+	// Create new frame
+	FramePtr converted = Frame::Create();
+	converted->set_video_params(params);
+	converted->set_timestamp(timestamp_);
+	converted->allocate();
 
-  // Do the conversion through OIIO for convenience
-  OIIO::ImageBuf src(OIIO::ImageSpec(width(), height(),
-                                     channel_count(),
-                                     OIIOUtils::GetOIIOBaseTypeFromFormat(this->format())));
+	// Do the conversion through OIIO for convenience
+	OIIO::ImageBuf src(
+		OIIO::ImageSpec(width(), height(), channel_count(),
+						OIIOUtils::GetOIIOBaseTypeFromFormat(this->format())));
 
-  OIIOUtils::FrameToBuffer(this, &src);
+	OIIOUtils::FrameToBuffer(this, &src);
 
-  OIIO::ImageBuf dst(OIIO::ImageSpec(converted->width(), converted->height(),
-                                     channel_count(),
-                                     OIIOUtils::GetOIIOBaseTypeFromFormat(format)));
+	OIIO::ImageBuf dst(OIIO::ImageSpec(
+		converted->width(), converted->height(), channel_count(),
+		OIIOUtils::GetOIIOBaseTypeFromFormat(format)));
 
-  if (dst.copy_pixels(src)) {
-    OIIOUtils::BufferToFrame(&dst, converted.get());
-    return converted;
-  } else {
-    return nullptr;
-  }
+	if (dst.copy_pixels(src)) {
+		OIIOUtils::BufferToFrame(&dst, converted.get());
+		return converted;
+	} else {
+		return nullptr;
+	}
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,16 +24,19 @@
 
 #include "pointer.h"
 
-namespace olive {
-
-class RippleTool : public PointerTool
+namespace olive
 {
-public:
-  RippleTool(TimelineWidget* parent);
-protected:
-  virtual void FinishDrag(TimelineViewMouseEvent *event) override;
 
-  virtual void InitiateDrag(Block* clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers) override;
+class RippleTool : public PointerTool {
+public:
+	RippleTool(TimelineWidget *parent);
+
+protected:
+	virtual void FinishDrag(TimelineViewMouseEvent *event) override;
+
+	virtual void InitiateDrag(Block *clicked_item,
+							  Timeline::MovementMode trim_mode,
+							  Qt::KeyboardModifiers modifiers) override;
 };
 
 }

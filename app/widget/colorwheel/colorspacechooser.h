@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,44 +27,46 @@
 
 #include "node/color/colormanager/colormanager.h"
 
-namespace olive {
-
-class ColorSpaceChooser : public QGroupBox
+namespace olive
 {
-  Q_OBJECT
+
+class ColorSpaceChooser : public QGroupBox {
+	Q_OBJECT
 public:
-  ColorSpaceChooser(ColorManager* color_manager, bool enable_input_field = true, bool enable_display_fields = true, QWidget* parent = nullptr);
+	ColorSpaceChooser(ColorManager *color_manager,
+					  bool enable_input_field = true,
+					  bool enable_display_fields = true,
+					  QWidget *parent = nullptr);
 
-  QString input() const;
-  ColorTransform output() const;
+	QString input() const;
+	ColorTransform output() const;
 
-  void set_input(const QString& s);
-  void set_output(const ColorTransform& out);
+	void set_input(const QString &s);
+	void set_output(const ColorTransform &out);
 
 signals:
-  void InputColorSpaceChanged(const QString& input);
+	void InputColorSpaceChanged(const QString &input);
 
-  void OutputColorSpaceChanged(const ColorTransform& out);
+	void OutputColorSpaceChanged(const ColorTransform &out);
 
-  void ColorSpaceChanged(const QString& input, const ColorTransform& out);
+	void ColorSpaceChanged(const QString &input, const ColorTransform &out);
 
 private slots:
-  void UpdateViews(const QString &display);
+	void UpdateViews(const QString &display);
 
 private:
-  ColorManager* color_manager_;
+	ColorManager *color_manager_;
 
-  QComboBox* input_combobox_;
+	QComboBox *input_combobox_;
 
-  QComboBox* display_combobox_;
+	QComboBox *display_combobox_;
 
-  QComboBox* view_combobox_;
+	QComboBox *view_combobox_;
 
-  QComboBox* look_combobox_;
+	QComboBox *look_combobox_;
 
 private slots:
-  void ComboBoxChanged();
-
+	void ComboBoxChanged();
 };
 
 }

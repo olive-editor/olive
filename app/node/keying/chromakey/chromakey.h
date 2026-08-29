@@ -1,6 +1,7 @@
 /***
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -18,44 +19,49 @@
 
 #include "node/color/ociobase/ociobase.h"
 
-namespace olive {
+namespace olive
+{
 
 class ChromaKeyNode : public OCIOBaseNode {
-  Q_OBJECT
- public:
-  ChromaKeyNode();
+	Q_OBJECT
+public:
+	ChromaKeyNode();
 
-  NODE_DEFAULT_FUNCTIONS(ChromaKeyNode)
+	NODE_DEFAULT_FUNCTIONS(ChromaKeyNode)
 
-  virtual QString Name() const override;
-  virtual QString id() const override;
-  virtual QVector<CategoryID> Category() const override;
-  virtual QString Description() const override;
+	virtual QString Name() const override;
+	virtual QString id() const override;
+	virtual QVector<CategoryID> Category() const override;
+	virtual QString Description() const override;
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void InputValueChangedEvent(const QString& input, int element) override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
-  virtual ShaderCode GetShaderCode(const ShaderRequest &request) const override;
-  virtual void Value(const NodeValueRow& value, const NodeGlobals& globals, NodeValueTable* table) const override;
+	virtual ShaderCode
+	GetShaderCode(const ShaderRequest &request) const override;
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
 
-  virtual void ConfigChanged() override;
+	virtual void ConfigChanged() override;
 
-  static const QString kColorInput;
-  static const QString kInvertInput;
-  static const QString kMaskOnlyInput;
-  static const QString kUpperToleranceInput;
-  static const QString kLowerToleranceInput;
-  static const QString kGarbageMatteInput;
-  static const QString kCoreMatteInput;
-  static const QString kShadowsInput;
-  static const QString kHighlightsInput;
+	// Maps the misspelled tolerance input IDs from old project files onto the
+	// corrected ones
+	virtual QString GetInputIDForLegacyID(const QString &id) const override;
+
+	static const QString kColorInput;
+	static const QString kInvertInput;
+	static const QString kMaskOnlyInput;
+	static const QString kUpperToleranceInput;
+	static const QString kLowerToleranceInput;
+	static const QString kGarbageMatteInput;
+	static const QString kCoreMatteInput;
+	static const QString kShadowsInput;
+	static const QString kHighlightsInput;
 
 private:
-  void GenerateProcessor();
-
-
-
+	void GenerateProcessor();
 };
 
 } // namespace olive

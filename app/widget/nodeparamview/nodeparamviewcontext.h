@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,76 +26,75 @@
 #include "nodeparamviewitembase.h"
 #include "nodeparamviewitem.h"
 
-namespace olive {
-
-class NodeParamViewContext : public NodeParamViewItemBase
+namespace olive
 {
-  Q_OBJECT
+
+class NodeParamViewContext : public NodeParamViewItemBase {
+	Q_OBJECT
 public:
-  NodeParamViewContext(QWidget *parent = nullptr);
+	NodeParamViewContext(QWidget *parent = nullptr);
 
-  NodeParamViewDockArea *GetDockArea() const
-  {
-    return dock_area_;
-  }
+	NodeParamViewDockArea *GetDockArea() const
+	{
+		return dock_area_;
+	}
 
-  const QVector<Node*> &GetContexts() const
-  {
-    return contexts_;
-  }
+	const QVector<Node *> &GetContexts() const
+	{
+		return contexts_;
+	}
 
-  const QVector<NodeParamViewItem*> &GetItems() const
-  {
-    return items_;
-  }
+	const QVector<NodeParamViewItem *> &GetItems() const
+	{
+		return items_;
+	}
 
-  NodeParamViewItem *GetItem(Node *node, Node *ctx);
+	NodeParamViewItem *GetItem(Node *node, Node *ctx);
 
-  void AddNode(NodeParamViewItem *item);
+	void AddNode(NodeParamViewItem *item);
 
-  void RemoveNode(Node *node, Node *ctx);
+	void RemoveNode(Node *node, Node *ctx);
 
-  void RemoveNodesWithContext(Node *ctx);
+	void RemoveNodesWithContext(Node *ctx);
 
-  void SetInputChecked(const NodeInput &input, bool e);
+	void SetInputChecked(const NodeInput &input, bool e);
 
-  void SetTimebase(const rational &timebase);
+	void SetTimebase(const rational &timebase);
 
-  void SetTimeTarget(ViewerOutput *n);
+	void SetTimeTarget(ViewerOutput *n);
 
-  void SetEffectType(Track::Type type);
+	void SetEffectType(Track::Type type);
 
 signals:
-  void AboutToDeleteItem(NodeParamViewItem *item);
+	void AboutToDeleteItem(NodeParamViewItem *item);
 
 public slots:
-  void AddContext(Node *node)
-  {
-    contexts_.append(node);
-  }
+	void AddContext(Node *node)
+	{
+		contexts_.append(node);
+	}
 
-  void RemoveContext(Node *node)
-  {
-    contexts_.removeOne(node);
-  }
+	void RemoveContext(Node *node)
+	{
+		contexts_.removeOne(node);
+	}
 
 protected slots:
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
 private:
-  NodeParamViewDockArea *dock_area_;
+	NodeParamViewDockArea *dock_area_;
 
-  QVector<Node*> contexts_;
+	QVector<Node *> contexts_;
 
-  QVector<NodeParamViewItem*> items_;
+	QVector<NodeParamViewItem *> items_;
 
-  Track::Type type_;
+	Track::Type type_;
 
 private slots:
-  void AddEffectButtonClicked();
+	void AddEffectButtonClicked();
 
-  void AddEffectMenuItemTriggered(QAction *a);
-
+	void AddEffectMenuItemTriggered(QAction *a);
 };
 
 }

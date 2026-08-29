@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,7 +26,8 @@
 
 #include "common/debug.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The KeySequenceEditor class
@@ -34,9 +36,9 @@ namespace olive {
  * keyboard shortcuts to and from it.
  */
 class KeySequenceEditor : public QKeySequenceEdit {
-  Q_OBJECT
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief KeySequenceEditor Constructor
    *
    * @param parent
@@ -47,18 +49,18 @@ public:
    *
    * The QAction to link to. This cannot be changed throughout the lifetime of a KeySequenceEditor.
    */
-  KeySequenceEditor(QWidget *parent, QAction* a);
+	KeySequenceEditor(QWidget *parent, QAction *a);
 
-  /**
+	/**
    * @brief Sets the attached QAction's shortcut to the shortcut entered in this field.
    *
    * This is not done automatically in case the user cancels out of the Preferences dialog, in which case the
    * expectation is that the changes made will not be saved. Therefore, this needs to be triggered manually when
    * PreferencesDialog saves.
    */
-  void set_action_shortcut();
+	void set_action_shortcut();
 
-  /**
+	/**
    * @brief Set this shortcut back to the QAction's default shortcut
    *
    * Each QAction contains the default shortcut in its `property("default")` and can be used to restore the default
@@ -68,9 +70,9 @@ public:
    * the QAction into this edit field. To save it into the QAction, it's necessary to call set_action_shortcut() after
    * calling this function.
    */
-  void reset_to_default();
+	void reset_to_default();
 
-  /**
+	/**
    * @brief Return attached QAction's unique ID
    *
    * Each of Olive's menu actions has a unique string ID (that, unlike the text, is not translated) for matching with
@@ -81,9 +83,9 @@ public:
    *
    * The QAction's unique ID.
    */
-  QString action_name();
+	QString action_name();
 
-  /**
+	/**
    * @brief Serialize this shortcut entry into a string that can be saved to a file
    *
    * @return
@@ -93,18 +95,18 @@ public:
    * the QAction). If the entered shortcut is the same as the QAction's default shortcut, the return value is empty
    * because a default shortcut does not need to be saved to a file.
    */
-  QString export_shortcut();
+	QString export_shortcut();
 
 protected:
-  virtual void keyPressEvent(QKeyEvent *e) override;
+	virtual void keyPressEvent(QKeyEvent *e) override;
 
-  virtual void keyReleaseEvent(QKeyEvent *e) override;
+	virtual void keyReleaseEvent(QKeyEvent *e) override;
 
 private:
-  /**
+	/**
    * @brief Internal reference to the linked QAction
    */
-  QAction* action;
+	QAction *action;
 };
 
 }

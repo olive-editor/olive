@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -30,51 +31,49 @@
 #include "widget/focusablelineedit/focusablelineedit.h"
 #include "widget/timelinewidget/view/timelineviewmouseevent.h"
 
-namespace olive {
-
-class TrackViewItem : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class TrackViewItem : public QWidget {
+	Q_OBJECT
 public:
-  TrackViewItem(Track* track,
-                QWidget* parent = nullptr);
+	TrackViewItem(Track *track, QWidget *parent = nullptr);
 
 signals:
-  void AboutToDeleteTrack(Track *track);
+	void AboutToDeleteTrack(Track *track);
 
 private:
-  QPushButton* CreateMSLButton(const QColor &checked_color) const;
+	QPushButton *CreateMSLButton(const QColor &checked_color) const;
 
-  QStackedWidget* stack_;
+	QStackedWidget *stack_;
 
-  ClickableLabel* label_;
-  FocusableLineEdit* line_edit_;
+	ClickableLabel *label_;
+	FocusableLineEdit *line_edit_;
 
-  QPushButton* mute_button_;
-  QPushButton* solo_button_;
-  QPushButton* lock_button_;
+	QPushButton *mute_button_;
+	QPushButton *solo_button_;
+	QPushButton *lock_button_;
 
-  Track* track_;
+	Track *track_;
 
 private slots:
-  void LabelClicked();
+	void LabelClicked();
 
-  void LineEditConfirmed();
+	void LineEditConfirmed();
 
-  void LineEditCancelled();
+	void LineEditCancelled();
 
-  void UpdateLabel();
+	void UpdateLabel();
 
-  void ShowContextMenu(const QPoint &p);
+	void ShowContextMenu(const QPoint &p);
 
-  void DeleteTrack();
+	void DeleteTrack();
 
-  void DeleteAllEmptyTracks();
+	void DeleteAllEmptyTracks();
 
-  void UpdateMuteButton(bool e);
+	void UpdateMuteButton(bool e);
 
-  void UpdateLockButton(bool e);
-
+	void UpdateLockButton(bool e);
 };
 
 }

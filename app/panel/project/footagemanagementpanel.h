@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,11 +26,12 @@
 
 #include "node/project/footage/footage.h"
 
-namespace olive {
+namespace olive
+{
 
 class FootageManagementPanel {
 public:
-  virtual QVector<ViewerOutput *> GetSelectedFootage() const = 0;
+	virtual QVector<ViewerOutput *> GetSelectedFootage() const = 0;
 };
 
 }

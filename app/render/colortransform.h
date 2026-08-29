@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,59 +27,66 @@
 #include "common/define.h"
 #include "common/ocioutils.h"
 
-namespace olive {
-
-class ColorTransform
+namespace olive
 {
+
+class ColorTransform {
 public:
-  ColorTransform()
-  {
-    is_display_ = false;
-  }
+	ColorTransform()
+	{
+		is_display_ = false;
+	}
 
-  ColorTransform(const QString& output)
-  {
-    is_display_ = false;
-    output_ = output;
-  }
+	ColorTransform(const QString &output)
+	{
+		is_display_ = false;
+		output_ = output;
+	}
 
-  ColorTransform(const QString& display, const QString& view, const QString& look)
-  {
-    is_display_ = true;
-    output_ = display;
-    view_ = view;
-    look_ = look;
-  }
+	ColorTransform(const QString &display, const QString &view,
+				   const QString &look)
+	{
+		is_display_ = true;
+		output_ = display;
+		view_ = view;
+		look_ = look;
+	}
 
-  bool is_display() const {
-    return is_display_;
-  }
+	bool is_display() const
+	{
+		return is_display_;
+	}
 
-  const QString& display() const {
-    return output_;
-  }
+	const QString &display() const
+	{
+		return output_;
+	}
 
-  const QString& output() const {
-    return output_;
-  }
+	const QString &output() const
+	{
+		return output_;
+	}
 
-  const QString& view() const {
-    return view_;
-  }
+	const QString &view() const
+	{
+		return view_;
+	}
 
-  const QString& look() const {
-    return look_;
-  }
+	const QString &look() const
+	{
+		return look_;
+	}
 
 private:
-  QString output_;
+	QString output_;
 
-  bool is_display_;
-  QString view_;
-  QString look_;
-
+	bool is_display_;
+	QString view_;
+	QString look_;
 };
 
 }
+
+Q_DECLARE_METATYPE(olive::ColorTransform)
 
 #endif // COLORTRANSFORM_H

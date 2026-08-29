@@ -1,12 +1,6 @@
-# Contributing to Olive
+# Contributing to Oak
 
-Thank you for your interest in contributing to Olive!
-
-## Reporting issues
-
-Bug reports help to make the software more stable and usable.
-Please read the pinned [issue #1175](https://github.com/olive-editor/olive/issues/1175)
-for guidelines before you create a new issue.
+Thank you for your interest in contributing to Oak Video Editor!
 
 ## Writing code
 
@@ -22,9 +16,11 @@ In order to keep the code as readable and maintainable as possible, code
 submitted should abide by the following standards:
 
 * The code style generally follows the
-  [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
-  including, but not limited to:
-  * Indentation is 2 spaces wide, spaces only (no tabs)
+  [Linux Kernel Coding Style](https://www.kernel.org/doc/html/latest/process/coding-style.html)
+  with the following project-specific exceptions and notes:
+  * Indentation uses **tabs**, not spaces.
+  * Documentation comments should use **Javadoc-style** (`/** ... */`) where appropriate.
+* The naming rules below are retained from the original Olive codebase:
   * `lowercase_underscored_variable_names`
   * `lowercase_underscored_functions()` or `SentenceCaseFunctions()`
   * `class SentenceCaseClassesAndStructs {}`
@@ -33,4 +29,3 @@ submitted should abide by the following standards:
   * `class_member_variables_` end with a `_`
 * 100 column limit (where it doesn't impair readability)
 * Unix line endings (only LF no CRLF)
-* Javadoc documentation where appropriate

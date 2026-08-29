@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -20,45 +21,48 @@
 
 #include "managedcolor.h"
 
-namespace olive {
+namespace olive
+{
 
 ManagedColor::ManagedColor()
 {
 }
 
-ManagedColor::ManagedColor(const double &r, const double &g, const double &b, const double &a) :
-  Color(r, g, b, a)
+ManagedColor::ManagedColor(const double &r, const double &g, const double &b,
+						   const double &a)
+	: Color(r, g, b, a)
 {
 }
 
-ManagedColor::ManagedColor(const char *data, const PixelFormat &format, int channel_layout) :
-  Color(data, format, channel_layout)
+ManagedColor::ManagedColor(const char *data, const PixelFormat &format,
+						   int channel_layout)
+	: Color(data, format, channel_layout)
 {
 }
 
-ManagedColor::ManagedColor(const Color &c) :
-  Color(c)
+ManagedColor::ManagedColor(const Color &c)
+	: Color(c)
 {
 }
 
 const QString &ManagedColor::color_input() const
 {
-  return color_input_;
+	return color_input_;
 }
 
 void ManagedColor::set_color_input(const QString &color_input)
 {
-  color_input_ = color_input;
+	color_input_ = color_input;
 }
 
 const ColorTransform &ManagedColor::color_output() const
 {
-  return color_transform_;
+	return color_transform_;
 }
 
 void ManagedColor::set_color_output(const ColorTransform &color_output)
 {
-  color_transform_ = color_output;
+	color_transform_ = color_output;
 }
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,7 +28,8 @@
 
 #include "common/define.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The ProjectToolbar class
@@ -37,49 +39,44 @@ namespace olive {
  *
  * This object's signals can be connected to various functions in the application for better user experience.
  */
-class ProjectToolbar : public QWidget
-{
-  Q_OBJECT
+class ProjectToolbar : public QWidget {
+	Q_OBJECT
 public:
-  ProjectToolbar(QWidget* parent);
+	ProjectToolbar(QWidget *parent);
 
-  enum ViewType {
-    TreeView,
-    ListView,
-    IconView
-  };
+	enum ViewType { TreeView, ListView, IconView };
 
 public slots:
-  void SetView(ViewType type);
+	void SetView(ViewType type);
 
 protected:
-  void changeEvent(QEvent *) override;
+	void changeEvent(QEvent *) override;
 
 signals:
-  void NewClicked();
-  void OpenClicked();
-  void SaveClicked();
+	void NewClicked();
+	void OpenClicked();
+	void SaveClicked();
 
-  void SearchChanged(const QString&);
+	void SearchChanged(const QString &);
 
-  void ViewChanged(ViewType type);
+	void ViewChanged(ViewType type);
 
 private:
-  void Retranslate();
-  void UpdateIcons();
+	void Retranslate();
+	void UpdateIcons();
 
-  QPushButton* new_button_;
-  QPushButton* open_button_;
-  QPushButton* save_button_;
+	QPushButton *new_button_;
+	QPushButton *open_button_;
+	QPushButton *save_button_;
 
-  QLineEdit* search_field_;
+	QLineEdit *search_field_;
 
-  QPushButton* tree_button_;
-  QPushButton* list_button_;
-  QPushButton* icon_button_;
+	QPushButton *tree_button_;
+	QPushButton *list_button_;
+	QPushButton *icon_button_;
 
 private slots:
-  void ViewButtonClicked();
+	void ViewButtonClicked();
 };
 
 }

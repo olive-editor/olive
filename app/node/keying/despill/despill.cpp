@@ -1,6 +1,7 @@
 /***
   Olive - Non-Linear Video Editor
   Copyright (C) 2019 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -17,84 +18,99 @@
 
 #include "node/project.h"
 
-namespace olive {
+namespace olive
+{
 
 const QString DespillNode::kTextureInput = QStringLiteral("tex_in");
 const QString DespillNode::kColorInput = QStringLiteral("color_in");
 const QString DespillNode::kMethodInput = QStringLiteral("method_in");
-const QString DespillNode::kPreserveLuminanceInput = QStringLiteral("preserve_luminance_input");
+const QString DespillNode::kPreserveLuminanceInput =
+	QStringLiteral("preserve_luminance_input");
 
 #define super Node
 
 DespillNode::DespillNode()
 {
-  AddInput(kTextureInput, NodeValue::kTexture, InputFlags(kInputFlagNotKeyframable));
+	AddInput(kTextureInput, NodeValue::kTexture,
+			 InputFlags(kInputFlagNotKeyframable));
 
-  AddInput(kColorInput, NodeValue::kCombo, 0);
+	AddInput(kColorInput, NodeValue::kCombo, 0);
 
-  AddInput(kMethodInput, NodeValue::kCombo, 0);
+	AddInput(kMethodInput, NodeValue::kCombo, 0);
 
-  AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
+	AddInput(kPreserveLuminanceInput, NodeValue::kBoolean, false);
 
-  SetFlag(kVideoEffect);
-  SetEffectInput(kTextureInput);
+	SetFlag(kVideoEffect);
+	SetEffectInput(kTextureInput);
 }
 
 QString DespillNode::Name() const
 {
-  return tr("Despill");
+	return tr("Despill");
 }
 
 QString DespillNode::id() const
 {
-  return QStringLiteral("org.olivevideoeditor.Olive.despill");
+	return QStringLiteral("org.olivevideoeditor.Olive.despill");
 }
 
 QVector<Node::CategoryID> DespillNode::Category() const
 {
-  return {kCategoryKeying};
+	return { kCategoryKeying };
 }
 
 QString DespillNode::Description() const
 {
-  return tr("Selection of simple depsill operations");
+	return tr("Selection of simple despill operations");
 }
 
 void DespillNode::Retranslate()
 {
-  super::Retranslate();
+	super::Retranslate();
 
-  SetInputName(kTextureInput, tr("Input"));
+	SetInputName(kTextureInput, tr("Input"));
 
-  SetInputName(kColorInput, tr("Key Color"));
-  SetComboBoxStrings(kColorInput, {tr("Green"), tr("Blue")});
+	SetInputName(kColorInput, tr("Key Color"));
+	SetComboBoxStrings(kColorInput, { tr("Green"), tr("Blue") });
 
-  SetInputName(kMethodInput, tr("Method"));
-  SetComboBoxStrings(kMethodInput, {tr("Average"), tr("Double Red Average"), tr("Double Average"), tr("Limit")});
+	SetInputName(kMethodInput, tr("Method"));
+	SetComboBoxStrings(kMethodInput, { tr("Average"), tr("Double Red Average"),
+									   tr("Double Average"), tr("Limit") });
 
-  SetInputName(kPreserveLuminanceInput, tr("Preserve Luminance"));
+	SetInputName(kPreserveLuminanceInput, tr("Preserve Luminance"));
 }
 
-ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const {
-  Q_UNUSED(request)
-  return ShaderCode(FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
+ShaderCode DespillNode::GetShaderCode(const ShaderRequest &request) const
+{
+	Q_UNUSED(request)
+	return ShaderCode(
+		FileFunctions::ReadFileAsString(":/shaders/despill.frag"));
 }
 
-void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals, NodeValueTable *table) const {
-  ShaderJob job;
-  job.Insert(value);
+void DespillNode::Value(const NodeValueRow &value, const NodeGlobals &globals,
+						NodeValueTable *table) const
+{
+	ShaderJob job;
+	job.Insert(value);
 
-  // Set luma coefficients
-  double luma_coeffs[3] = {0.0f, 0.0f, 0.0f};
-  project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
-  job.Insert(QStringLiteral("luma_coeffs"),
-                  NodeValue(NodeValue::kVec3, QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
+	// Set luma coefficients
+	double luma_coeffs[3] = { 0.0f, 0.0f, 0.0f };
+	if (project() && project()->color_manager()) {
+		project()->color_manager()->GetDefaultLumaCoefs(luma_coeffs);
+	} else {
+		luma_coeffs[0] = 0.2126;
+		luma_coeffs[1] = 0.7152;
+		luma_coeffs[2] = 0.0722;
+	}
+	job.Insert(
+		QStringLiteral("luma_coeffs"),
+		NodeValue(NodeValue::kVec3,
+				  QVector3D(luma_coeffs[0], luma_coeffs[1], luma_coeffs[2])));
 
-  // If there's no texture, no need to run an operation
-  if (TexturePtr tex = job.Get(kTextureInput).toTexture()) {
-    table->Push(NodeValue::kTexture, tex->toJob(job), this);
-  }
+	// If there's no texture, no need to run an operation
+	if (TexturePtr tex = job.Get(kTextureInput).toTexture()) {
+		table->Push(NodeValue::kTexture, tex->toJob(job), this);
+	}
 }
-
 
 } // namespace olive

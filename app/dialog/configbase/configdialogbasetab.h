@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,16 +27,16 @@
 #include "config/config.h"
 #include "undo/undocommand.h"
 
-namespace olive {
-
-class ConfigDialogBaseTab : public QWidget
+namespace olive
 {
+
+class ConfigDialogBaseTab : public QWidget {
 public:
-  ConfigDialogBaseTab() = default;
+	ConfigDialogBaseTab() = default;
 
-  virtual bool Validate();
+	virtual bool Validate();
 
-  virtual void Accept(MultiUndoCommand *parent) = 0;
+	virtual void Accept(MultiUndoCommand *parent) = 0;
 };
 
 }

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,90 +25,97 @@
 #include "node/output/track/tracklist.h"
 #include "node/output/viewer/viewer.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief The main timeline object, an graph of edited clips that forms a complete edit
  */
-class Sequence : public ViewerOutput
-{
-  Q_OBJECT
+class Sequence : public ViewerOutput {
+	Q_OBJECT
 public:
-  Sequence();
+	Sequence();
 
-  NODE_DEFAULT_FUNCTIONS(Sequence)
+	NODE_DEFAULT_FUNCTIONS(Sequence)
 
-  virtual QString Name() const override
-  {
-    return tr("Sequence");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Sequence");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.sequence");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.sequence");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryProject};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryProject };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("A series of cuts that result in an edited video. Also called a timeline.");
-  }
+	virtual QString Description() const override
+	{
+		return tr(
+			"A series of cuts that result in an edited video. Also called a timeline.");
+	}
 
-  void add_default_nodes(MultiUndoCommand *command = nullptr);
+	void add_default_nodes(MultiUndoCommand *command = nullptr);
 
-  virtual QVariant data(const DataType &d) const override;
+	virtual QVariant data(const DataType &d) const override;
 
-  const QVector<Track *> &GetTracks() const
-  {
-    return track_cache_;
-  }
+	const QVector<Track *> &GetTracks() const
+	{
+		return track_cache_;
+	}
 
-  Track* GetTrackFromReference(const Track::Reference& track_ref) const
-  {
-    return track_lists_.at(track_ref.type())->GetTrackAt(track_ref.index());
-  }
+	Track *GetTrackFromReference(const Track::Reference &track_ref) const
+	{
+		if (track_ref.type() < 0 || track_ref.type() >= track_lists_.size()) {
+			return nullptr;
+		}
+		return track_lists_.at(track_ref.type())->GetTrackAt(track_ref.index());
+	}
 
-  /**
+	/**
    * @brief Same as GetTracks() but omits tracks that are locked.
    */
-  QVector<Track *> GetUnlockedTracks() const;
+	QVector<Track *> GetUnlockedTracks() const;
 
-  TrackList* track_list(Track::Type type) const
-  {
-    return track_lists_.at(type);
-  }
+	TrackList *track_list(Track::Type type) const
+	{
+		return track_lists_.at(type);
+	}
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  virtual void InvalidateCache(const TimeRange& range, const QString& from, int element, InvalidateCacheOptions options) override;
+	virtual void InvalidateCache(const TimeRange &range, const QString &from,
+								 int element,
+								 InvalidateCacheOptions options) override;
 
-  static const QString kTrackInputFormat;
+	static const QString kTrackInputFormat;
 
 protected:
-  virtual void InputConnectedEvent(const QString &input, int element, Node *output) override;
+	virtual void InputConnectedEvent(const QString &input, int element,
+									 Node *output) override;
 
-  virtual void InputDisconnectedEvent(const QString &input, int element, Node *output) override;
+	virtual void InputDisconnectedEvent(const QString &input, int element,
+										Node *output) override;
 
-  virtual rational VerifyLengthInternal(Track::Type type) const override;
+	virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 signals:
-  void TrackAdded(Track* track);
-  void TrackRemoved(Track* track);
+	void TrackAdded(Track *track);
+	void TrackRemoved(Track *track);
 
-  void SubtitlesChanged(const TimeRange &range);
+	void SubtitlesChanged(const TimeRange &range);
 
 private:
-  QVector<TrackList*> track_lists_;
+	QVector<TrackList *> track_lists_;
 
-  QVector<Track*> track_cache_;
+	QVector<Track *> track_cache_;
 
 private slots:
-  void UpdateTrackCache();
-
+	void UpdateTrackCache();
 };
 
 }

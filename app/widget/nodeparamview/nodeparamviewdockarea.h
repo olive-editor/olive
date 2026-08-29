@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,20 +24,20 @@
 
 #include <QMainWindow>
 
-namespace olive {
+namespace olive
+{
 
 // This may look weird, but QMainWindow is just a QWidget with a fancy layout that allows
 // for docking QDockWidgets
-class NodeParamViewDockArea : public QMainWindow
-{
-  Q_OBJECT
+class NodeParamViewDockArea : public QMainWindow {
+	Q_OBJECT
 public:
-  explicit NodeParamViewDockArea(QWidget *parent = nullptr);
+	explicit NodeParamViewDockArea(QWidget *parent = nullptr);
 
-  virtual QMenu *createPopupMenu() override;
+	virtual QMenu *createPopupMenu() override;
 
-  void AddItem(QDockWidget *item);
-
+	void AddItem(QDockWidget *item);
+	void RemoveItem(QDockWidget *item);
 };
 
 }

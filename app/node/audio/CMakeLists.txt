@@ -18,6 +18,6 @@ add_subdirectory(pan)
 add_subdirectory(volume)
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        PARENT_SCOPE
 )

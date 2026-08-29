@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/keying/despill/despill.h
-  node/keying/despill/despill.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/keying/despill/despill.h
+        node/keying/despill/despill.cpp
+        PARENT_SCOPE
 )

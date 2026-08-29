@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -21,10 +22,9 @@
 #ifndef RANGE_H
 #define RANGE_H
 
-template <typename T>
-bool InRange(T a, T b, T range)
+template <typename T> bool InRange(T a, T b, T range)
 {
-  return (a >= b - range && a <= b + range);
+	return (a >= b - range && a <= b + range);
 }
 
 #endif // RANGE_H

@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,12 +27,14 @@
 #include <QDateTime>
 
 #include "codec/decoder.h"
+#include "codec/proxymanager.h"
 #include "footagedescription.h"
 #include "node/output/viewer/viewer.h"
 #include "render/cancelatom.h"
 #include "render/videoparams.h"
 
-namespace olive {
+namespace olive
+{
 
 /**
  * @brief A reference to an external media file with metadata in a project structure
@@ -40,40 +43,40 @@ namespace olive {
  * Footage objects store a list of Stream objects which store the majority of video/audio metadata. These streams
  * are identical to the stream data in the files.
  */
-class Footage : public ViewerOutput
-{
-  Q_OBJECT
+class Footage : public ViewerOutput {
+	Q_OBJECT
 public:
-  /**
+	/**
    * @brief Footage Constructor
    */
-  Footage(const QString& filename = QString());
+	Footage(const QString &filename = QString());
 
-  NODE_DEFAULT_FUNCTIONS(Footage)
+	NODE_DEFAULT_FUNCTIONS(Footage)
 
-  virtual QString Name() const override
-  {
-    return tr("Media");
-  }
+	virtual QString Name() const override
+	{
+		return tr("Media");
+	}
 
-  virtual QString id() const override
-  {
-    return QStringLiteral("org.olivevideoeditor.Olive.footage");
-  }
+	virtual QString id() const override
+	{
+		return QStringLiteral("org.olivevideoeditor.Olive.footage");
+	}
 
-  virtual QVector<CategoryID> Category() const override
-  {
-    return {kCategoryProject};
-  }
+	virtual QVector<CategoryID> Category() const override
+	{
+		return { kCategoryProject };
+	}
 
-  virtual QString Description() const override
-  {
-    return tr("Import video, audio, or still image files into the composition.");
-  }
+	virtual QString Description() const override
+	{
+		return tr(
+			"Import video, audio, or still image files into the composition.");
+	}
 
-  virtual void Retranslate() override;
+	virtual void Retranslate() override;
 
-  /**
+	/**
    * @brief Reset Footage state ready for running through Probe() again
    *
    * If a Footage object needs to be re-probed (e.g. source file changes or Footage is linked to a new file), its
@@ -83,24 +86,24 @@ public:
    * In most cases, you'll be using olive::ProbeMedia() for re-probing which already runs Clear(), so you won't need
    * to worry about this.
    */
-  void Clear();
+	void Clear();
 
-  bool IsValid() const
-  {
-    return valid_;
-  }
+	bool IsValid() const
+	{
+		return valid_;
+	}
 
-  /**
+	/**
    * @brief Sets this footage to valid and ready to use
    */
-  void SetValid();
+	void SetValid();
 
-  /**
+	/**
    * @brief Return the current filename of this Footage object
    */
-  QString filename() const;
+	QString filename() const;
 
-  /**
+	/**
    * @brief Set the filename
    *
    * NOTE: This does not automtaically clear the old streams and re-probe for new ones. If the file link has been
@@ -110,17 +113,17 @@ public:
    *
    * New filename
    */
-  void set_filename(const QString& s);
+	void set_filename(const QString &s);
 
-  /**
+	/**
    * @brief Retrieve the last modified time/date
    *
    * The file's last modified timestamp is stored for potential organization in the ProjectExplorer. It can be
    * retrieved here.
    */
-  const qint64 &timestamp() const;
+	const qint64 &timestamp() const;
 
-  /**
+	/**
    * @brief Set the last modified time/date
    *
    * This should probably only be done on import or replace.
@@ -129,89 +132,212 @@ public:
    *
    * New last modified time/date
    */
-  void set_timestamp(const qint64 &t);
+	void set_timestamp(const qint64 &t);
 
-  void SetCancelPointer(CancelAtom *c)
-  {
-    cancelled_ = c;
-  }
+	void SetCancelPointer(CancelAtom *c)
+	{
+		cancelled_ = c;
+	}
 
-  int GetStreamIndex(Track::Type type, int index) const;
-  int GetStreamIndex(const Track::Reference& ref) const
-  {
-    return GetStreamIndex(ref.type(), ref.index());
-  }
+	int GetStreamIndex(Track::Type type, int index) const;
+	int GetStreamIndex(const Track::Reference &ref) const
+	{
+		return GetStreamIndex(ref.type(), ref.index());
+	}
 
-  Track::Reference GetReferenceFromRealIndex(int real_index) const;
+	Track::Reference GetReferenceFromRealIndex(int real_index) const;
 
-  /**
+	/**
    * @brief Get the Decoder ID set when this Footage was probed
    *
    * @return
    *
    * A decoder ID
    */
-  const QString& decoder() const;
+	const QString &decoder() const;
 
-  static QString DescribeVideoStream(const VideoParams& params);
-  static QString DescribeAudioStream(const AudioParams& params);
-  static QString DescribeSubtitleStream(const SubtitleParams& params);
+	bool HasSourceStartTime() const
+	{
+		return has_source_start_time_;
+	}
 
-  virtual void Value(const NodeValueRow& value, const NodeGlobals &globals, NodeValueTable *table) const override;
+	const rational &source_start_time() const
+	{
+		return source_start_time_;
+	}
 
-  static QString GetStreamTypeName(Track::Type type);
+	const QString &source_start_time_source() const
+	{
+		return source_start_time_source_;
+	}
 
-  virtual Node *GetConnectedTextureOutput() override;
+	void SetSourceStartTime(const rational &time, const QString &source);
 
-  virtual Node *GetConnectedSampleOutput() override;
+	/**
+	 * @brief Removes any source start time (auto-detected or manual)
+	 */
+	void ClearSourceStartTime();
 
-  static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode, const rational& length, VideoParams::Type type, const rational &timebase);
+	bool proxy_enabled() const
+	{
+		return proxy_enabled_;
+	}
 
-  virtual QVariant data(const DataType &d) const override;
+	void set_proxy_enabled(bool enabled);
 
-  virtual int GetTotalStreamCount() const override { return total_stream_count_; }
+	const QString &proxy_path() const
+	{
+		return proxy_path_;
+	}
 
-  virtual bool LoadCustom(QXmlStreamReader *reader, SerializedData *data) override;
-  virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+	int proxy_video_stream_index() const
+	{
+		return proxy_video_stream_index_;
+	}
 
-  static const QString kFilenameInput;
+	int proxy_preset_version() const
+	{
+		return proxy_preset_version_;
+	}
 
-  virtual void AddedToGraphEvent(Project *p)  override;
-  virtual void RemovedFromGraphEvent(Project *p) override;
+	ProxyManager::ProxyState proxy_state() const
+	{
+		return proxy_state_;
+	}
+
+	void SetProxy(const QString &path, ProxyManager::ProxyState state,
+				  int video_stream_index, int preset_version, bool enabled);
+
+	void ClearProxy();
+
+	/**
+	 * @brief Returns true if this footage uses its own proxy parameters
+	 * instead of the global proxy settings
+	 */
+	bool has_custom_proxy_params() const
+	{
+		return has_custom_proxy_params_;
+	}
+
+	const ProxyManager::ProxyParams &custom_proxy_params() const
+	{
+		return custom_proxy_params_;
+	}
+
+	/**
+	 * @brief Sets per-footage proxy parameters, overriding the global settings
+	 */
+	void SetCustomProxyParams(const ProxyManager::ProxyParams &params);
+
+	/**
+	 * @brief Reverts this footage to using the global proxy settings
+	 */
+	void ClearCustomProxyParams();
+
+	/**
+	 * @brief Returns the custom proxy parameters if set, otherwise the
+	 * parameters from the global application config
+	 */
+	ProxyManager::ProxyParams GetEffectiveProxyParams() const;
+
+	static QString DescribeVideoStream(const VideoParams &params);
+	static QString DescribeAudioStream(const AudioParams &params);
+	static QString DescribeSubtitleStream(const SubtitleParams &params);
+
+	virtual void Value(const NodeValueRow &value, const NodeGlobals &globals,
+					   NodeValueTable *table) const override;
+
+	static QString GetStreamTypeName(Track::Type type);
+
+	virtual Node *GetConnectedTextureOutput() override;
+
+	virtual Node *GetConnectedSampleOutput() override;
+
+	static rational AdjustTimeByLoopMode(rational time, LoopMode loop_mode,
+										 const rational &length,
+										 VideoParams::Type type,
+										 const rational &timebase);
+
+	virtual QVariant data(const DataType &d) const override;
+
+	virtual int GetTotalStreamCount() const override
+	{
+		return total_stream_count_;
+	}
+
+	virtual bool LoadCustom(QXmlStreamReader *reader,
+							SerializedData *data) override;
+	virtual void SaveCustom(QXmlStreamWriter *writer) const override;
+
+signals:
+	void ProxySettingsChanged();
+
+public:
+	static const QString kFilenameInput;
+
+	virtual void AddedToGraphEvent(Project *p) override;
+	virtual void RemovedFromGraphEvent(Project *p) override;
 
 protected:
-  virtual void InputValueChangedEvent(const QString &input, int element) override;
+	virtual void InputValueChangedEvent(const QString &input,
+										int element) override;
 
-  virtual rational VerifyLengthInternal(Track::Type type) const override;
+	virtual rational VerifyLengthInternal(Track::Type type) const override;
 
 private:
-  QString GetColorspaceToUse(const VideoParams& params) const;
+	QString GetColorspaceToUse(const VideoParams &params) const;
 
-  void Reprobe();
+	void Reprobe();
 
-  VideoParams MergeVideoStream(const VideoParams &base, const VideoParams &over);
+	VideoParams MergeVideoStream(const VideoParams &base,
+								 const VideoParams &over);
 
-  /**
+	/**
    * @brief Internal timestamp object
    */
-  qint64 timestamp_;
+	qint64 timestamp_;
 
-  /**
+	/**
    * @brief Internal attached decoder ID
    */
-  QString decoder_;
+	QString decoder_;
 
-  bool valid_;
+	rational source_start_time_;
 
-  CancelAtom *cancelled_;
+	QString source_start_time_source_;
 
-  int total_stream_count_;
+	bool has_source_start_time_;
+
+	bool proxy_enabled_;
+
+	QString proxy_path_;
+
+	ProxyManager::ProxyState proxy_state_;
+
+	int proxy_video_stream_index_;
+
+	int proxy_preset_version_;
+
+	bool has_custom_proxy_params_;
+
+	ProxyManager::ProxyParams custom_proxy_params_;
+
+	bool valid_;
+
+	CancelAtom *cancelled_;
+
+	int total_stream_count_;
 
 private slots:
-  void CheckFootage();
+	void CheckFootage();
 
-  void DefaultColorSpaceChanged();
+	void DefaultColorSpaceChanged();
 
+	void ProxyReady(const QString &source_filename, int stream_index,
+					const QString &proxy_filename);
+	void ProxyFinished(const QString &source_filename, int stream_index,
+					   const QString &proxy_filename,
+					   ProxyManager::ProxyState state);
 };
 
 }

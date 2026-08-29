@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -24,18 +25,22 @@
 #include "node/nodeundo.h"
 #include "rolling.h"
 
-namespace olive {
-
-RollingTool::RollingTool(TimelineWidget* parent) :
-  PointerTool(parent)
+namespace olive
 {
-  SetMovementAllowed(false);
-  SetGapTrimmingAllowed(true);
+
+RollingTool::RollingTool(TimelineWidget *parent)
+	: PointerTool(parent)
+{
+	SetMovementAllowed(false);
+	SetGapTrimmingAllowed(true);
 }
 
-void RollingTool::InitiateDrag(Block *clicked_item, Timeline::MovementMode trim_mode, Qt::KeyboardModifiers modifiers)
+void RollingTool::InitiateDrag(Block *clicked_item,
+							   Timeline::MovementMode trim_mode,
+							   Qt::KeyboardModifiers modifiers)
 {
-  InitiateDragInternal(clicked_item, trim_mode, modifiers, false, true, false);
+	InitiateDragInternal(clicked_item, trim_mode, modifiers, false, true,
+						 false);
 }
 
 }

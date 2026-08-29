@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>org.oakvideoeditor.Oak</id>
+  <name>Oak Video Editor</name>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <developer id="org.oakvideoeditor"><name>Oak Video Editor Team</name></developer>
+  <launchable type="desktop-id">org.oakvideoeditor.Oak.desktop</launchable>
+  <summary>Non-linear video editor</summary>
+  <summary xml:lang="de_DE">Nicht-lineares Videoschnittprogramm</summary>
+  <summary xml:lang="pt_BR">Editor de vídeo não-linear</summary>
+  <summary xml:lang="es">Editor de video no lineal</summary>
+  <summary xml:lang="it">Editor video non lineare</summary>
+  <summary xml:lang="ru">Нелинейный видеоредактор</summary>
+  <summary xml:lang="uk">Нелінійний відеоредактор</summary>
+  <summary xml:lang="uk_UA">Нелінійний відеоредактор</summary>
+  <summary xml:lang="id">Aplikasi edit video non-linier</summary>
+  <summary xml:lang="fr">Éditeur vidéo non-linéaire</summary>
+  <description>
+    <p>Oak Video Editor is a free non-linear video editor aiming to provide a fully-featured alternative to high-end professional video editing software. It is a community fork of Olive Video Editor.</p>
+    <p xml:lang="de_DE">Oak Video Editor ist ein freies nicht-lineares Videoschnittprogramm, welches eine vollwertige Alternative zu High-End Videoschnittprogrammen darstellen soll. Es ist ein Community-Fork von Olive Video Editor.</p>
+    <p xml:lang="pt_BR">Oak Video Editor é um editor de vídeo não-linear com o objetivo de fornecer uma alternativa completa para softwares profissionais de edição de vídeo. É um fork comunitário do Olive Video Editor.</p>
+    <p xml:lang="es">Oak Video Editor es un editor de video no lineal libre que apunta a brindar una alternativa completa al software de edición de video profesional. Es un fork de la comunidad del Olive Video Editor.</p>
+    <p xml:lang="it">Oak Video Editor è un programma di montaggio video che mira a fornire una alternativa di alta qualità ai software professionali. È un fork della comunità di Olive Video Editor.</p>
+    <p xml:lang="ru">Oak Video Editor — свободный нелинейный видеоредактор, задуманный как полноценная замена закрытым коммерческим продуктам. Это форк сообщества Olive Video Editor.</p>
+    <p xml:lang="uk">Oak Video Editor — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам. Це форк спільноти Olive Video Editor.</p>
+    <p xml:lang="uk_UA">Oak Video Editor — вільний нелінійний відеоредактор, задуманий як повноцінна заміна закритим комерційним продуктам. Це форк спільноти Olive Video Editor.</p>
+    <p xml:lang="id">Oak Video Editor adalah aplikasi edit video bersifat non-linier yang bebas dan gratis, bertujuan untuk memberikan alternatif yang lengkap untuk aplikasi edit video profesional. Ini adalah fork komunitas dari Olive Video Editor.</p>
+    <p xml:lang="fr">Oak Video Editor est un éditeur vidéo non linéaire libre visant à fournir une alternative complète aux logiciels de montage vidéo professionnels haut de gamme. Il s'agit d'un fork communautaire d'Olive Video Editor.</p>
+  </description>
+  <url type="homepage">https://github.com/OakVideoEditorCommunity/oak</url>
+  <url type="bugtracker">https://github.com/OakVideoEditorCommunity/oak/issues</url>
+  <screenshots>
+    <screenshot type="default"><image>https://olivevideoeditor.org/img/screenshot.1600.jpg</image></screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="@APPDATA_RELEASE_VERSION@" date="@APPDATA_RELEASE_DATE@"/>
+  </releases>
+</component>

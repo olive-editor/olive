@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -26,72 +27,72 @@
 #include "node/node.h"
 #include "node/param.h"
 
-namespace olive {
+namespace olive
+{
 
 class KeyframeView;
 
-class KeyframeViewInputConnection : public QObject
-{
-  Q_OBJECT
+class KeyframeViewInputConnection : public QObject {
+	Q_OBJECT
 public:
-  KeyframeViewInputConnection(const NodeKeyframeTrackReference &input, KeyframeView *parent);
+	KeyframeViewInputConnection(const NodeKeyframeTrackReference &input,
+								KeyframeView *parent);
 
-  const int &GetKeyframeY() const
-  {
-    return y_;
-  }
+	const int &GetKeyframeY() const
+	{
+		return y_;
+	}
 
-  void SetKeyframeY(int y);
+	void SetKeyframeY(int y);
 
-  enum YBehavior {
-    kSingleRow,
-    kValueIsHeight
-  };
+	enum YBehavior { kSingleRow, kValueIsHeight };
 
-  void SetYBehavior(YBehavior e);
+	void SetYBehavior(YBehavior e);
 
-  const QVector<NodeKeyframe*> &GetKeyframes() const
-  {
-    return input_.input().node()->GetKeyframeTracks(input_.input()).at(input_.track());
-  }
+	const QVector<NodeKeyframe *> &GetKeyframes() const
+	{
+		return input_.input()
+			.node()
+			->GetKeyframeTracks(input_.input())
+			.at(input_.track());
+	}
 
-  const QBrush &GetBrush() const
-  {
-    return brush_;
-  }
+	const QBrush &GetBrush() const
+	{
+		return brush_;
+	}
 
-  const NodeKeyframeTrackReference &GetReference() const
-  {
-    return input_;
-  }
+	const NodeKeyframeTrackReference &GetReference() const
+	{
+		return input_;
+	}
 
-  void SetBrush(const QBrush &brush);
+	void SetBrush(const QBrush &brush);
 
 signals:
-  void RequireUpdate();
+	void RequireUpdate();
 
-  void TypeChanged();
+	void TypeChanged();
 
 private:
-  KeyframeView *keyframe_view_;
+	KeyframeView *keyframe_view_;
 
-  NodeKeyframeTrackReference input_;
+	NodeKeyframeTrackReference input_;
 
-  int y_;
+	int y_;
 
-  YBehavior y_behavior_;
+	YBehavior y_behavior_;
 
-  QBrush brush_;
+	QBrush brush_;
 
 private slots:
-  void AddKeyframe(NodeKeyframe *key);
+	void AddKeyframe(NodeKeyframe *key);
 
-  void RemoveKeyframe(NodeKeyframe *key);
+	void RemoveKeyframe(NodeKeyframe *key);
 
-  void KeyframeChanged(NodeKeyframe *key);
+	void KeyframeChanged(NodeKeyframe *key);
 
-  void KeyframeTypeChanged(NodeKeyframe *key);
-
+	void KeyframeTypeChanged(NodeKeyframe *key);
 };
 
 }

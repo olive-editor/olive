@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -23,23 +24,23 @@
 
 #include "codec/encoder.h"
 
-namespace olive {
-
-class OIIOEncoder : public Encoder
+namespace olive
 {
-  Q_OBJECT
+
+class OIIOEncoder : public Encoder {
+	Q_OBJECT
 public:
-  OIIOEncoder(const EncodingParams &params);
+	OIIOEncoder(const EncodingParams &params);
 
 public slots:
-  virtual bool Open() override;
+	virtual bool Open() override;
 
-  virtual bool WriteFrame(olive::FramePtr frame, olive::core::rational time) override;
-  virtual bool WriteAudio(const SampleBuffer &audio) override;
-  virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
+	virtual bool WriteFrame(olive::FramePtr frame,
+							olive::core::rational time) override;
+	virtual bool WriteAudio(const SampleBuffer &audio) override;
+	virtual bool WriteSubtitle(const SubtitleBlock *sub_block) override;
 
-  virtual void Close() override;
-
+	virtual void Close() override;
 };
 
 }

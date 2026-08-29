@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -27,42 +28,39 @@
 
 #include "widget/colorwheel/colorpreviewbox.h"
 
-namespace olive {
-
-class PixelSamplerWidget : public QGroupBox
+namespace olive
 {
-  Q_OBJECT
+
+class PixelSamplerWidget : public QGroupBox {
+	Q_OBJECT
 public:
-  PixelSamplerWidget(QWidget* parent = nullptr);
+	PixelSamplerWidget(QWidget *parent = nullptr);
 
 public slots:
-  void SetValues(const Color& color);
+	void SetValues(const Color &color);
 
 private:
-  void UpdateLabelInternal();
+	void UpdateLabelInternal();
 
-  Color color_;
+	Color color_;
 
-  ColorPreviewBox *box_;
+	ColorPreviewBox *box_;
 
-  QLabel* label_;
-
+	QLabel *label_;
 };
 
-class ManagedPixelSamplerWidget : public QWidget
-{
-  Q_OBJECT
+class ManagedPixelSamplerWidget : public QWidget {
+	Q_OBJECT
 public:
-  ManagedPixelSamplerWidget(QWidget* parent = nullptr);
+	ManagedPixelSamplerWidget(QWidget *parent = nullptr);
 
 public slots:
-  void SetValues(const Color& reference, const Color& display);
+	void SetValues(const Color &reference, const Color &display);
 
 private:
-  PixelSamplerWidget* reference_view_;
+	PixelSamplerWidget *reference_view_;
 
-  PixelSamplerWidget* display_view_;
-
+	PixelSamplerWidget *display_view_;
 };
 
 }

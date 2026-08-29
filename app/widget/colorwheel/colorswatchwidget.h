@@ -2,6 +2,7 @@
 
   Olive - Non-Linear Video Editor
   Copyright (C) 2022 Olive Team
+  Modifications Copyright (C) 2025 mikesolar
 
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -25,46 +26,46 @@
 
 #include "render/colorprocessor.h"
 
-namespace olive {
-
-class ColorSwatchWidget : public QWidget
+namespace olive
 {
-  Q_OBJECT
+
+class ColorSwatchWidget : public QWidget {
+	Q_OBJECT
 public:
-  ColorSwatchWidget(QWidget* parent = nullptr);
+	ColorSwatchWidget(QWidget *parent = nullptr);
 
-  const Color& GetSelectedColor() const;
+	const Color &GetSelectedColor() const;
 
-  void SetColorProcessor(ColorProcessorPtr to_linear, ColorProcessorPtr to_display);
+	void SetColorProcessor(ColorProcessorPtr to_linear,
+						   ColorProcessorPtr to_display);
 
 public slots:
-  void SetSelectedColor(const Color& c);
+	void SetSelectedColor(const Color &c);
 
 signals:
-  void SelectedColorChanged(const Color& c);
+	void SelectedColorChanged(const Color &c);
 
 protected:
-  virtual void mousePressEvent(QMouseEvent* e) override;
+	virtual void mousePressEvent(QMouseEvent *e) override;
 
-  virtual void mouseMoveEvent(QMouseEvent* e) override;
+	virtual void mouseMoveEvent(QMouseEvent *e) override;
 
-  virtual Color GetColorFromScreenPos(const QPoint& p) const = 0;
+	virtual Color GetColorFromScreenPos(const QPoint &p) const = 0;
 
-  virtual void SelectedColorChangedEvent(const Color& c, bool external);
+	virtual void SelectedColorChangedEvent(const Color &c, bool external);
 
-  Qt::GlobalColor GetUISelectorColor() const;
+	Qt::GlobalColor GetUISelectorColor() const;
 
-  Color GetManagedColor(const Color& input) const;
+	Color GetManagedColor(const Color &input) const;
 
 private:
-  void SetSelectedColorInternal(const Color& c, bool external);
+	void SetSelectedColorInternal(const Color &c, bool external);
 
-  Color selected_color_;
+	Color selected_color_;
 
-  ColorProcessorPtr to_linear_processor_;
+	ColorProcessorPtr to_linear_processor_;
 
-  ColorProcessorPtr to_display_processor_;
-
+	ColorProcessorPtr to_display_processor_;
 };
 
 }

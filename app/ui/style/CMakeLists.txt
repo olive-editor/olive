@@ -18,13 +18,13 @@ add_subdirectory(olive-dark)
 add_subdirectory(olive-light)
 
 set(OLIVE_RESOURCES
-  ${OLIVE_RESOURCES}
-  PARENT_SCOPE
+        ${OLIVE_RESOURCES}
+        PARENT_SCOPE
 )
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  ui/style/style.h
-  ui/style/style.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        ui/style/style.h
+        ui/style/style.cpp
+        PARENT_SCOPE
 )

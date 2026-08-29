@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 set(OLIVE_SOURCES
-  ${OLIVE_SOURCES}
-  node/audio/pan/pan.h
-  node/audio/pan/pan.cpp
-  PARENT_SCOPE
+        ${OLIVE_SOURCES}
+        node/audio/pan/pan.h
+        node/audio/pan/pan.cpp
+        PARENT_SCOPE
 )
